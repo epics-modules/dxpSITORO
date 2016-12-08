@@ -1,5 +1,6 @@
 TOP = ..
 include $(TOP)/configure/CONFIG
+
 DIRS += sincSrc
 
 DIRS += handelSrc
