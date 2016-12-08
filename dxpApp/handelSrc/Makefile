@@ -9,6 +9,12 @@ include $(TOP)/configure/CONFIG
 # build a support library
 
 INC += handel.h
+INC += xia_common.h
+INC += handeldef.h
+INC += handel_errors.h
+INC += handel_constants.h
+INC += handel_generic.h
+INC += md_generic.h
 
 USR_CFLAGS_Linux += -std=c99 
 USR_CFLAGS_WIN32 += -DWIN32 
