@@ -13,35 +13,35 @@ INC += handel.h
 USR_CFLAGS_Linux += -std=c99 
 USR_CFLAGS_WIN32 += -DWIN32 
 
-# This application can be built on Linux (EPP, USB) WIN32 (EPP, USB, PXI), and vxWorks (CAMAC)
 LIBRARY_IOC_Linux    += handel
 LIBRARY_IOC_WIN32    += handel
 
+handel_SRCS += handel.c
+handel_SRCS += handel_detchan.c
+handel_SRCS += handel_dyn_detector.c
+handel_SRCS += handel_dyn_module.c
+handel_SRCS += handel_file.c
+handel_SRCS += handel_run_params.c
+handel_SRCS += handel_system.c
+handel_SRCS += handel_dbg.c
+handel_SRCS += handel_dyn_default.c
+handel_SRCS += handel_dyn_firmware.c
+handel_SRCS += handel_fdd_shim.c
+handel_SRCS += handel_log.c
+handel_SRCS += handel_run_control.c
+handel_SRCS += handel_sort.c
+handel_SRCS += xia_assert.c
+handel_SRCS += xia_file.c
+handel_SRCS += md_shim.c
 handel_SRCS += falconx_mm.c
 handel_SRCS += falconx_psl.c
 handel_SRCS += falconxn_psl.c
-handel_SRCS += handel.c
-handel_SRCS += handel_dbg.c
-handel_SRCS += handel_detchan.c
-handel_SRCS += handel_dyn_default.c
-handel_SRCS += handel_dyn_detector.c
-handel_SRCS += handel_dyn_firmware.c
-handel_SRCS += handel_dyn_module.c
-handel_SRCS += handel_fdd_shim.c
-handel_SRCS += handel_file.c
-handel_SRCS += handel_log.c
 #handel_SRCS += handel_md_shim.c
+handel_SRCS += psl.c
+
+handel_SRCS_Linux += sitoro-stub.c
 handel_SRCS_Linux += handel_md_threads_posix.c
 handel_SRCS_WIN32 += handel_md_threads_windows.c
-handel_SRCS += handel_run_control.c
-handel_SRCS += handel_run_params.c
-handel_SRCS += handel_sort.c
-handel_SRCS += handel_system.c
-handel_SRCS += md_shim.c
-handel_SRCS += psl.c
-#handel_SRCS += sitoro-stub.c
-handel_SRCS += xia_assert.c
-handel_SRCS += xia_file.c
 
 handel_SYS_LIBS_WIN32    += setupapi User32
 handel_SYS_LIBS_cygwin32 += setupapi User32
