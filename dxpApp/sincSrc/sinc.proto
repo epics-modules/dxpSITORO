@@ -1,0 +1,725 @@
+package SiToro.Sinc;
+
+// Lightweight runtime for the embedded system.
+option optimize_for = LITE_RUNTIME;
+
+
+// Error codes.
+enum ErrorCode {
+    NO_ERROR = 0;
+    OUT_OF_MEMORY = 10000;
+    UNIMPLEMENTED = 10001;
+    NOT_FOUND = 10002;
+    BAD_PARAMETERS = 10003;
+    HOST_NOT_FOUND = 10004;
+    OUT_OF_RESOURCES = 10005;
+    CONNECTION_FAILED = 10006;
+    READ_FAILED = 10007;
+    WRITE_FAILED = 10008;
+    COMMAND_FAILED = 10009;
+    SOCKET_CLOSED_UNEXPECTEDLY = 10010;
+    TIMEOUT = 10011;
+    HOST_UNREACHABLE = 10012;
+    AUTHORIZATION_FAILED = 10013;
+    DEVICE_ERROR = 10014;                  // A generic unexpected device error.
+    INVALID_REQUEST = 10015;               // Used for corrupted request packets.
+    NON_GATED_HISTOGRAM_DISABLED = 10016;  // Operation halted because instrument has switched to histogram gated mode.
+}
+
+// Message types.
+enum MessageType {
+    NO_MESSAGE_TYPE = 0;
+    SUCCESS_RESPONSE = 1;
+    PING_COMMAND = 2;
+    GET_PARAM_COMMAND = 3;
+    GET_PARAM_RESPONSE = 4;
+    SET_PARAM_COMMAND = 5;
+    START_HISTOGRAM_COMMAND = 8;
+    START_LIST_MODE_COMMAND = 9;
+    START_OSCILLOSCOPE_COMMAND = 10;
+    HISTOGRAM_DATA_RESPONSE = 11;
+    LIST_MODE_DATA_RESPONSE = 12;
+    OSCILLOSCOPE_DATA_RESPONSE = 13;
+    STOP_DATA_ACQUISITION_COMMAND = 14;
+    RESET_SPATIAL_SYSTEM_COMMAND = 15;
+    START_CALIBRATION_COMMAND = 16;
+    CALIBRATION_PROGRESS_RESPONSE = 17;
+    GET_CALIBRATION_COMMAND = 18;
+    GET_CALIBRATION_RESPONSE = 19;
+    SET_CALIBRATION_COMMAND = 20;
+    CALCULATE_DC_OFFSET_COMMAND = 21;
+    CALCULATE_DC_OFFSET_RESPONSE = 22;
+    CLEAR_HISTOGRAM_COMMAND = 23;
+    LIST_PARAM_DETAILS_COMMAND = 24;
+    LIST_PARAM_DETAILS_RESPONSE = 25;
+    PARAM_UPDATED_RESPONSE = 26;
+    START_FFT_COMMAND = 27;
+    RESTART_COMMAND = 28;
+    SOFTWARE_UPDATE_COMMAND = 29;
+    SOFTWARE_UPDATE_COMPLETE_RESPONSE = 30;
+    SAVE_CONFIGURATION_COMMAND = 31;
+    ASYNCHRONOUS_ERROR_RESPONSE = 32;
+    MONITOR_CHANNELS_COMMAND = 33;
+    // 34 and 35 are reserved.
+    PROBE_DATAGRAM_COMMAND = 36;
+    PROBE_DATAGRAM_RESPONSE = 37;
+    HISTOGRAM_DATAGRAM_RESPONSE = 38;
+    DOWNLOAD_CRASH_DUMP_COMMAND = 39;
+    DOWNLOAD_CRASH_DUMP_RESPONSE = 40;
+    CHECK_PARAM_CONSISTENCY_COMMAND = 41;
+    CHECK_PARAM_CONSISTENCY_RESPONSE = 42;
+}
+
+
+// Indicates whether a parameter attribute is associated with a channel, the instrument or the current connection.
+enum Subsystem
+{
+    CHANNEL = 1;
+    INSTRUMENT = 2;
+    CONNECTION = 3;
+}
+
+
+// Indicates the type of event which triggered a histogram transmission.
+enum HistogramTrigger
+{
+    REFRESH_UPDATE = 0;
+    GATE_CHANGE = 1;
+    SPATIAL_CHANGE = 2;
+    CONDITION_COMPLETE = 3;
+}
+
+
+// All responses include this section which indicates success or failure.
+// errorCode and message are only set if the command failed.
+//
+// errorCode: Error code id value.
+// message:   Error message
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message SuccessResponse {
+    optional ErrorCode       errorCode = 1;
+    optional string          message = 2;
+    optional int32           channelId = 3;
+}
+
+
+// PingCommand just requests that the server respond with a SuccessResponse.
+// verbose:   Causes a message to be displayed on the serial console.
+//            This option is only available to developers as it has
+//            performance implications.
+
+message PingCommand {
+    optional bool            verbose = 1;
+}
+
+
+// Parameters involve key/value pairs. Values can be either ints, floats, bools, strings
+// or option list values (which are represented as strings).
+//
+// Keys are of the form "someSection.someItem" and can be multiple levels deep.
+//
+// The system is designed to be as tolerant and helpful as possible. When sending
+// a value to the system you need only set the relevant xxxVal field. The
+// system will infer the type based on which field was set. If the system wants
+// an int but all you have is a string of the value, just set the strVal and
+// the system will do the conversion for you. The field paramType is ignored
+// by the system for received values.
+//
+// Values sent from the system to you will have both the correct xxxVal set
+// and strVal will also be set with a string version of the value. paramType
+// will also be set.
+
+message KeyValue {
+
+    enum ParamType {
+        NO_TYPE = 0;
+        INT_TYPE = 1;
+        FLOAT_TYPE = 2;
+        BOOL_TYPE = 3;
+        STRING_TYPE = 4;
+        OPTION_TYPE = 5;
+    }
+
+    required string          key = 1;
+    optional int32           channelId = 8;   // If specified, indicates which channel to use,
+                                              // otherwise defaults to channel 0.
+
+    optional int64           intVal = 2;      // One of these will be set depending on the type.
+    optional double          floatVal = 3;
+    optional bool            boolVal = 4;
+    optional string          strVal = 5;      // strVal is always set in responses from the instrument with a string form of the value.
+    optional string          optionVal = 6;
+
+    optional ParamType       paramType = 7;   // The type of the parameter. This will reflect which one of the xxxVal fields is set.
+                                              // There's no need to set this yourself - it's only informational.
+}
+
+
+// GetParamCommand requests the value of a parameter. This can be a user parameter such as
+// "afe.analogGain" or it can be a system value like "channel.state". It results in a
+// single GetParamResponse.
+//
+// key:              Key for parameter value to get.
+// channelId:        If specified, indicates which channel to use,
+//                   otherwise defaults to channel 0.
+
+message GetParamCommand {
+    optional string          key = 1;
+    optional int32           channelId = 2;
+    repeated KeyValue        chanKeys = 3; // for fetching multiple params - not implemented yet.
+}
+
+
+// GetParamResponse is the response to a GetParamCommand. It returns the requested
+// key and its value.
+//
+// success: The return of a success or failure for the GetParamResponse.
+// results: The requested value.
+
+message GetParamResponse {
+    required SuccessResponse success = 1;
+    repeated KeyValue        results = 2;
+    optional int32           channelId = 3;
+}
+
+
+// ParamUpdatedResponse occurs asynchronously when a parameter is updated
+// It contains the key and its new value.
+//
+// results: The changed value.
+
+message ParamUpdatedResponse {
+    repeated KeyValue        params = 1;
+    optional int32           channelId = 2;
+}
+
+
+// SetParamCommand sets the value of a user parameter. It results in a SuccessResponse.
+//
+// param:  A single Key value for parameter to be set.
+// params: Multiple Key values to be set if multiple are needed.
+
+message SetParamCommand {
+    optional KeyValue        param = 1;      // deprecated.
+    optional int32           channelId = 2;
+    repeated KeyValue        params = 3;
+}
+
+
+// Modes that we can run the histogram in.
+
+enum SiToro_HistogramMode {
+    SiToro_HistogramMode_Continuous = 0;
+    SiToro_HistogramMode_FixedTime = 1;
+    SiToro_HistogramMode_FixedInputCount = 2;
+    SiToro_HistogramMode_FixedOutputCount = 3;
+    SiToro_HistogramMode_MovingAverage = 4;
+    SiToro_HistogramMode_Gated = 5;
+    SiToro_HistogramMode_Spatial = 6;
+}
+
+
+// StartHistogramCommand starts the histogram running. It results in a SuccessResponse.
+// HistogramDataResponse messages will then start arriving periodically.
+//
+// channelId:                If specified, indicates which channel to use,
+//                           otherwise defaults to channel 0.
+//
+// DEPRECATED -
+// reserved:                 Set this field to 0.
+// numBins:                  Number of energy bins in the returned spectrum.
+// mode:                     Histogram operation mode.
+// target:                   Dependant on capture mode, sets the conditions for collection
+//                           operation.
+// spectrumSelectionMask:    Mask to select between or both of the accepted and rejected
+//                           spectrums.
+// binSubRegionLowBinIndex:  The start bin index of a defined sub region, providing control
+//                           over the size of the returned spectrum.
+// binSubRegionHighBinIndex: The end bin index of a defined sub region, providing control
+//                           over the size of the returned spectrum.
+// refreshRate:              The data refresh rate of all histogram operation modes except
+//                           gated.
+// sendDataResults:          Flag to run instrument without sending data.
+// option:                   An optional set of requested histogram options.
+//                           None are currently defined.
+
+message StartHistogramCommand {
+    required uint32          reserved = 1; // Set to 0.
+    optional uint32          numBins = 12; // Deprecated.
+    optional SiToro_HistogramMode mode = 2; // Deprecated.
+    optional uint32          target = 4; // Deprecated.
+    optional uint32          spectrumSelectionMask = 5; // Deprecated.
+    optional uint32          binSubRegionLowBinIndex = 6; // Deprecated.
+    optional uint32          binSubRegionHighBinIndex = 7; // Deprecated.
+    optional uint32          refreshRate = 8; // Deprecated.
+    optional bool            sendDataResults = 9; // Deprecated.
+    repeated string          option = 10; // Deprecated.
+    optional int32           channelId = 11;
+}
+
+
+// StartListModeCommand starts list mode running. It results in a SuccessResponse.
+// ListModeDataResponse messages will then start arriving periodically.
+// channelId:      If specified, indicates which channel to use,
+//                 otherwise defaults to channel 0.
+
+message StartListModeCommand {
+    optional int32           channelId = 1;
+}
+
+
+// StartOscilloscopeCommand starts the oscilloscope running. It results in a SuccessResponse.
+// OscilloscopeDataResponse messages will then start arriving periodically.
+//
+// reserved:        Set this field to 0.
+// channelId:       If specified, indicates which channel to use,
+//                  otherwise defaults to channel 0.
+//
+// DEPRECATED -
+// samples:         Sample size of the oscilloscope data capture.
+// runContinuously: Boolean to set continuous oscilloscope running.
+// sendDataResults: Flag to run instrument without sending data.
+// option:          An optional set of requested oscilloscope options.
+//                  None are currently defined.
+
+message StartOscilloscopeCommand {
+    required uint32          reserved = 1;
+    optional uint32          samples = 6;
+    optional bool            runContinuously = 2;
+    optional bool            sendDataResults = 3;
+    repeated string          option = 4;
+    optional int32           channelId = 5;
+}
+
+
+// HistogramDataResponse messages arrive asynchronously, periodically after a
+// StartHistogramCommand.
+//
+// dataSetId:                id number for the returned histogram.
+// timeElapsed:              The elapsed time since commencement of histogram
+//                           capture with StartHistogramCommand.
+// samplesDetected:          Total number of samples per spectrum.
+// samplesErased:            Total number of samples unusable due to saturation.
+// pulsesAccepted:           Number of accepted pulses.
+// pulsesRejected:           Number of rejected pulses.
+// inputCountRate:           Statistics of the input count rate.
+// outputCountRate:          Statistics of output count rate.
+// deadTimePercent:          Percentage value of system dead time.
+// gateState:                Indicator for the current gate state.
+// spectrumSelectionMask:    Mask to select between or both of the accepted and
+//                           rejected spectrums, should match that sent in
+//                           StartHistogramCommand.
+// binSubRegionLowBinIndex:  The start bin index of a defined sub region, providing
+//                           control over the size of the returned spectrum, should
+//                           match that sent in StartHistogramCommand.
+// binSubRegionHighBinIndex: The end bin index of a defined sub region, providing control
+//                           over the size of the returned spectrum, should match that sent
+//                           in StartHistogramCommand.
+// refreshRate:              The data refresh rate of all histogram operation modes except
+//                           gated, should match that sent in StartHistogramCommand.
+// plotLen:                  The number of uint32 values to immediately follow this message
+//                           for each requested plot.
+//                           The first plot is accepted data, the second is rejected data.
+// channelId:                If specified, indicates which channel it's for,
+//                           otherwise defaults to channel 0.
+// positiveRailHitCount:     [reserved for future function] The number of times the signal has hit the positive rail. 
+// negativeRailHitCount:     [reserved for future function] The number of times the signal has hit the negative rail.
+// trigger:                  What type of event caused this histogram to be produced.
+
+message HistogramDataResponse {
+    optional uint64           dataSetId = 2;
+    optional double           timeElapsed = 3;
+    optional uint64           samplesDetected = 4;
+    optional uint64           samplesErased = 5;
+    optional uint64           pulsesAccepted = 6;
+    optional uint64           pulsesRejected = 7;
+    optional double           inputCountRate = 8;
+    optional double           outputCountRate = 9;
+    optional double           deadTimePercent = 10;
+    optional uint32           gateState = 11;
+    optional uint32           spectrumSelectionMask = 12;
+    optional uint32           subRegionStartIndex = 13;
+    optional uint32           subRegionEndIndex = 14;
+    optional uint32           refreshRate = 15;
+    repeated uint32           plotLen = 16;
+    optional int32            channelId = 17;
+    optional uint32           positiveRailHitCount = 18;
+    optional uint32           negativeRailHitCount = 19;
+    optional HistogramTrigger trigger = 20;
+}
+
+
+// ListModeDataResponse messages arrive asynchronously, periodically after a
+// StartListModeCommand.
+//
+// responseCode: Response command indicating status/error.
+// dataSetId:    id value for the returned list mode data set.
+// channelId:    If specified, indicates which channel it's for,
+//               otherwise defaults to channel 0.
+
+message ListModeDataResponse {
+    optional uint64          dataSetId = 2;
+    optional int32           channelId = 4;
+    optional bool            syncMarker = 5; // internal use only.
+}
+
+
+// OscilloscopeDataResponse messages arrive asynchronously, periodically after a
+// StartOscilloscopeCommand.
+//
+// dataSetId:        id value for oscilloscope plot.
+// plotLen:          Deprecated.
+// channelId:        If specified, indicates which channel it's for,
+//                   otherwise defaults to channel 0.
+// minValueRange:    The minimum oscilloscope value allowed.
+// maxValueRange:    The maximum oscilloscope value allowed.
+// plots:            A set of plots - first = raw adc values, second = reset blanked
+// timestamp:        A timestamp of when the capture started. Not usually useful.
+// analysisMode:     An internal mode indication. Not usually useful.
+
+message OscilloscopePlot {
+    repeated sint32          val = 1;
+}
+
+message OscilloscopeDataResponse {
+    optional uint64           dataSetId = 1;
+    repeated uint32           plotLen = 2;     // deprecated.
+    optional int32            channelId = 4;
+    optional sint32           minValueRange = 5;
+    optional sint32           maxValueRange = 6;
+    repeated OscilloscopePlot plots = 7;
+    optional uint32           timestamp = 8;
+    optional bool             analysisMode = 9;
+}
+
+
+// StopDataAcquisitionCommand stops histogram, list or oscilloscope mode. It results in
+// a SuccessResponse.
+// channelId:       If specified, indicates which channel to use,
+//                  otherwise defaults to channel 0.
+// skip:            If this flag is set when stopping calibration during the optional 
+//                  optimisation phase, the calibration will skip optimization but
+//                  still return a valid result.
+
+message StopDataAcquisitionCommand {
+    optional int32           channelId = 1;
+    optional bool            skip = 2;
+}
+
+
+// ClearHistogramCommand clears the histogram. It results in a SuccessResponse.
+// channelId:       If specified, indicates which channel to use,
+//                  otherwise defaults to channel 0.
+
+message ClearHistogramCommand {
+    optional int32           channelId = 1;
+}
+
+
+// ResetSpatialSystemCommand resets the spatial system. It results in a SuccessResponse.
+
+message ResetSpatialSystemCommand {
+}
+
+
+// StartCalibration initiates the calibration process. It results in a SuccessResponse
+// and then progress reports from CalibrationProgress culminating in a 100% complete
+// CalibrationProgress, at which time data can be acquired using GetCalibrationCommand.
+// channelId:       If specified, indicates which channel to use,
+//                  otherwise defaults to channel 0.
+
+message StartCalibrationCommand {
+    optional int32           channelId = 1;
+}
+
+// CalibrationProgressResponse returns the progress and succes or failure of calibration.
+//
+// success:   Outcome response of calibration process
+// progress:  Progress of calibration routine in percent.
+// complete:  true when calibration is complete.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+// skippable: Set to true if the remaining calibration can be skipped.
+
+message CalibrationProgressResponse {
+    required SuccessResponse success = 1;
+    optional double          progress = 2;
+    optional bool            complete = 3         [default = false];
+    optional string          stage = 4;
+    optional int32           channelId = 5;
+    optional bool            skippable = 6;
+}
+
+
+// GetCalibrationCommand gets the device calibration. This results in a
+// GetCalibrationResponse.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message GetCalibrationCommand {
+    optional int32           channelId = 1;
+}
+
+
+// GetCalibrationResponse contains the three calibration pulse curves as a series
+// of coordinates plus the calibration data.
+//
+// success:  Response of GetCalibrationResponse.
+// data:     Returned calibration data.
+// exampleX: X axis values of example pulse shape.
+// exampleY: Y axis values of example pulse shape.
+// modelX:   X axis values of model pulse shape.
+// modelY:   Y axis values of model pulse shape.
+// finalX:   X axis values of final pulse shape.
+// finalY:   Y axis values of final pulse shape.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message GetCalibrationResponse {
+    required SuccessResponse success = 1;
+    optional bytes           data = 2;
+    repeated double          exampleX = 3;
+    repeated double          exampleY = 4;
+    repeated double          modelX = 5;
+    repeated double          modelY = 6;
+    repeated double          finalX = 7;
+    repeated double          finalY = 8;
+    optional int32           channelId = 9;
+}
+
+
+// SetCalibrationCommand configures the device calibration given saved calibration data.
+// This results in a SuccessResponse.
+//
+// data: Calibration data to set.
+// exampleX: X axis values of example pulse shape.
+// exampleY: Y axis values of example pulse shape.
+// modelX:   X axis values of model pulse shape.
+// modelY:   Y axis values of model pulse shape.
+// finalX:   X axis values of final pulse shape.
+// finalY:   Y axis values of final pulse shape.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message SetCalibrationCommand {
+    optional bytes           data = 2;
+    repeated double          exampleX = 3;
+    repeated double          exampleY = 4;
+    repeated double          modelX = 5;
+    repeated double          modelY = 6;
+    repeated double          finalX = 7;
+    repeated double          finalY = 8;
+    optional int32           channelId = 9;
+}
+
+
+// CalculateDcOffsetCommand initiates calculation of the DC offset. It
+// results in an immediate SuccessResponse and then a CalculateDcOffsetResponse
+// when the calculation is complete.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message CalculateDcOffsetCommand {
+    optional int32           channelId = 1;
+}
+
+// CalculateDcOffsetResponse is called after successful CalculateDcOffsetCommand.
+// success:
+//
+// dcOffset: The calculated DC offset value.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message CalculateDcOffsetResponse {
+    required SuccessResponse success = 1;
+    optional double          dcOffset = 2;
+    optional int32           channelId = 3;
+}
+
+
+// ListParamDetailsCommand lists all the parameters which match the given prefix.
+// It results in a ListParamDetailsResponse which contains a number of
+// ParamDetails.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message ListParamDetailsCommand {
+    optional string          matchPrefix = 1;
+    optional int32           channelId = 2;
+}
+
+
+// ParamDetails gives information on a single parameter, including
+// its current value, type, and other descriptive information.
+
+message ParamDetails {
+    required KeyValue        kv = 1;           // The key and value of this parameter.
+    optional string          textName = 2;     // A readable text name for this parameter.
+    optional float           min = 3;          // For numeric values, the minimum allowable value.
+    optional float           max = 4;          // For numeric values, the maximum allowable value.
+    optional float           inc = 5;          // For numeric values, a hint to the UI on the increment to use.
+    optional string          units = 6;        // The units of this parameter, if there are any.
+    optional bool            settable = 7      [default = true];   // false if this field is read-only.
+    optional bool            boardSpecific = 8 [default = false];  // true if this field relates to the specific board design, so will change between boards.
+    repeated string          valueList = 9;    // A set of allowed values for option types.
+    optional bool            instrumentLevel = 10 [default = false]; // true if this field is unique across the instrument, not the channel.
+    optional Subsystem       subsystem = 11;   // Associates this parameter with a channel, the instrument or the current connection.
+    optional KeyValue        defaultValue = 12;// If provided this is the device's default value for this parameter.
+    optional sint64          intMin = 13;      // For integer numeric values, the minimum allowable value. (Also available in min).
+    optional sint64          intMax = 14;      // For integer numeric values, the maximum allowable value. (Also available in max).
+    optional sint64          intInc = 15;      // For integer numeric values, a hint to the UI on the increment to use. (Also available in inc).
+}
+
+
+// ListParamDetailsResponse gives a set of ParamDetails descriptions
+// of instrument parameters. It's requested by ListParamDetailsCommand.
+// channelId: If specified, indicates which channel it's from,
+//            otherwise defaults to channel 0.
+
+message ListParamDetailsResponse {
+    required SuccessResponse     success = 1;
+    repeated ParamDetails        paramDetails = 2;
+    optional int32               channelId = 3;
+}
+
+
+// StartFFT starts acquisition of FFT-encoded histogram data.
+// This results in a SuccessResponse.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+
+message StartFFTCommand {
+    optional int32               channelId = 1;
+}
+
+
+// Restart reboots the card.
+// This results in a SuccessResponse.
+
+message RestartCommand {
+}
+
+
+// Software update loads new software on the card.
+// This is a restricted feature only available to authorized developers.
+// appImage is the binary image of the application to load on the card.
+// appChecksum is the md5 checksum string of the image. This is required
+// if the image is to be updated.
+// fpgaImage is the binary image of the fpga firmware to load on the card.
+// fpgaChecksum is the md5 checksum string of the fpga image. This is required
+// if the image is to be updated.
+// autoRestart indicates if the system should automatically restart
+// when the software update is complete.
+// This results in an immediate SuccessResponse and then a
+// SoftwareUpdateCompleteResponse when it's done.
+
+message SoftwareUpdateFile {
+    optional string             fileName = 1;
+    optional bytes              content = 2;
+}
+
+message SoftwareUpdateCommand {
+    optional bytes              appImage = 1;
+    optional string             appChecksum = 2;
+    optional bytes              fpgaImage = 3;
+    optional string             fpgaChecksum = 4;
+    optional bool               autoRestart = 5      [default = true];
+    repeated SoftwareUpdateFile updateFiles = 6;
+}
+
+
+// SoftwareUpdateCompleteResponse is sent after a software
+// update either succeeds or fails.
+
+message SoftwareUpdateCompleteResponse {
+    optional SuccessResponse    success = 1;
+}
+
+
+// SaveConfigurationCommand saves the current configuration as the
+// default configuration to load when the card starts.
+// channelId: If specified, indicates which channel it's for,
+//            otherwise defaults to channel 0.
+// This results in a SuccessResponse.
+
+message SaveConfigurationCommand {
+    optional int32           channelId = 1;
+}
+
+
+// AsynchronousErrorResponse can occur at any time and indicates
+// a system error of some kind has happened. These are normally
+// unexpected errors like "out of memory" errors which should
+// never occur in normal operation.
+
+message AsynchronousErrorResponse {
+    optional SuccessResponse    success = 1;
+}
+
+
+// MonitorChannelsCommand allows a connection to specify which channels
+// it's interested in hearing about. The provided set of channels
+// will replace the current set of channels being monitored.
+// On connection the default is to monitor only the channel which
+// was connected to.
+// This results in a SuccessResponse.
+
+message MonitorChannelsCommand {
+    repeated int32           channelId = 1;
+}
+
+
+// ProbeDatagramCommand sends a probe datagram to the connection's 
+// configured histogram.datagram.ip / histogram.datagram.port.
+// This occurs whether or not the histogram.datagram.enable is set.
+// This is used to sense whether datagram transmission is working.
+// This results in a SuccessResponse.
+
+message ProbeDatagramCommand {
+}
+
+
+// DownloadCrashDumpCommand requests downloading of a crash dump.
+// The crash dump may optionally be tagged with a time that it was
+// downloaded to prevent unnecessary re-downloading later.
+
+message DownloadCrashDumpCommand {
+    optional string timestamp = 1;
+}
+
+
+// DownloadCrashDumpResponse returns the content of a crash dump
+// along with a timestamp of the previous time it was downloaded.
+
+message DownloadCrashDumpResponse {
+    optional SuccessResponse    success = 1;
+    optional bytes              content = 2;
+    optional string             timestamp = 3;
+}
+
+
+// CheckParamConsistencyCommand requests that the parameters be checked
+// for any range incompatibilities or other problems.
+// Results in a CheckParamConsistencyResponse.
+// NOTE: forthcoming feature, not implemented yet.
+
+message CheckParamConsistencyCommand {
+    optional int32           channelId = 1;
+}
+
+
+// CheckParamConsistencyResponse returns a message indicating if the
+// parameters were found to be consistent with their allowed ranges and
+// each other.
+// Requested by a CheckParamConsistencyCommand.
+// NOTE: forthcoming feature, not implemented yet.
+
+message CheckParamConsistencyResponse {
+    optional SuccessResponse success = 1;
+    optional bool            healthy = 2;
+    optional string          badKey = 3;
+    optional string          message = 4;
+}
+

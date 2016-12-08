@@ -1,0 +1,172 @@
+/*
+ * Copyright (c) 2004 X-ray Instrumentation Associates
+ *               2005-2011 XIA LLC
+ * All rights reserved
+ *
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above
+ *     copyright notice, this list of conditions and the
+ *     following disclaimer.
+ *   * Redistributions in binary form must reproduce the
+ *     above copyright notice, this list of conditions and the
+ *     following disclaimer in the documentation and/or other
+ *     materials provided with the distribution.
+ *   * Neither the name of XIA LLC
+ *     nor the names of its contributors may be used to endorse
+ *     or promote products derived from this software without
+ *     specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * $Id$
+ *
+ */
+
+#ifndef HANDELDEF_H
+#define HANDELDEF_H
+
+/* Have we defined the EXPORT and IMPORT macros? */
+#ifndef HANDEL_PORTING_DEFINED
+#define HANDEL_PORTING_DEFINED
+
+/* For some reason if we don't include this before mentioning the __declspec
+ * extension, msvc implicitly includes winnt.h on its own, which then results
+ * in a lot of errors and warnings.
+ */
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#define HANDEL_STATIC static
+
+/* Since we are using multiple source files now, we need to have a new class
+ * of functions that aren't exported or static, just shared across different
+ * files.
+ */
+#define HANDEL_SHARED
+
+
+#define DXP_API
+#define MD_API
+
+#ifdef HANDEL_USE_DLL		/* Linking to a DLL libraries */
+
+#ifdef _WIN32			/* If we are on a Windoze platform */
+
+#ifdef HANDEL_MAKE_DLL
+#define HANDEL_EXPORT __declspec(dllexport)
+#define HANDEL_IMPORT __declspec(dllimport)
+
+#ifndef WIN32_HANDEL_VBA		/* Libraries for Visual Basic require STDCALL */
+#define HANDEL_API
+#else
+#define HANDEL_API    _stdcall
+#endif					/* Endif for WIN32_VBA */
+
+#else					/* Then we are making a static link library */
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT __declspec(dllimport)
+
+#ifndef WIN32_HANDEL_VBA		/* Libraries for Visual Basic require STDCALL */
+#define HANDEL_API
+#else
+#define HANDEL_API    _stdcall
+#endif					/* Endif for WIN32_VBA */
+
+#endif					/* Endif for HANDEL_MAKE_DLL */
+
+#else					/* Not on a Windoze platform */
+
+#ifdef HANDEL_MAKE_DLL
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#else					/* Then we are making a static link library */
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#endif					/* Endif for HANDEL_MAKE_DLL */
+
+#endif					/* Endif for _WIN32 */
+
+#else					/* We are using static libraries */
+
+#ifdef _WIN32			/* If we are on a Windoze platform */
+
+#ifdef HANDEL_MAKE_DLL
+#define HANDEL_EXPORT __declspec(dllexport)
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#else					/* Then we are making a static link library */
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#endif					/* Endif for HANDEL_MAKE_DLL */
+
+#else					/* Not on a Windoze platform */
+
+#ifdef HANDEL_MAKE_DLL
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#else					/* Then we are making a static link library */
+#define HANDEL_EXPORT
+#define HANDEL_IMPORT extern
+#define HANDEL_API
+#endif					/* Endif for HANDEL_MAKE_DLL */
+
+#endif					/* Endif for _WIN32 */
+
+#endif					/* Endif for HANDEL_USE_DLL */
+
+#endif					/* Endif for HANDEL_PORTING_DEFINED */
+
+#ifndef HANDEL_SWITCH
+#define HANDEL_SWITCH 1
+
+#ifdef __STDC__
+#define HANDEL_PROTO  1
+#endif                /* end of __STDC__    */
+
+#ifdef _MSC_VER
+#ifndef HANDEL_PROTO
+#define HANDEL_PROTO  1
+#endif
+#endif                /* end of _MSC_VER    */
+
+#ifdef HANDEL_PROTO
+#define VOID void
+#else
+#define VOID
+#endif               /* end of HANDEL_PROTO */
+
+#endif               /* end of HANDEL_SWITCH*/
+
+#if __GNUC__
+#define HANDEL_PRINTF(_s, _f) __attribute__ ((format (printf, _s, _f)))
+#else
+#define HANDEL_PRINTF(_s, _f)
+#endif
+
+#ifdef _WIN32			/* If we are on a Windows platform */
+#define HANDLE_PATHNAME_SEP '\\'
+#else					/* Not on a Windows platform */
+#define HANDLE_PATHNAME_SEP '/'
+#endif					/* Endif for _WIN32 */
+
+#endif				 /* Endif for HANDELDEF_H */
