@@ -9,8 +9,8 @@ handelSrc_DEPEND_DIRS = sincSrc
 DIRS += testSrc
 testSrc_DEPEND_DIRS = handelSrc
 
-DIRS += src
-src_DEPEND_DIRS = handelSrc
+#DIRS += src
+#src_DEPEND_DIRS = handelSrc
 
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard *db*))
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard *Db*))
