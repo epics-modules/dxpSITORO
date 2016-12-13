@@ -209,37 +209,6 @@ record(mbbi, "$(P)InputLogicPolarity_RBV") {
   field(SCAN, "I/O Intr")
 }
 
-record(mbbo, "$(P)AutoApply") {
-  field(DESC, "Auto apply")
-  field(DTYP, "asynInt32")
-  field(OUT,  "$(IO)DxpAutoApply")
-  field(PINI, "YES")
-  field(ZRVL, "0")
-  field(ZRST, "No")
-  field(ONVL, "1")
-  field(ONST, "Yes")
-  field(IVOA, "Don't drive outputs")
-}
-
-record(mbbi, "$(P)AutoApply_RBV") {
-  field(DESC, "Auto apply")
-  field(DTYP, "asynInt32")
-  field(INP,  "$(IO)DxpAutoApply")
-  field(ZRVL, "0")
-  field(ZRST, "No")
-  field(ONVL, "1")
-  field(ONST, "Yes")
-  field(SCAN, "I/O Intr")
-}
-
-record(longout, "$(P)Apply") {
-  field(DESC, "Force apply")
-  field(VAL,  "1")
-  field(PINI, "NO")
-  field(DTYP, "asynInt32")
-  field(OUT,  "$(IO)DxpApply")
-}
-
 record(ai, "$(P)ReadRate_RBV") {
   field(DESC, "Mapping mode read rate")
   field(DTYP, "asynFloat64")

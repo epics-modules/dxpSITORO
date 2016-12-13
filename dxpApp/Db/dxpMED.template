@@ -1,5 +1,5 @@
 # Author:  Mark Rivers
-# Database for DXP multi-element detector (e.g. xMAP or DXP4C2X)
+# Database for SITORO
 
 record(bi,"$(P)SNL_Connected") {
     field(ZNAM,"Not connected")
@@ -177,46 +177,6 @@ record(bo,"$(P)DoReadAll") {
     field(ONAM, "Read")
 }
 
-record(bo, "$(P)ReadLLParams") {
-    field(DESC, "Read low-level params")
-    field(SCAN, "Passive")
-    field(DTYP, "asynInt32")
-    field(OUT,  "$(DETALL)DxpReadLLParams")
-    field(ZNAM, "Done")
-    field(ONAM, "Read")
-}
-
-record(bo,"$(P)ReadBaselineHistograms") {
-    field(SCAN,"Passive")
-    field(VAL, "1")
-    field(OUT, "$(P)DoReadBaselineHistograms PP MS")
-    field(ZNAM,"Done")
-    field(ONAM,"Read")
-}
-
-record(bo,"$(P)DoReadBaselineHistograms") {
-    field(ZNAM, "Done")
-    field(ONAM, "Read")
-}
-
-record(mbbo, "$(P)TraceModes") {
-    field(ZRVL, "0")
-    field(ONVL, "1")
-    field(TWVL, "2")
-    field(THVL, "3")
-    field(FRVL, "4")
-    field(FVVL, "5")
-    field(SXVL, "6")
-    field(ZRST, "ADC")
-    field(ONST, "baseline hist")
-    field(TWST, "trigger filter")
-    field(THST, "baseline filter")
-    field(FRST, "energy filter")
-    field(FVST, "baseline smpls.")
-    field(SXST, "energy smpls.")
-    field(IVOA, "Don't drive outputs")
-}
-
 record(bo,"$(P)ReadTraces") {
     field(SCAN,"Passive")
     field(VAL, "1")
@@ -235,57 +195,22 @@ record(ai,"$(P)TraceTimes") {
     field(PREC,"2")
 }
 
-record(bo,"$(P)CopyTriggerPeakingTime") {
+record(bo,"$(P)CopyDetectionThreshold") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
 }
 
-record(bo,"$(P)CopyTriggerGapTime") {
+record(bo,"$(P)CopyMinPulsePairSeparation") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
 }
 
-record(bo,"$(P)CopyTriggerThreshold") {
+record(bo,"$(P)CopyDetectionFilter") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
 }
 
-record(bo,"$(P)CopyPeakingTime") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyGapTime") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyEnergyThreshold") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyMaxWidth") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyBaselineCutPercent") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyBaselineCutEnable") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyBaselineThreshold") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyPreampGain") {
+record(bo,"$(P)CopyScaleFactor") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
 }
@@ -301,21 +226,6 @@ record(bo,"$(P)CopyResetDelay") {
 }
 
 record(bo,"$(P)CopyDecayTime") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyBaselineFilterLength") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyMaxEnergy") {
-    field(ZNAM, "Done")
-    field(ONAM, "Copy")
-}
-
-record(bo,"$(P)CopyADCPercentRule") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
 }
