@@ -10,9 +10,12 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------------------
 # Create and install (or just install)
 # databases, templates, substitutions like this
-#DB += dbExample1.db
-#DB += dbExample2.db
-#DB += dbSubExample.db
+DB += dxpHighLevel.template
+DB += dxpMED.template
+DB += dxpSystem.template
+DB += dxpMapping.template
+DB += dxpSCA_16.template
+DB += dxpSCA_32.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
