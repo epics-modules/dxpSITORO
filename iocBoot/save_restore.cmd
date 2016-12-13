@@ -40,12 +40,11 @@ set_savefile_path("autosave")
 ###
 # specify directories in which to to search for included request files
 set_requestfile_path("./")
-set_requestfile_path("$(AUTOSAVE)", "asApp/Db")
-set_requestfile_path("$(ADCORE)",   "ADApp/Db")
-set_requestfile_path("$(CALC)",     "calcApp/Db")
-set_requestfile_path("$(CAMAC)",    "camacApp/Db")
-set_requestfile_path("$(DXP)",      "dxpApp/Db")
-set_requestfile_path("$(MCA)",      "mcaApp/Db")
-set_requestfile_path("$(SSCAN)",    "sscanApp/Db")
+set_requestfile_path("$(AUTOSAVE)",   "asApp/Db")
+set_requestfile_path("$(ADCORE)",     "ADApp/Db")
+set_requestfile_path("$(CALC)",       "calcApp/Db")
+set_requestfile_path("$(DXP_SITORO)", "dxpApp/Db")
+set_requestfile_path("$(MCA)",        "mcaApp/Db")
+set_requestfile_path("$(SSCAN)",      "sscanApp/Db")
 
 #dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db", "P=xxx:")
