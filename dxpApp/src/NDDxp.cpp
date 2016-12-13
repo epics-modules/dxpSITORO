@@ -183,7 +183,7 @@ typedef struct moduleStatistics {
 #define NDDxpSaveSystemString               "DxpSaveSystem"
 
 /* Module information */
-#define NDDxpSerialNumberString             "DxpSaveSystemFile"
+#define NDDxpSerialNumberString             "DxpSerialNumber"
 #define NDDxpFirmwareVersionString          "DxpFirmwareVersion"
 
 
@@ -393,7 +393,8 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     int status = asynSuccess;
     int i, ch;
     int sca;
-    char tmpStr[20];
+    char tmpStr[100];
+    double tmpDbl;
     int xiastatus = 0;
     const char *functionName = "NDDxp";
 
@@ -440,7 +441,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
 
     /* High-level DXP parameters */
     createParam(NDDxpDetectionThresholdString,     asynParamFloat64, &NDDxpDetectionThreshold);
-    createParam(NDDxpMinPulsePairSeparationString, asynParamFloat64, &NDDxpMinPulsePairSeparation);
+    createParam(NDDxpMinPulsePairSeparationString, asynParamInt32,   &NDDxpMinPulsePairSeparation);
     createParam(NDDxpDetectionFilterString,        asynParamInt32  , &NDDxpDetectionFilter);
     createParam(NDDxpScaleFactorString,            asynParamFloat64, &NDDxpScaleFactor);
     createParam(NDDxpNumMCAChannelsString,         asynParamInt32,   &NDDxpNumMCAChannels);
@@ -531,8 +532,9 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->tmpStats = (epicsFloat64*)calloc(28, sizeof(epicsFloat64));
     this->currentBuf = (epicsUInt32*)calloc(this->nChannels, sizeof(epicsUInt32));
 
-    xiastatus = xiaGetSpecialRunData(0, "adc_trace_length",  &(this->traceLength));
+    xiastatus = xiaGetSpecialRunData(0, "adc_trace_length",  &tmpDbl);
     if (xiastatus != XIA_SUCCESS) printf("Error calling xiaGetSpecialRunData for adc_trace_length");
+    this->traceLength = (int)tmpDbl;
 
     /* Allocate a buffer for the trace data */
     this->traceBuffer = (epicsInt32 *)malloc(this->traceLength * sizeof(epicsInt32));
@@ -578,6 +580,13 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->getDxpParams(this->pasynUserSelf, DXP_ALL);
     this->getAcquisitionStatus(this->pasynUserSelf, DXP_ALL);
     this->getAcquisitionStatistics(this->pasynUserSelf, DXP_ALL);
+    
+    /* Read the serial number and firmware version */
+    xiastatus = xiaBoardOperation(0, "get_serial_number", &tmpStr);
+    setStringParam(NDDxpSerialNumber, tmpStr);
+    xiastatus = xiaBoardOperation(0, "get_firmware_version", &tmpStr);
+    setStringParam(NDDxpFirmwareVersion, tmpStr);
+    
     
     // Enable array callbacks by default
     setIntegerParam(NDArrayCallbacks, 1);
@@ -856,7 +865,6 @@ asynStatus NDDxp::setPresets(asynUser *pasynUser, int addr)
     asynStatus status = asynSuccess;
     NDDxpPresetMode_t presetMode;
     double presetReal;
-    double presetLive;
     int presetEvents;
     int presetTriggers;
     double presetValue;
@@ -864,7 +872,6 @@ asynStatus NDDxp::setPresets(asynUser *pasynUser, int addr)
     unsigned long runActive=0;
     int channel=addr;
     int channel0;
-    char presetString[40];
     const char* functionName = "setPresets";
 
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
@@ -874,37 +881,32 @@ asynStatus NDDxp::setPresets(asynUser *pasynUser, int addr)
     if (channel == DXP_ALL) channel0 = 0; else channel0 = channel;
 
     getDoubleParam(addr,  mcaPresetRealTime,   &presetReal);
-    getDoubleParam(addr,  mcaPresetLiveTime,   &presetLive);
     getIntegerParam(addr, NDDxpPresetEvents,   &presetEvents);
     getIntegerParam(addr, NDDxpPresetTriggers, &presetTriggers);
     getIntegerParam(addr, NDDxpPresetMode,     (int *)&presetMode);
 
     xiaGetRunData(channel0, "run_active", &runActive);
-    xiaStopRun(channel);
+    if (runActive) xiaStopRun(channel);
     
     switch (presetMode) {
         case  NDDxpPresetModeNone:
             presetValue = 0;
             PresetMode = XIA_PRESET_NONE;
-            strcpy(presetString, "preset_standard");
             break;
 
         case NDDxpPresetModeReal:
             presetValue = presetReal;
             PresetMode = XIA_PRESET_FIXED_REAL;
-            strcpy(presetString, "preset_runtime");
             break;
 
         case NDDxpPresetModeEvents:
             presetValue = presetEvents;
             PresetMode = XIA_PRESET_FIXED_EVENTS;
-            strcpy(presetString, "error");
             break;
 
         case NDDxpPresetModeTriggers:
             presetValue = presetTriggers;
             PresetMode = XIA_PRESET_FIXED_TRIGGERS;
-            strcpy(presetString, "error");
             break;
         default:
             asynPrint(pasynUser, ASYN_TRACE_ERROR,
@@ -915,7 +917,6 @@ asynStatus NDDxp::setPresets(asynUser *pasynUser, int addr)
 
     xiaSetAcquisitionValues(channel, "preset_type", &PresetMode);
     xiaSetAcquisitionValues(channel, "preset_value", &presetValue);
-    xiaSetAcquisitionValues(channel, presetString, &presetValue);
     asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
         "%s:%s: addr=%d channel=%d set presets mode=%d, value=%f\n",
         driverName, functionName, addr, channel, presetMode, presetValue);
@@ -944,7 +945,7 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
     if (channel == DXP_ALL) channel0 = 0; else channel0 = channel;
 
     xiaGetRunData(channel0, "run_active", &runActive);
-    xiaStopRun(channel);
+    if (runActive) xiaStopRun(channel);
 
     if (function == NDDxpDetectorPolarity) {
         xiastatus = xiaSetAcquisitionValues(channel, "detector_polarity", &dvalue);
@@ -981,7 +982,7 @@ asynStatus NDDxp::setSCAs(asynUser *pasynUser, int addr)
     if (addr == this->nChannels) channel = DXP_ALL;
     if (channel == DXP_ALL) channel0 = 0; else channel0 = channel;
     xiaGetRunData(channel0, "run_active", &runActive);
-    xiaStopRun(channel);
+    if (runActive) xiaStopRun(channel);
 
     /* We get the number of SCAs from the channel 0, force all detectors to be the same */
     getIntegerParam(0, NDDxpNumSCAs, &numSCAs);
@@ -1293,13 +1294,7 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
         /* Get the run time status from the handel library - informs whether the
          * HW is acquiring or not.        */
         CALLHANDEL( xiaGetRunData(channel, "run_active", &run_active), "xiaGetRunData (run_active)" )
-        /* If Handel thinks the run is active, but the hardware does not, then
-         * stop the run */
-        if (run_active == XIA_RUN_HANDEL)
-            CALLHANDEL( xiaStopRun(channel), "xiaStopRun")
-        /* Get the acquiring state from the XIA hardware */
-        acquiring = (run_active & XIA_RUN_HARDWARE);
-        setIntegerParam(addr, NDDxpAcquiring, acquiring);
+        setIntegerParam(addr, NDDxpAcquiring, run_active);
     }
     //asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
     //    "%s::%s addr=%d channel=%d: acquiring=%d\n",
@@ -1355,6 +1350,8 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
             triggerLiveTime = MAX(triggerLiveTime, dvalue);
             getDoubleParam(i, mcaElapsedRealTime, &realTime);
             realTime = MAX(realTime, dvalue);
+            getDoubleParam(i, mcaElapsedLiveTime, &energyLiveTime);
+            energyLiveTime = MAX(energyLiveTime, dvalue);
             getIntegerParam(i, NDDxpEvents, &ivalue);
             events = MAX(events, ivalue);
             getIntegerParam(i, NDDxpTriggers, &ivalue);
@@ -1367,6 +1364,7 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
         setDoubleParam(addr, mcaElapsedLiveTime, energyLiveTime);
         setDoubleParam(addr, NDDxpTriggerLiveTime, triggerLiveTime);
         setDoubleParam(addr, mcaElapsedRealTime, realTime);
+        setDoubleParam(addr, mcaElapsedLiveTime, energyLiveTime);
         setIntegerParam(addr,NDDxpEvents, events);
         setIntegerParam(addr,NDDxpTriggers, triggers);
         setDoubleParam(addr, NDDxpInputCountRate, icr);
@@ -1396,6 +1394,12 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
             setIntegerParam(addr, NDDxpEvents, (int)stats->events);
             setDoubleParam(addr, mcaElapsedRealTime, stats->realTime);
             setDoubleParam(addr, NDDxpTriggerLiveTime, stats->triggerLiveTime);
+            if (stats->triggers == 0) {
+                energyLiveTime = stats->triggerLiveTime;
+            } else {
+                energyLiveTime = stats->triggerLiveTime * stats->events / stats->triggers;
+            }
+            setDoubleParam(addr, mcaElapsedLiveTime, energyLiveTime);
             setDoubleParam(addr, NDDxpInputCountRate, stats->icr);
             setDoubleParam(addr, NDDxpOutputCountRate, stats->ocr);
 
@@ -1458,8 +1462,6 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
         setIntegerParam(channel, NDDxpDetectorPolarity, (int)dvalue);
         xiaGetAcquisitionValues(channel, "decay_time", &dvalue);
         setDoubleParam(channel, NDDxpDecayTime, dvalue);
-        xiaGetAcquisitionValues(channel, "reset_delay", &dvalue);
-        setDoubleParam(channel, NDDxpResetDelay, dvalue);
         
         // Read mapping parameters, which are assumed to be the same for all modules 
         dTmp = 0;
