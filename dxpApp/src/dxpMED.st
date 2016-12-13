@@ -44,7 +44,6 @@ int nDetectors;
 int nSCAs;
 int allDone;
 char temp[100];
-int prevAutoApply;
 double energy;
 double slope;
 
@@ -52,111 +51,40 @@ char *prefix;
 char *dxp;
 char *mca;
 
-double  TriggerPeakingTime[MAX_DETECTORS];
-assign  TriggerPeakingTime to {};
-int     CopyTriggerPeakingTime; assign CopyTriggerPeakingTime to "{P}CopyTriggerPeakingTime";
-monitor CopyTriggerPeakingTime; evflag CopyTriggerPeakingTimeMon; sync CopyTriggerPeakingTime CopyTriggerPeakingTimeMon;
+double  DetectionThreshold[MAX_DETECTORS];
+assign  DetectionThreshold to {};
+int     CopyDetectionThreshold; assign CopyDetectionThreshold to "{P}CopyDetectionThreshold";
+monitor CopyDetectionThreshold; evflag CopyDetectionThresholdMon; sync CopyDetectionThreshold CopyDetectionThresholdMon;
 
-double  TriggerGapTime[MAX_DETECTORS];
-assign  TriggerGapTime to {};
+int     MinPulsePairSeparation[MAX_DETECTORS];
+assign  MinPulsePairSeparation to {};
+int     CopyMinPulsePairSeparation; assign CopyMinPulsePairSeparation to "{P}CopyMinPulsePairSeparation";
+monitor CopyMinPulsePairSeparation; evflag CopyMinPulsePairSeparationMon; sync CopyMinPulsePairSeparation CopyMinPulsePairSeparationMon;
 
-int     CopyTriggerGapTime; assign CopyTriggerGapTime to "{P}CopyTriggerGapTime";
-monitor CopyTriggerGapTime; evflag CopyTriggerGapTimeMon; sync CopyTriggerGapTime CopyTriggerGapTimeMon;
+int     DetectionFilter[MAX_DETECTORS]; 
+assign  DetectionFilter to {};
+int     CopyDetectionFilter; assign CopyDetectionFilter to "{P}CopyDetectionFilter";
+monitor CopyDetectionFilter; evflag CopyDetectionFilterMon; sync CopyDetectionFilter CopyDetectionFilterMon;
 
-double  TriggerThreshold[MAX_DETECTORS]; 
-assign  TriggerThreshold to {};
-int     CopyTriggerThreshold; assign CopyTriggerThreshold to "{P}CopyTriggerThreshold";
-monitor CopyTriggerThreshold; evflag CopyTriggerThresholdMon; sync CopyTriggerThreshold CopyTriggerThresholdMon;
-
-double  PeakingTime[MAX_DETECTORS]; 
-assign  PeakingTime to {};
-int     CopyPeakingTime; assign CopyPeakingTime to "{P}CopyPeakingTime";
-monitor CopyPeakingTime; evflag CopyPeakingTimeMon; sync CopyPeakingTime CopyPeakingTimeMon;
-
-double  GapTime[MAX_DETECTORS]; 
-assign  GapTime to {};
-int     CopyGapTime; assign CopyGapTime to "{P}CopyGapTime";
-monitor CopyGapTime; evflag CopyGapTimeMon; sync CopyGapTime CopyGapTimeMon;
-
-double  EnergyThreshold[MAX_DETECTORS]; 
-assign  EnergyThreshold to {};
-int     CopyEnergyThreshold; assign CopyEnergyThreshold to "{P}CopyEnergyThreshold";
-monitor CopyEnergyThreshold; evflag CopyEnergyThresholdMon; sync CopyEnergyThreshold CopyEnergyThresholdMon;
-
-double  MaxWidth[MAX_DETECTORS]; 
-assign  MaxWidth to {};
-int     CopyMaxWidth; assign CopyMaxWidth to "{P}CopyMaxWidth";
-monitor CopyMaxWidth; evflag CopyMaxWidthMon; sync CopyMaxWidth CopyMaxWidthMon;
-
-double  BaselineCutPercent[MAX_DETECTORS]; 
-assign  BaselineCutPercent to {};
-int     CopyBaselineCutPercent; assign CopyBaselineCutPercent to "{P}CopyBaselineCutPercent";
-monitor CopyBaselineCutPercent; evflag CopyBaselineCutPercentMon; sync CopyBaselineCutPercent CopyBaselineCutPercentMon;
-
-double  BaselineCutEnable[MAX_DETECTORS]; 
-assign  BaselineCutEnable to {};
-int     CopyBaselineCutEnable; assign CopyBaselineCutEnable to "{P}CopyBaselineCutEnable";
-monitor CopyBaselineCutEnable; evflag CopyBaselineCutEnableMon; sync CopyBaselineCutEnable CopyBaselineCutEnableMon;
-
-double  BaselineThreshold[MAX_DETECTORS]; 
-assign  BaselineThreshold to {};
-int     CopyBaselineThreshold; assign CopyBaselineThreshold to "{P}CopyBaselineThreshold";
-monitor CopyBaselineThreshold; evflag CopyBaselineThresholdMon; sync CopyBaselineThreshold CopyBaselineThresholdMon;
-
-double  BaselineFilterLength[MAX_DETECTORS]; 
-assign  BaselineFilterLength to {};
-int     CopyBaselineFilterLength; assign CopyBaselineFilterLength to "{P}CopyBaselineFilterLength";
-monitor CopyBaselineFilterLength; evflag CopyBaselineFilterLengthMon; sync CopyBaselineFilterLength CopyBaselineFilterLengthMon;
-
-double  PreampGain[MAX_DETECTORS]; 
-assign  PreampGain to {};
-int     CopyPreampGain; assign CopyPreampGain to "{P}CopyPreampGain";
-monitor CopyPreampGain; evflag CopyPreampGainMon; sync CopyPreampGain CopyPreampGainMon;
+double  ScaleFactor[MAX_DETECTORS]; 
+assign  ScaleFactor to {};
+int     CopyScaleFactor; assign CopyScaleFactor to "{P}CopyScaleFactor";
+monitor CopyScaleFactor; evflag CopyScaleFactorMon; sync CopyScaleFactor CopyScaleFactorMon;
 
 int     DetectorPolarity[MAX_DETECTORS]; 
 assign  DetectorPolarity to {};
 int     CopyDetectorPolarity; assign CopyDetectorPolarity to "{P}CopyDetectorPolarity";
 monitor CopyDetectorPolarity; evflag CopyDetectorPolarityMon; sync CopyDetectorPolarity CopyDetectorPolarityMon;
 
-double  ResetDelay[MAX_DETECTORS]; 
-assign  ResetDelay to {};
-int     CopyResetDelay; assign CopyResetDelay to "{P}CopyResetDelay";
-monitor CopyResetDelay; evflag CopyResetDelayMon; sync CopyResetDelay CopyResetDelayMon;
-
 double  DecayTime[MAX_DETECTORS]; 
 assign  DecayTime to {};
 int     CopyDecayTime; assign CopyDecayTime to "{P}CopyDecayTime";
 monitor CopyDecayTime; evflag CopyDecayTimeMon; sync CopyDecayTime CopyDecayTimeMon;
 
-double  MaxEnergy[MAX_DETECTORS]; 
-assign  MaxEnergy to {};
-int     CopyMaxEnergy; assign CopyMaxEnergy to "{P}CopyMaxEnergy";
-monitor CopyMaxEnergy; evflag CopyMaxEnergyMon; sync CopyMaxEnergy CopyMaxEnergyMon;
-
-double  ADCPercentRule[MAX_DETECTORS]; 
-assign  ADCPercentRule to {};
-int     CopyADCPercentRule; assign CopyADCPercentRule to "{P}CopyADCPercentRule";
-monitor CopyADCPercentRule; evflag CopyADCPercentRuleMon; sync CopyADCPercentRule CopyADCPercentRuleMon;
-
-int     ReadBaselineHistogram[MAX_DETECTORS]; 
-assign  ReadBaselineHistogram to {};
-int     ReadBaselineHistograms; assign ReadBaselineHistograms to "{P}DoReadBaselineHistograms";
-monitor ReadBaselineHistograms; evflag ReadBaselineHistogramsMon; sync ReadBaselineHistograms ReadBaselineHistogramsMon;
-
 int     ReadTrace[MAX_DETECTORS]; 
 assign  ReadTrace to {};
 int     ReadTraces; assign ReadTraces to "{P}DoReadTraces";
 monitor ReadTraces; evflag ReadTracesMon; sync ReadTraces ReadTracesMon;
-
-double  TraceTime[MAX_DETECTORS]; 
-assign  TraceTime to {};
-double  TraceTimes; assign TraceTimes to "{P}TraceTimes";
-monitor TraceTimes; evflag TraceTimesMon; sync TraceTimes TraceTimesMon;
-
-int     TraceMode[MAX_DETECTORS]; 
-assign  TraceMode to {};
-int     TraceModes; assign TraceModes to "{P}TraceModes";
-monitor TraceModes; evflag TraceModesMon; sync TraceModes TraceModesMon;
 
 int     ReadMCA[MAX_DETECTORS]; 
 assign  ReadMCA to {};
@@ -196,7 +124,6 @@ assign  dxpPresetMode to {};
 double  PresetMode; assign PresetMode to "{P}PresetMode";
 monitor PresetMode; evflag PresetModeMon; sync PresetMode PresetModeMon;
 
-
 double  mcaDeadTime[MAX_DETECTORS]; 
 assign  mcaDeadTime to {};
 double  DeadTime; assign DeadTime to "{P}DeadTime";
@@ -219,17 +146,17 @@ assign  mcaCalSlope to {};
 int     mcaROILow[TOTAL_ROIS]; 
 assign  mcaROILow to {};
 
-int    mcaROIHigh[TOTAL_ROIS]; 
-assign mcaROIHigh to {};
+int     mcaROIHigh[TOTAL_ROIS]; 
+assign  mcaROIHigh to {};
 
-string mcaROIName[TOTAL_ROIS]; 
-assign mcaROIName to {};
+string  mcaROIName[TOTAL_ROIS]; 
+assign  mcaROIName to {};
 
 int     dxpSCALow[TOTAL_SCAS]; 
 assign  dxpSCALow to {};
 
-int    dxpSCAHigh[TOTAL_SCAS]; 
-assign dxpSCAHigh to {};
+int     dxpSCAHigh[TOTAL_SCAS]; 
+assign  dxpSCAHigh to {};
 
 int     CopyROIChannel; assign CopyROIChannel     to "{P}CopyROIChannel";
 monitor CopyROIChannel; evflag CopyROIChannelMon; sync CopyROIChannel CopyROIChannelMon;
@@ -242,8 +169,6 @@ int     AsynDebug;      assign AsynDebug          to "{P}Asyn.TB1";
 monitor AsynDebug;
 
 int AcquireBusy; assign AcquireBusy to "{P}AcquireBusy";
-int AutoApply;   assign AutoApply   to "{P}AutoApply";      monitor AutoApply;
-int Apply;       assign Apply       to "{P}Apply";
 
 ss dxp_control {
     state init {
@@ -273,68 +198,26 @@ ss dxp_control {
             }
              for (i=0; i<nDetectors; i++) {
                 det = i+1;
-                sprintf(temp, "%s%s%d:TriggerPeakingTime", prefix, dxp, det);
-                pvAssign(TriggerPeakingTime[i], temp);
+                sprintf(temp, "%s%s%d:DetectionThreshold", prefix, dxp, det);
+                pvAssign(DetectionThreshold[i], temp);
 
-                sprintf(temp, "%s%s%d:TriggerGapTime", prefix, dxp, det);
-                pvAssign(TriggerGapTime[i], temp);
+                sprintf(temp, "%s%s%d:MinPulsePairSeparation", prefix, dxp, det);
+                pvAssign(MinPulsePairSeparation[i], temp);
 
-                sprintf(temp, "%s%s%d:TriggerThreshold", prefix, dxp, det);
-                pvAssign(TriggerThreshold[i], temp);
+                sprintf(temp, "%s%s%d:DetectionFilter", prefix, dxp, det);
+                pvAssign(DetectionFilter[i], temp);
 
-                sprintf(temp, "%s%s%d:PeakingTime", prefix, dxp, det);
-                pvAssign(PeakingTime[i], temp);
-
-                sprintf(temp, "%s%s%d:GapTime", prefix, dxp, det);
-                pvAssign(GapTime[i], temp);
-
-                sprintf(temp, "%s%s%d:EnergyThreshold", prefix, dxp, det);
-                pvAssign(EnergyThreshold[i], temp);
-
-                sprintf(temp, "%s%s%d:MaxWidth", prefix, dxp, det);
-                pvAssign(MaxWidth[i], temp);
-
-                sprintf(temp, "%s%s%d:BaselineCutPercent", prefix, dxp, det);
-                pvAssign(BaselineCutPercent[i], temp);
-
-                sprintf(temp, "%s%s%d:BaselineCutEnable", prefix, dxp, det);
-                pvAssign(BaselineCutEnable[i], temp);
-
-                sprintf(temp, "%s%s%d:BaselineThreshold", prefix, dxp, det);
-                pvAssign(BaselineThreshold[i], temp);
-
-                sprintf(temp, "%s%s%d:BaselineFilterLength", prefix, dxp, det);
-                pvAssign(BaselineFilterLength[i], temp);
-
-                sprintf(temp, "%s%s%d:PreampGain", prefix, dxp, det);
-                pvAssign(PreampGain[i], temp);
+                sprintf(temp, "%s%s%d:ScaleFactor", prefix, dxp, det);
+                pvAssign(ScaleFactor[i], temp);
 
                 sprintf(temp, "%s%s%d:DetectorPolarity", prefix, dxp, det);
                 pvAssign(DetectorPolarity[i], temp);
 
-                sprintf(temp, "%s%s%d:ResetDelay", prefix, dxp, det);
-                pvAssign(ResetDelay[i], temp);
-
                 sprintf(temp, "%s%s%d:DecayTime", prefix, dxp, det);
                 pvAssign(DecayTime[i], temp);
 
-                sprintf(temp, "%s%s%d:MaxEnergy", prefix, dxp, det);
-                pvAssign(MaxEnergy[i], temp);
-
-                sprintf(temp, "%s%s%d:ADCPercentRule", prefix, dxp, det);
-                pvAssign(ADCPercentRule[i], temp);
-
-                sprintf(temp, "%s%s%d:BaselineHistogram.PROC", prefix, dxp, det);
-                pvAssign(ReadBaselineHistogram[i], temp);
-
                 sprintf(temp, "%s%s%d:TraceData.PROC", prefix, dxp, det);
                 pvAssign(ReadTrace[i], temp);
-
-                sprintf(temp, "%s%s%d:TraceTime", prefix, dxp, det);
-                pvAssign(TraceTime[i], temp);
-
-                sprintf(temp, "%s%s%d:TraceMode", prefix, dxp, det);
-                pvAssign(TraceMode[i], temp);
 
                 sprintf(temp, "%s%s%d:PresetMode", prefix, dxp, det);
                 pvAssign(dxpPresetMode[i], temp);
@@ -426,124 +309,44 @@ ss dxp_control {
           printf ("dxpMED: Not all channels connected.\n");
         } state waitConnected
 
-        when(efTestAndClear(CopyTriggerPeakingTimeMon) && (CopyTriggerPeakingTime == 1)) {
-            pvGet(TriggerPeakingTime[0]);
+        when(efTestAndClear(CopyDetectionThresholdMon) && (CopyDetectionThreshold == 1)) {
+            pvGet(DetectionThreshold[0]);
             for (i=0; i<nDetectors; i++) {
-                TriggerPeakingTime[i] = TriggerPeakingTime[0];
-                pvPut(TriggerPeakingTime[i]);
+                DetectionThreshold[i] = DetectionThreshold[0];
+                pvPut(DetectionThreshold[i]);
             }
-            CopyTriggerPeakingTime = 0;
-            pvPut(CopyTriggerPeakingTime);
+            CopyDetectionThreshold = 0;
+            pvPut(CopyDetectionThreshold);
         } state monitor_changes
 
-        when(efTestAndClear(CopyTriggerGapTimeMon) && (CopyTriggerGapTime == 1)) {
-            pvGet(TriggerGapTime[0]);
+        when(efTestAndClear(CopyMinPulsePairSeparationMon) && (CopyMinPulsePairSeparation == 1)) {
+            pvGet(MinPulsePairSeparation[0]);
             for (i=0; i<nDetectors; i++) {
-                TriggerGapTime[i] = TriggerGapTime[0];
-                pvPut(TriggerGapTime[i]);
+                MinPulsePairSeparation[i] = MinPulsePairSeparation[0];
+                pvPut(MinPulsePairSeparation[i]);
             }
-            CopyTriggerGapTime = 0;
-            pvPut(CopyTriggerGapTime);
+            CopyMinPulsePairSeparation = 0;
+            pvPut(CopyMinPulsePairSeparation);
         } state monitor_changes
 
-        when(efTestAndClear(CopyTriggerThresholdMon) && (CopyTriggerThreshold == 1)) {
-            pvGet(TriggerThreshold[0]);
+        when(efTestAndClear(CopyDetectionFilterMon) && (CopyDetectionFilter == 1)) {
+            pvGet(DetectionFilter[0]);
             for (i=0; i<nDetectors; i++) {
-                TriggerThreshold[i] = TriggerThreshold[0];
-                pvPut(TriggerThreshold[i]);
+                DetectionFilter[i] = DetectionFilter[0];
+                pvPut(DetectionFilter[i]);
             }
-            CopyTriggerThreshold = 0;
-            pvPut(CopyTriggerThreshold);
+            CopyDetectionFilter = 0;
+            pvPut(CopyDetectionFilter);
         } state monitor_changes
 
-        when(efTestAndClear(CopyPeakingTimeMon) && (CopyPeakingTime == 1)) {
-            pvGet(PeakingTime[0]);
+        when(efTestAndClear(CopyScaleFactorMon) && (CopyScaleFactor == 1)) {
+            pvGet(ScaleFactor[0]);
             for (i=0; i<nDetectors; i++) {
-                PeakingTime[i] = PeakingTime[0];
-                pvPut(PeakingTime[i]);
+                ScaleFactor[i] = ScaleFactor[0];
+                pvPut(ScaleFactor[i]);
             }
-            CopyPeakingTime = 0;
-            pvPut(CopyPeakingTime);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyGapTimeMon) && (CopyGapTime == 1)) {
-            pvGet(GapTime[0]);
-            for (i=0; i<nDetectors; i++) {
-                GapTime[i] = GapTime[0];
-                pvPut(GapTime[i]);
-            }
-            CopyGapTime = 0;
-            pvPut(CopyGapTime);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyEnergyThresholdMon) && (CopyEnergyThreshold == 1)) {
-            pvGet(EnergyThreshold[0]);
-            for (i=0; i<nDetectors; i++) {
-                EnergyThreshold[i] = EnergyThreshold[0];
-                pvPut(EnergyThreshold[i]);
-            }
-            CopyEnergyThreshold = 0;
-            pvPut(CopyEnergyThreshold);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyMaxWidthMon) && (CopyMaxWidth == 1)) {
-            pvGet(MaxWidth[0]);
-            for (i=0; i<nDetectors; i++) {
-                MaxWidth[i] = MaxWidth[0];
-                pvPut(MaxWidth[i]);
-            }
-            CopyMaxWidth = 0;
-            pvPut(CopyMaxWidth);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyBaselineCutPercentMon) && (CopyBaselineCutPercent == 1)) {
-            pvGet(BaselineCutPercent[0]);
-            for (i=0; i<nDetectors; i++) {
-                BaselineCutPercent[i] = BaselineCutPercent[0];
-                pvPut(BaselineCutPercent[i]);
-            }
-            CopyBaselineCutPercent = 0;
-            pvPut(CopyBaselineCutPercent);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyBaselineCutEnableMon) && (CopyBaselineCutEnable == 1)) {
-            pvGet(BaselineCutEnable[0]);
-            for (i=0; i<nDetectors; i++) {
-                BaselineCutEnable[i] = BaselineCutEnable[0];
-                pvPut(BaselineCutEnable[i]);
-            }
-            CopyBaselineCutEnable = 0;
-            pvPut(CopyBaselineCutEnable);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyBaselineThresholdMon) && (CopyBaselineThreshold == 1)) {
-            pvGet(BaselineThreshold[0]);
-            for (i=0; i<nDetectors; i++) {
-                BaselineThreshold[i] = BaselineThreshold[0];
-                pvPut(BaselineThreshold[i]);
-            }
-            CopyBaselineThreshold = 0;
-            pvPut(CopyBaselineThreshold);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyBaselineFilterLengthMon) && (CopyBaselineFilterLength == 1)) {
-            pvGet(BaselineFilterLength[0]);
-            for (i=0; i<nDetectors; i++) {
-                BaselineFilterLength[i] = BaselineFilterLength[0];
-                pvPut(BaselineFilterLength[i]);
-            }
-            CopyBaselineFilterLength = 0;
-            pvPut(CopyBaselineFilterLength);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyPreampGainMon) && (CopyPreampGain == 1)) {
-            pvGet(PreampGain[0]);
-            for (i=0; i<nDetectors; i++) {
-                PreampGain[i] = PreampGain[0];
-                pvPut(PreampGain[i]);
-            }
-            CopyPreampGain = 0;
-            pvPut(CopyPreampGain);
+            CopyScaleFactor = 0;
+            pvPut(CopyScaleFactor);
         } state monitor_changes
 
         when(efTestAndClear(CopyDetectorPolarityMon) && (CopyDetectorPolarity == 1)) {
@@ -556,16 +359,6 @@ ss dxp_control {
             pvPut(CopyDetectorPolarity);
         } state monitor_changes
 
-        when(efTestAndClear(CopyResetDelayMon) && (CopyResetDelay == 1)) {
-            pvGet(ResetDelay[0]);
-            for (i=0; i<nDetectors; i++) {
-                ResetDelay[i] = ResetDelay[0];
-                pvPut(ResetDelay[i]);
-            }
-            CopyResetDelay = 0;
-            pvPut(CopyResetDelay);
-        } state monitor_changes
-
         when(efTestAndClear(CopyDecayTimeMon) && (CopyDecayTime == 1)) {
             pvGet(DecayTime[0]);
             for (i=0; i<nDetectors; i++) {
@@ -576,35 +369,6 @@ ss dxp_control {
             pvPut(CopyDecayTime);
         } state monitor_changes
 
-        when(efTestAndClear(CopyMaxEnergyMon) && (CopyMaxEnergy == 1)) {
-            pvGet(MaxEnergy[0]);
-            for (i=0; i<nDetectors; i++) {
-                MaxEnergy[i] = MaxEnergy[0];
-                pvPut(MaxEnergy[i]);
-            }
-            CopyMaxEnergy = 0;
-            pvPut(CopyMaxEnergy);
-        } state monitor_changes
-
-        when(efTestAndClear(CopyADCPercentRuleMon) && (CopyADCPercentRule == 1)) {
-            pvGet(ADCPercentRule[0]);
-            for (i=0; i<nDetectors; i++) {
-                ADCPercentRule[i] = ADCPercentRule[0];
-                pvPut(ADCPercentRule[i]);
-            }
-            CopyADCPercentRule = 0;
-            pvPut(CopyADCPercentRule);
-        } state monitor_changes
-
-        when(efTestAndClear(ReadBaselineHistogramsMon) && (ReadBaselineHistograms == 1)) {
-            for (i=0; i<nDetectors; i++) {
-                ReadBaselineHistogram[i] = 1;
-                pvPut(ReadBaselineHistogram[i]);
-            }
-            ReadBaselineHistograms = 0;
-            pvPut(ReadBaselineHistograms);
-        } state monitor_changes
-
         when(efTestAndClear(ReadTracesMon) && (ReadTraces == 1)) {
             for (i=0; i<nDetectors; i++) {
                 ReadTrace[i] = 1;
@@ -613,21 +377,6 @@ ss dxp_control {
             ReadTraces = 0;
             pvPut(ReadTraces);
         } state monitor_changes
-
-        when(efTestAndClear(TraceTimesMon)) {
-            for (i=0; i<nDetectors; i++) {
-                TraceTime[i] = TraceTimes;
-                pvPut(TraceTime[i]);
-            }
-        } state monitor_changes
-
-        when(efTestAndClear(TraceModesMon)) {
-            for (i=0; i<nDetectors; i++) {
-                TraceMode[i] = TraceModes;
-                pvPut(TraceMode[i]);
-            }
-        } state monitor_changes
-
         when(efTestAndClear(ReadMCAsMon) && (ReadMCAs == 1)) {
             if (AsynDebug) printf("dxpMED.st: Read MCA data\n");
             for (i=0; i<nDetectors; i++) {
@@ -778,13 +527,8 @@ ss dxp_control {
 
         /* Copy ROIs to SCAs */
         when(efTestAndClear(CopyROI_SCAMon) && (CopyROI_SCA == 1)) {
-            /* Disable AutoApply because it is way too slow to do apply after changing each SCA setting */
             /* We use the SYNC option (CAPutCallback) on the pvPuts to ensure that the operations are completed
-             * by the driver before continuing.  Without this order of operation is not guaranteed and the
-             * restore of AutoApply=1 can happen too soon, resulting in very long times to write the SCAs. */
-            prevAutoApply = AutoApply;
-            AutoApply = 0; 
-            pvPut(AutoApply, SYNC);
+             * by the driver before continuing. */
             for (i=0; i<nDetectors; i++) {
                 for (j=0; j<nSCAs; j++) {
                     k = i*MAX_ROIS + j;
@@ -803,12 +547,6 @@ ss dxp_control {
                     pvPut(dxpSCAHigh[m], SYNC);
                 }
             }
-            /* Manually do an apply operation */
-            Apply = 1; 
-            pvPut(Apply, SYNC);
-            /* Restore AutoApply flag */
-            AutoApply = prevAutoApply; 
-            pvPut(AutoApply, SYNC);
             CopyROI_SCA = 0; 
             pvPut(CopyROI_SCA, SYNC);
         } state monitor_changes 
