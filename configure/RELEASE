@@ -28,7 +28,7 @@ AREA_DETECTOR=$(SUPPORT)/areaDetector-2-5
 -include $(AREA_DETECTOR)/configure/RELEASE_PRODS.local
 
 MCA=$(SUPPORT)/mca-7-6
-DXPSITORO=$(SUPPORT)/dxpSITIRO
+DXP_SITORO=$(SUPPORT)/dxpSITORO
 
 # The following are needed only to support the ioc
 CALC=$(SUPPORT)/calc-3-6-1
