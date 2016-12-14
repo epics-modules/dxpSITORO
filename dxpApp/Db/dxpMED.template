@@ -64,18 +64,12 @@ record(mbbo, "$(P)PresetMode") {
     field(ONVL, "1")
     field(ONST, "Real time")
     field(TWVL, "2")
-    field(TWST, "Live time")
+    field(TWST, "Events")
     field(THVL, "3")
-    field(THST, "Events")
-    field(FRVL, "4")
-    field(FRST, "Triggers")
+    field(THST, "Triggers")
 }
 
 record(ao,"$(P)PresetReal") {
-    field(PREC, "2")
-}
-
-record(ao,"$(P)PresetLive") {
     field(PREC, "2")
 }
 
