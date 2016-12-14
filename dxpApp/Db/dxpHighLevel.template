@@ -14,9 +14,9 @@ record(mbbo, "$(P)$(R)PresetMode") {
     field(ZRST, "No preset")
     field(ONVL, "1")
     field(ONST, "Real time")
-    field(TWVL, "3")
+    field(TWVL, "2")
     field(TWST, "Events")
-    field(THVL, "4")
+    field(THVL, "3")
     field(THST, "Triggers")
 }
 
@@ -28,9 +28,9 @@ record(mbbi, "$(P)$(R)PresetMode_RBV") {
     field(ZRST, "No preset")
     field(ONVL, "1")
     field(ONST, "Real time")
-    field(TWVL, "3")
+    field(TWVL, "2")
     field(TWST, "Events")
-    field(THVL, "4")
+    field(THVL, "3")
     field(THST, "Triggers")
     field(SCAN, "I/O Intr")
 }
@@ -197,18 +197,8 @@ record(waveform, "$(P)$(R)TraceData") {
     field(DTYP, "asynInt32ArrayIn")
     field(PREC, "0")
     field(INP, "$(IO)DxpTraceData")
-    field(NELM, "4096")
+    field(NELM, "8192")
     field(FTVL, "LONG")
-}
-
-record(waveform, "$(P)$(R)TraceTimeArray") {
-    field(DESC, "Trace data")
-    field(DTYP, "asynFloat64ArrayIn")
-    field(PREC, "0")
-    field(INP, "$(IO)DxpTraceTimeArray")
-    field(NELM, "4096")
-    field(FTVL, "DOUBLE")
-    field(SCAN, "I/O Intr")
 }
 
 # This is really redundant with the MCA_ELAPSED_REAL parameter
@@ -224,6 +214,14 @@ record(ai, "$(P)$(R)ElapsedLiveTime") {
     field(DTYP, "asynFloat64")
     field(INP, "$(IO)MCA_ELAPSED_LIVE")
     field(DESC, "Energy live time")
+    field(SCAN, "I/O Intr")
+}
+
+record(ai, "$(P)$(R)ElapsedTriggerLiveTime") {
+    field(DTYP, "asynFloat64")
+    field(INP, "$(IO)DxpTriggerLiveTime")
+    field(DESC, "Trigger live time")
+    field(PREC, "2")
     field(SCAN, "I/O Intr")
 }
 
