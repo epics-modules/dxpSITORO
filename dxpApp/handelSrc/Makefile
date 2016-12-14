@@ -19,6 +19,12 @@ INC += md_generic.h
 USR_CFLAGS_Linux += -std=c99 
 USR_CFLAGS_WIN32 += -DWIN32 
 
+ifeq ($(SHARED_LIBRARIES),YES)
+  USR_CFLAGS_WIN32 += -DSITORO_EXPORTS
+else
+  USR_CFLAGS_WIN32 += -DSITORO_NO_IMPORTEXPORT
+endif
+
 LIBRARY_IOC_Linux    += handel
 LIBRARY_IOC_WIN32    += handel
 
@@ -42,15 +48,12 @@ handel_SRCS += md_shim.c
 handel_SRCS += falconx_mm.c
 handel_SRCS += falconx_psl.c
 handel_SRCS += falconxn_psl.c
-#handel_SRCS += handel_md_shim.c
 handel_SRCS += psl.c
+handel_SRCS += sitoro-stub.c
 
-handel_SRCS_Linux += sitoro-stub.c
 handel_SRCS_Linux += handel_md_threads_posix.c
 handel_SRCS_WIN32 += handel_md_threads_windows.c
 
-handel_SYS_LIBS_WIN32    += setupapi User32
-handel_SYS_LIBS_cygwin32 += setupapi User32
 handel_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
