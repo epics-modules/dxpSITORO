@@ -42,6 +42,7 @@
 #define MAX_CHANNELS_PER_CARD      4
 #define DXP_ALL                   -1
 #define MAX_MCA_BINS           8192
+#define DEFAULT_TRACE_POINTS   8192
 #define DXP_MAX_SCAS              64
 #define LEN_SCA_NAME              10
 #define MAPPING_CLOCK_PERIOD     320e-9
@@ -337,6 +338,7 @@ private:
     epicsUInt32 **pMcaRaw;
     epicsUInt32 *pMapRaw;
     epicsFloat64 *tmpStats;
+    double clockSpeed;
 
     int nChannels;
     int channelsPerCard;
@@ -394,7 +396,8 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     int i, ch;
     int sca;
     char tmpStr[100];
-    double tmpDbl;
+    double tmpDbl[2];
+    double traceTime;
     int xiastatus = 0;
     const char *functionName = "NDDxp";
 
@@ -532,15 +535,25 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->tmpStats = (epicsFloat64*)calloc(28, sizeof(epicsFloat64));
     this->currentBuf = (epicsUInt32*)calloc(this->nChannels, sizeof(epicsUInt32));
 
-    xiastatus = xiaGetSpecialRunData(0, "adc_trace_length",  &tmpDbl);
+    tmpDbl[0] = DEFAULT_TRACE_POINTS;
+    xiastatus = xiaDoSpecialRun(0, "adc_trace", tmpDbl);
+    xiastatus = xiaGetSpecialRunData(0, "adc_trace_length",  tmpDbl);
     if (xiastatus != XIA_SUCCESS) printf("Error calling xiaGetSpecialRunData for adc_trace_length");
-    this->traceLength = (int)tmpDbl;
+    this->traceLength = (int)tmpDbl[0];
+printf("traceLength = %d\n", this->traceLength);
+
+    /* Get the clock speed */
+    xiastatus = xiaGetAcquisitionValues(0, "clock_speed", tmpDbl);
+    this->clockSpeed = tmpDbl[0]*1e6;
+    traceTime = 1./this->clockSpeed;
 
     /* Allocate a buffer for the trace data */
     this->traceBuffer = (epicsInt32 *)malloc(this->traceLength * sizeof(epicsInt32));
 
     /* Allocate a buffer for the trace time array */
     this->traceTimeBuffer = (epicsFloat64 *)malloc(this->traceLength * sizeof(epicsFloat64));
+    for (i=0; i<this->traceLength; i++) this->traceTimeBuffer[i] = i*traceTime;
+    doCallbacksFloat64Array(this->traceTimeBuffer, this->traceLength, NDDxpTraceTimeArray, 0);
 
     /* Allocating a temporary buffer for use in mapping mode. */
     this->pMapRaw = (epicsUInt32*)malloc(XMAP_BUFFER_READ_SIZE);
@@ -565,7 +578,6 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     /* Set default values for parameters that cannot be read from Handel */
     for (i=0; i<=this->nChannels; i++) {
         setDoubleParam (i, NDDxpTraceTime, 0.1);
-        setIntegerParam(i, NDDxpNewTraceTime, 1);
         setIntegerParam(i, NDDxpPresetMode, NDDxpPresetModeNone);
         setIntegerParam(i, NDDxpPresetEvents, 0);
         setIntegerParam(i, NDDxpPresetTriggers, 0);
@@ -1268,7 +1280,7 @@ asynStatus NDDxp::configureCollectMode()
 asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
 {
     int acquiring=0;
-    unsigned long run_active;
+    int run_active;
     int ivalue;
     int channel=addr;
     asynStatus status=asynSuccess;
@@ -1295,6 +1307,9 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
          * HW is acquiring or not.        */
         CALLHANDEL( xiaGetRunData(channel, "run_active", &run_active), "xiaGetRunData (run_active)" )
         setIntegerParam(addr, NDDxpAcquiring, run_active);
+asynPrint(pasynUser, ASYN_TRACE_ERROR, 
+"NDDxp::getAcquisitionStatus, addr=%d, run_active=0x%x\n", 
+addr, run_active);
     }
     //asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
     //    "%s::%s addr=%d channel=%d: acquiring=%d\n",
@@ -1768,11 +1783,8 @@ asynStatus NDDxp::getTrace(asynUser* pasynUser, int addr,
 {
     asynStatus status = asynSuccess;
     int xiastatus, channel=addr;
-    int i, j;
-    int newTraceTime;
+    int i;
     double info[2];
-    double traceTime;
-    int traceMode;
     const char *functionName = "getTrace";
 
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
@@ -1785,12 +1797,7 @@ asynStatus NDDxp::getTrace(asynUser* pasynUser, int addr,
             this->getTrace(pasynUser, i, data, maxLen, actualLen);
         }
     } else {
-        getDoubleParam(channel, NDDxpTraceTime, &traceTime);
-        getIntegerParam(channel, NDDxpNewTraceTime, &newTraceTime);
-        getIntegerParam(channel, NDDxpTraceMode, &traceMode);
-        info[0] = 0.;
-        /* Convert from us to ns */
-        info[1] = traceTime * 1000.;
+        info[0] = this->traceLength;
 
         xiastatus = xiaDoSpecialRun(channel, "adc_trace", info);
         status = this->xia_checkError(pasynUser, xiastatus, "adc_trace");
@@ -1806,11 +1813,6 @@ asynStatus NDDxp::getTrace(asynUser* pasynUser, int addr,
 
         memcpy(data, this->traceBuffer, *actualLen * sizeof(epicsInt32));
         
-        if (newTraceTime) {
-            setIntegerParam(channel, NDDxpNewTraceTime, 0);  /* Clear flag */
-            for (j=0; j<this->traceLength; j++) this->traceTimeBuffer[j] = j*traceTime;
-            doCallbacksFloat64Array(this->traceTimeBuffer, this->traceLength, NDDxpTraceTimeArray, channel);
-        }
     }
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
         "%s:%s: exit\n",
