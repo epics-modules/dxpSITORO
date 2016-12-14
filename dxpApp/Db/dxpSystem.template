@@ -16,6 +16,16 @@ record(ai, "$(P)PollTime_RBV") {
     field(SCAN, "I/O Intr")
 }
 
+record(waveform, "$(P)TraceTimeArray") {
+    field(DESC, "Trace data")
+    field(DTYP, "asynFloat64ArrayIn")
+    field(PREC, "0")
+    field(INP, "$(IO)DxpTraceTimeArray")
+    field(NELM, "4096")
+    field(FTVL, "DOUBLE")
+    field(SCAN, "I/O Intr")
+}
+
 record(bo, "$(P)SaveSystem") {
     field(DESC, "save system information")
     field(SCAN, "Passive")
