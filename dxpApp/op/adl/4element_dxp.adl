@@ -1,14 +1,14 @@
 
 file {
-	name="/home/epics/devel/dxp/dxpApp/op/adl/4element_dxp.adl"
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4element_dxp.adl"
 	version=030107
 }
 display {
 	object {
-		x=124
-		y=101
-		width=580
-		height=555
+		x=114
+		y=117
+		width=575
+		height=530
 	}
 	clr=14
 	bclr=4
@@ -115,7 +115,7 @@ rectangle {
 		x=4
 		y=37
 		width=310
-		height=515
+		height=490
 	}
 	"basic attribute" {
 		clr=54
@@ -128,7 +128,7 @@ rectangle {
 		x=319
 		y=37
 		width=250
-		height=515
+		height=490
 	}
 	"basic attribute" {
 		clr=54
@@ -720,56 +720,6 @@ text {
 	}
 	textix="Presets"
 }
-menu {
-	object {
-		x=65
-		y=471
-		width=80
-		height=20
-	}
-	control {
-		chan="$(P)EnableClientWait"
-		clr=14
-		bclr=51
-	}
-}
-text {
-	object {
-		x=150
-		y=472
-		width=150
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Wait for client"
-}
-menu {
-	object {
-		x=65
-		y=497
-		width=80
-		height=20
-	}
-	control {
-		chan="$(P)ClientWait"
-		clr=14
-		bclr=51
-	}
-}
-text {
-	object {
-		x=150
-		y=498
-		width=110
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Client Wait"
-}
 "message button" {
 	object {
 		x=10
@@ -809,86 +759,6 @@ text {
 		clr=14
 	}
 	textix="MCA Status rate"
-}
-menu {
-	object {
-		x=65
-		y=419
-		width=80
-		height=20
-	}
-	control {
-		chan="$(P)ReadAll.SCAN"
-		clr=14
-		bclr=51
-	}
-}
-"message button" {
-	object {
-		x=10
-		y=419
-		width=50
-		height=20
-	}
-	control {
-		chan="$(P)ReadAllOnce.PROC"
-		clr=14
-		bclr=51
-	}
-	label="Read"
-	press_msg="1"
-}
-text {
-	object {
-		x=150
-		y=420
-		width=130
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="MCA Read rate"
-}
-"message button" {
-	object {
-		x=10
-		y=445
-		width=50
-		height=20
-	}
-	control {
-		chan="$(P)ReadLLParams.PROC"
-		clr=14
-		bclr=51
-	}
-	label="Read"
-	press_msg="1"
-}
-menu {
-	object {
-		x=65
-		y=445
-		width=80
-		height=20
-	}
-	control {
-		chan="$(P)ReadLLParams.SCAN"
-		clr=14
-		bclr=51
-	}
-}
-text {
-	object {
-		x=150
-		y=446
-		width=130
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Low-level params"
 }
 menu {
 	object {
@@ -983,21 +853,6 @@ text {
 		bclr=4
 	}
 	align="horiz. right"
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=95
-		y=235
-		width=95
-		height=22
-	}
-	control {
-		chan="$(P)PresetLive"
-		clr=14
-		bclr=51
-	}
 	limits {
 	}
 }
@@ -1168,36 +1023,6 @@ text {
 	}
 	textix="Poll time"
 }
-"text update" {
-	object {
-		x=15
-		y=523
-		width=130
-		height=20
-	}
-	monitor {
-		chan="$(P)SNL_Connected"
-		clr=0
-		bclr=14
-	}
-	clrmod="alarm"
-	align="horiz. centered"
-	format="string"
-	limits {
-	}
-}
-text {
-	object {
-		x=150
-		y=523
-		width=90
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="SNL Status"
-}
 menu {
 	object {
 		x=15
@@ -1276,6 +1101,148 @@ composite {
 				chan="$(P)Acquiring"
 			}
 			textix="Acquiring"
+		}
+	}
+}
+composite {
+	object {
+		x=15
+		y=445
+		width=285
+		height=72
+	}
+	"composite name"=""
+	children {
+		menu {
+			object {
+				x=65
+				y=445
+				width=80
+				height=20
+			}
+			control {
+				chan="$(P)EnableClientWait"
+				clr=14
+				bclr=51
+			}
+		}
+		text {
+			object {
+				x=150
+				y=446
+				width=150
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Wait for client"
+		}
+		menu {
+			object {
+				x=65
+				y=471
+				width=80
+				height=20
+			}
+			control {
+				chan="$(P)ClientWait"
+				clr=14
+				bclr=51
+			}
+		}
+		text {
+			object {
+				x=150
+				y=472
+				width=110
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Client Wait"
+		}
+		"text update" {
+			object {
+				x=15
+				y=497
+				width=130
+				height=20
+			}
+			monitor {
+				chan="$(P)SNL_Connected"
+				clr=0
+				bclr=14
+			}
+			clrmod="alarm"
+			align="horiz. centered"
+			format="string"
+			limits {
+			}
+		}
+		text {
+			object {
+				x=150
+				y=497
+				width=90
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="SNL Status"
+		}
+	}
+}
+composite {
+	object {
+		x=10
+		y=419
+		width=270
+		height=21
+	}
+	"composite name"=""
+	children {
+		menu {
+			object {
+				x=65
+				y=419
+				width=80
+				height=20
+			}
+			control {
+				chan="$(P)ReadAll.SCAN"
+				clr=14
+				bclr=51
+			}
+		}
+		"message button" {
+			object {
+				x=10
+				y=419
+				width=50
+				height=20
+			}
+			control {
+				chan="$(P)ReadAllOnce.PROC"
+				clr=14
+				bclr=51
+			}
+			label="Read"
+			press_msg="1"
+		}
+		text {
+			object {
+				x=150
+				y=420
+				width=130
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="MCA Read rate"
 		}
 	}
 }

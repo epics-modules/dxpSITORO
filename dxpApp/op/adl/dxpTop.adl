@@ -1,14 +1,14 @@
 
 file {
-	name="/home/epics/devel/dxp/dxpApp/op/adl/dxpTop.adl"
-	version=030102
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/dxpTop.adl"
+	version=030107
 }
 display {
 	object {
-		x=82
-		y=41
-		width=250
-		height=150
+		x=599
+		y=172
+		width=300
+		height=100
 	}
 	clr=14
 	bclr=4
@@ -87,33 +87,6 @@ display {
 		1a7309,
 	}
 }
-text {
-	object {
-		x=130
-		y=37
-		width=60
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Saturn"
-}
-"related display" {
-	object {
-		x=59
-		y=37
-		width=66
-		height=20
-	}
-	display[0] {
-		label="Saturn"
-		name="dxpSaturn.adl"
-		args="P=dxpSaturn:, M=mca1, D=dxp1:"
-	}
-	clr=14
-	bclr=4
-}
 "related display" {
 	object {
 		x=59
@@ -122,49 +95,9 @@ text {
 		height=20
 	}
 	display[0] {
-		label="xMAP 4-element MED"
+		label="Falcon 4-element MED"
 		name="4element_dxp.adl"
-		args="P=dxpXMAP:, M=mca, D=dxp"
-	}
-	display[1] {
-		label="xMAP 16-element MED"
-		name="16element_dxp.adl"
-		args="P=dxpXMAP:, M=mca, D=dxp"
-	}
-	clr=14
-	bclr=4
-}
-"related display" {
-	object {
-		x=59
-		y=87
-		width=66
-		height=20
-	}
-	display[0] {
-		label="Mercury 4-element"
-		name="4element_dxp.adl"
-		args="P=dxpMercury:, M=mca, D=dxp"
-	}
-	clr=14
-	bclr=4
-}
-"related display" {
-	object {
-		x=59
-		y=112
-		width=66
-		height=20
-	}
-	display[0] {
-		label="DXP2X 4-element MED"
-		name="4element_dxp.adl"
-		args="P=dxp2X:, M=mca, D=dxp"
-	}
-	display[1] {
-		label="DXP2X 16-element MED"
-		name="16element_dxp.adl"
-		args="P=dxp2X:, M=mca, D=dxp"
+		args="P=dxpSITORO:, M=mca, D=dxp"
 	}
 	clr=14
 	bclr=4
@@ -173,47 +106,23 @@ text {
 	object {
 		x=130
 		y=62
-		width=40
+		width=80
 		height=20
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="xMAP"
+	textix="FalconXN"
 }
 text {
 	object {
-		x=130
-		y=87
-		width=70
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Mercury"
-}
-text {
-	object {
-		x=130
-		y=112
-		width=50
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="DXP2X"
-}
-text {
-	object {
-		x=18
+		x=11
 		y=9
-		width=210
+		width=278
 		height=20
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="DXP Top Level Control"
+	textix="DXP SITORO Top Level Control"
 }
