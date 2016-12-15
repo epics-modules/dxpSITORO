@@ -1,7 +1,7 @@
 
 file {
-	name="/home/epics/devel/dxp/dxpApp/op/adl/dxp_trace.adl"
-	version=030102
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/dxp_trace.adl"
+	version=030107
 }
 display {
 	object {
@@ -103,9 +103,10 @@ display {
 	}
 	style="line"
 	trace[0] {
-		xdata="$(P)$(R)TraceTimeArray"
+		xdata="$(P)TraceTimeArray"
 		ydata="$(P)$(R)TraceData"
 		data_clr=54
+		yaxis=0
 	}
 	x_axis {
 		rangeStyle="auto-scale"
@@ -152,42 +153,6 @@ text {
 		clr=14
 	}
 	textix="Read rate:"
-}
-composite {
-	object {
-		x=406
-		y=350
-		width=120
-		height=41
-	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=416
-				y=350
-				width=100
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Trace mode"
-		}
-		menu {
-			object {
-				x=406
-				y=373
-				width=120
-				height=18
-			}
-			control {
-				chan="$(P)$(R)TraceMode"
-				clr=14
-				bclr=51
-			}
-		}
-	}
 }
 composite {
 	object {
@@ -248,44 +213,6 @@ composite {
 				clr=14
 			}
 			textix="Read Rate"
-		}
-	}
-}
-composite {
-	object {
-		x=8
-		y=350
-		width=210
-		height=42
-	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=8
-				y=350
-				width=210
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Time per point (usec)"
-		}
-		"text entry" {
-			object {
-				x=73
-				y=372
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)$(R)TraceTime"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
 		}
 	}
 }
