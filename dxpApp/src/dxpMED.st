@@ -104,11 +104,6 @@ assign  mcaPresetReal to {};
 double  PresetReal; assign PresetReal to "{P}PresetReal";
 monitor PresetReal; evflag PresetRealMon; sync PresetReal PresetRealMon;
 
-double  mcaPresetLive[MAX_DETECTORS]; 
-assign  mcaPresetLive to {};
-double  PresetLive; assign PresetLive to "{P}PresetLive";
-monitor PresetLive; evflag PresetLiveMon; sync PresetLive PresetLiveMon;
-
 double  dxpPresetEvents[MAX_DETECTORS]; 
 assign  dxpPresetEvents to {};
 double  PresetEvents; assign PresetEvents to "{P}PresetEvents";
@@ -236,9 +231,6 @@ ss dxp_control {
 
                 sprintf(temp, "%s%s%d.PRTM", prefix, mca, det);
                 pvAssign(mcaPresetReal[i], temp);
-
-                sprintf(temp, "%s%s%d.PLTM", prefix, mca, det);
-                pvAssign(mcaPresetLive[i], temp);
 
                 sprintf(temp, "%s%s%d.DTIM", prefix, mca, det);
                 pvAssign(mcaDeadTime[i], temp);
@@ -429,13 +421,6 @@ ss dxp_control {
             for (i=0; i<nDetectors; i++) {
                 mcaPresetReal[i] = PresetReal;
                 pvPut(mcaPresetReal[i]);
-            }
-        } state monitor_changes
-
-        when(efTestAndClear(PresetLiveMon)) {
-            for (i=0; i<nDetectors; i++) {
-                mcaPresetLive[i] = PresetLive;
-                pvPut(mcaPresetLive[i]);
             }
         } state monitor_changes
 
