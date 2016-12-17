@@ -1,14 +1,14 @@
 
 file {
-	name="/home/epics/devel/dxp/dxpApp/op/adl/4element_trace.adl"
-	version=030102
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4element_trace_SITORO.adl"
+	version=030107
 }
 display {
 	object {
 		x=66
 		y=50
-		width=800
-		height=635
+		width=790
+		height=590
 	}
 	clr=14
 	bclr=4
@@ -176,9 +176,10 @@ text {
 	style="line"
 	erase_oldest="plot last n pts"
 	trace[0] {
-		xdata="$(P)$(D)1:TraceTimeArray"
+		xdata="$(P)TraceTimeArray"
 		ydata="$(P)$(D)1:TraceData"
 		data_clr=27
+		yaxis=0
 	}
 	x_axis {
 		rangeStyle="auto-scale"
@@ -207,9 +208,10 @@ text {
 	style="line"
 	erase_oldest="plot last n pts"
 	trace[0] {
-		xdata="$(P)$(D)2:TraceTimeArray"
+		xdata="$(P)TraceTimeArray"
 		ydata="$(P)$(D)2:TraceData"
 		data_clr=27
+		yaxis=0
 	}
 	x_axis {
 		rangeStyle="auto-scale"
@@ -221,107 +223,44 @@ text {
 		rangeStyle="auto-scale"
 	}
 }
-composite {
+"message button" {
+	object {
+		x=245
+		y=560
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)ReadTraces.PROC"
+		clr=14
+		bclr=51
+	}
+	label="Read Once"
+	press_msg="1"
+}
+text {
 	object {
 		x=50
 		y=560
-		width=279
-		height=70
+		width=105
+		height=20
 	}
-	"composite name"=""
-	children {
-		"message button" {
-			object {
-				x=245
-				y=560
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)ReadTraces.PROC"
-				clr=14
-				bclr=51
-			}
-			label="Read Once"
-			press_msg="1"
-		}
-		text {
-			object {
-				x=50
-				y=560
-				width=105
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Read Rate:"
-		}
-		menu {
-			object {
-				x=158
-				y=561
-				width=80
-				height=18
-			}
-			control {
-				chan="$(P)ReadTraces.SCAN"
-				clr=14
-				bclr=51
-			}
-		}
-		text {
-			object {
-				x=50
-				y=585
-				width=210
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Time per point (usec):"
-		}
-		"text entry" {
-			object {
-				x=269
-				y=585
-				width=60
-				height=20
-			}
-			control {
-				chan="$(P)TraceTimes"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=50
-				y=610
-				width=100
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Trace mode"
-		}
-		menu {
-			object {
-				x=158
-				y=611
-				width=120
-				height=18
-			}
-			control {
-				chan="$(P)TraceModes"
-				clr=14
-				bclr=51
-			}
-		}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Read Rate:"
+}
+menu {
+	object {
+		x=158
+		y=561
+		width=80
+		height=18
+	}
+	control {
+		chan="$(P)ReadTraces.SCAN"
+		clr=14
+		bclr=51
 	}
 }
 "cartesian plot" {
@@ -341,9 +280,10 @@ composite {
 	style="line"
 	erase_oldest="plot last n pts"
 	trace[0] {
-		xdata="$(P)$(D)4:TraceTimeArray"
+		xdata="$(P)TraceTimeArray"
 		ydata="$(P)$(D)4:TraceData"
 		data_clr=27
+		yaxis=0
 	}
 	x_axis {
 		rangeStyle="auto-scale"
@@ -372,9 +312,10 @@ composite {
 	style="line"
 	erase_oldest="plot last n pts"
 	trace[0] {
-		xdata="$(P)$(D)3:TraceTimeArray"
+		xdata="$(P)TraceTimeArray"
 		ydata="$(P)$(D)3:TraceData"
 		data_clr=27
+		yaxis=0
 	}
 	x_axis {
 		rangeStyle="auto-scale"
