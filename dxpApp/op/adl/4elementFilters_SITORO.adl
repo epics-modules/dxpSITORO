@@ -1,13 +1,13 @@
 
 file {
-	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4elementFilters.adl"
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4elementFilters_SITORO.adl"
 	version=030107
 }
 display {
 	object {
-		x=784
-		y=155
-		width=715
+		x=556
+		y=142
+		width=660
 		height=315
 	}
 	clr=14
@@ -835,130 +835,6 @@ composite {
 					}
 				}
 			}
-		}
-	}
-}
-composite {
-	object {
-		x=660
-		y=79
-		width=50
-		height=132
-	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=671
-				y=79
-				width=28
-				height=14
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="More"
-			align="horiz. centered"
-		}
-		"related display" {
-			object {
-				x=660
-				y=101
-				width=50
-				height=20
-			}
-			display[0] {
-				label="MCA plot"
-				name="simple_mca.adl"
-				args="P=$(P)$(M), M=1"
-			}
-			display[1] {
-				label="ADC Trace"
-				name="dxp_trace.adl"
-				args="P=$(P), R=$(D)1:"
-			}
-			display[2] {
-				label="ROIs/SCAs"
-				name="dxpROI_SCA32.adl"
-				args="P=$(P),M=$(M),D=$(D),R=1"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=660
-				y=131
-				width=50
-				height=20
-			}
-			display[0] {
-				label="MCA plot"
-				name="simple_mca.adl"
-				args="P=$(P)$(M), M=2"
-			}
-			display[1] {
-				label="ADC Trace"
-				name="dxp_trace.adl"
-				args="P=$(P)$(D), R=2:"
-			}
-			display[2] {
-				label="ROIs/SCAs"
-				name="dxpROI_SCA32.adl"
-				args="P=$(P),M=$(M),D=$(D),R=2"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=660
-				y=161
-				width=50
-				height=20
-			}
-			display[0] {
-				label="MCA plot"
-				name="simple_mca.adl"
-				args="P=$(P)$(M), M=3"
-			}
-			display[1] {
-				label="ADC Trace"
-				name="dxp_trace.adl"
-				args="P=$(P)$(D), R=3:"
-			}
-			display[2] {
-				label="ROIs/SCAs"
-				name="dxpROI_SCA32.adl"
-				args="P=$(P),M=$(M),D=$(D),R=3"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=660
-				y=191
-				width=50
-				height=20
-			}
-			display[0] {
-				label="MCA plot"
-				name="simple_mca.adl"
-				args="P=$(P)$(M), M=4"
-			}
-			display[1] {
-				label="ADC Trace"
-				name="dxp_trace.adl"
-				args="P=$(P)$(D), R=4:"
-			}
-			display[2] {
-				label="ROIs/SCAs"
-				name="dxpROI_SCA32.adl"
-				args="P=$(P),M=$(M),D=$(D),R=4"
-			}
-			clr=14
-			bclr=51
 		}
 	}
 }
