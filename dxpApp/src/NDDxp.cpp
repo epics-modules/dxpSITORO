@@ -178,6 +178,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     createParam(NDDxpDetectionFilterString,        asynParamInt32  , &NDDxpDetectionFilter);
     createParam(NDDxpScaleFactorString,            asynParamFloat64, &NDDxpScaleFactor);
     createParam(NDDxpNumMCAChannelsString,         asynParamInt32,   &NDDxpNumMCAChannels);
+    createParam(NDDxpMCARefreshPeriodString,       asynParamFloat64, &NDDxpMCARefreshPeriod);
     createParam(NDDxpPresetModeString,             asynParamInt32,   &NDDxpPresetMode);
     createParam(NDDxpPresetRealString,             asynParamFloat64, &NDDxpPresetReal);
     createParam(NDDxpPresetEventsString,           asynParamInt32,   &NDDxpPresetEvents);
@@ -497,7 +498,8 @@ asynStatus NDDxp::writeFloat64( asynUser *pasynUser, epicsFloat64 value)
     else if 
        ((function == NDDxpDetectionThreshold) ||
         (function == NDDxpScaleFactor)        ||
-        (function == NDDxpDecayTime))
+        (function == NDDxpDecayTime)          ||
+        (function == NDDxpMCARefreshPeriod))
     {
         this->setDxpParam(pasynUser, addr, function, value);
     }
@@ -697,6 +699,11 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
         xiastatus = xiaSetAcquisitionValues(channel, "scale_factor", &dvalue);
     } else if (function == NDDxpDecayTime) {
         xiastatus = xiaSetAcquisitionValues(channel, "decay_time", &dvalue);
+    } else if (function == NDDxpMCARefreshPeriod) {
+        xiastatus = xiaSetAcquisitionValues(DXP_ALL, "mca_refresh", &dvalue);
+asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+"%s::%s called xiaSetAcquisitionValues(%d, \"mca_refresh\", %f)\n",
+driverName, functionName, DXP_ALL, dvalue);
     }
     this->getDxpParams(pasynUser, addr);
     if (runActive) xiaStartRun(channel, 1);
@@ -1033,7 +1040,7 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
             acquiring = MAX(acquiring, ivalue);
         }
         setIntegerParam(addr, NDDxpAcquiring, acquiring);
-        if (!acquiring) xiaStopRun(-1);
+        if (!acquiring) xiaStopRun(0);
     } else {
         /* Get the run time status from the handel library - informs whether the
          * HW is acquiring or not.        */
@@ -1568,7 +1575,7 @@ asynStatus NDDxp::startAcquiring(asynUser *pasynUser)
     int channel, addr, i;
     int acquiring, erased, resume=1;
     int firstCh;
-    const char *functionName = "startAcquire";
+    const char *functionName = "startAcquiring";
 
     channel = this->getChannel(pasynUser, &addr);
     getIntegerParam(addr, mcaAcquiring, &acquiring);
@@ -1585,7 +1592,13 @@ asynStatus NDDxp::startAcquiring(asynUser *pasynUser)
     for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerCard) this->currentBuf[firstCh] = 0;
 
     // do xiaStart command
-    CALLHANDEL( xiaStartRun(channel, resume), "xiaStartRun()" )
+asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+"%s::%s calling xiaStartRun(0, %d)\n",
+driverName, functionName, resume);
+    CALLHANDEL( xiaStartRun(0, resume), "xiaStartRun()" )
+asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+"%s::%s return from xiaStartRun(0, %d)\n",
+driverName, functionName, resume);
 
     setIntegerParam(addr, NDDxpErased, 0); /* reset the erased flag */
     setIntegerParam(addr, mcaAcquiring, 1); /* Set the acquiring flag */
