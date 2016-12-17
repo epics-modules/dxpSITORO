@@ -16,6 +16,23 @@ record(ai, "$(P)PollTime_RBV") {
     field(SCAN, "I/O Intr")
 }
 
+record(ao, "$(P)MCARefreshPeriod") {
+    field(PINI, "YES")
+    field(DTYP, "asynFloat64")
+    field(OUT, "$(IO)DxpMCARefreshPeriod")
+    field(VAL, "0.1")
+    field(PREC, "3")
+    field(EGU, "s")
+}
+
+record(ai, "$(P)MCARefreshPeriod_RBV") {
+    field(DTYP, "asynFloat64")
+    field(INP, "$(IO)DxpMCARefreshPeriod")
+    field(PREC, "3")
+    field(EGU, "s")
+    field(SCAN, "I/O Intr")
+}
+
 record(waveform, "$(P)TraceTimeArray") {
     field(DESC, "Trace time array")
     field(DTYP, "asynFloat64ArrayIn")
