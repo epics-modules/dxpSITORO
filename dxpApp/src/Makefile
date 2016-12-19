@@ -8,7 +8,7 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
-LIBRARY_IOC_Linux   += dxp
+LIBRARY_IOC_Linux += dxp
 LIBRARY_IOC_WIN32 += dxp
 
 DBD += dxpSupport.dbd
