@@ -118,24 +118,18 @@ public:
     void acquisitionTask();
     asynStatus pollMappingMode();
     int getChannel(asynUser *pasynUser, int *addr);
-    int getModuleType();
-    asynStatus apply(int channel, int forceApply=0);
+    void getModuleInfo();
     asynStatus setPresets(asynUser *pasynUser, int addr);
     asynStatus setDxpParam(asynUser *pasynUser, int addr, int function, double value);
     asynStatus getDxpParams(asynUser *pasynUser, int addr);
-    asynStatus setLLDxpParam(asynUser *pasynUser, int addr, int value);
-    asynStatus getLLDxpParams(asynUser *pasynUser, int addr);
     asynStatus setSCAs(asynUser *pasynUser, int addr);
     asynStatus getSCAs(asynUser *pasynUser, int addr);
-    asynStatus getSCAData(asynUser *pasynUser, int addr);
     asynStatus getAcquisitionStatus(asynUser *pasynUser, int addr);
     asynStatus getModuleStatistics(asynUser *pasynUser, int addr, moduleStatistics *stats);
     asynStatus getAcquisitionStatistics(asynUser *pasynUser, int addr);
     asynStatus getMcaData(asynUser *pasynUser, int addr);
     asynStatus getMappingData();
     asynStatus getTrace(asynUser* pasynUser, int addr,
-                        epicsInt32* data, size_t maxLen, size_t *actualLen);
-    asynStatus getBaselineHistogram(asynUser* pasynUser, int addr,
                         epicsInt32* data, size_t maxLen, size_t *actualLen);
     asynStatus configureCollectMode();
     asynStatus setNumChannels(asynUser *pasynUser, epicsInt32 newsize, epicsInt32 *rbValue);
@@ -246,11 +240,13 @@ protected:
 private:
     /* Data */
     epicsUInt32 **pMcaRaw;
-    epicsUInt32 *pMapRaw;
+    unsigned long *pMapRaw;
     epicsFloat64 *tmpStats;
 
     int nChannels;
-    int channelsPerCard;
+    unsigned int numModules;
+    int *channelsPerModule;
+    int *firstChanOnModule;
 
     epicsEvent *cmdStartEvent;
     epicsEvent *cmdStopEvent;
