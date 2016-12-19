@@ -71,9 +71,11 @@ record(mbbo, "$(P)PixelAdvanceMode") {
   field(OUT,  "$(IO)DxpPixelAdvanceMode")
   field(PINI, "YES")
   field(ZRVL, "0")
-  field(ZRST, "Gate")
+  field(ZRST, "User")
   field(ONVL, "1")
-  field(ONST, "Sync")
+  field(ONST, "Gate")
+  field(TWVL, "2")
+  field(TWST, "Sync")
   field(IVOA, "Don't drive outputs")
 }
 
@@ -82,9 +84,11 @@ record(mbbi, "$(P)PixelAdvanceMode_RBV") {
   field(DTYP, "asynInt32")
   field(INP,  "$(IO)DxpPixelAdvanceMode")
   field(ZRVL, "0")
-  field(ZRST, "Gate")
+  field(ZRST, "User")
   field(ONVL, "1")
-  field(ONST, "Sync")
+  field(ONST, "Gate")
+  field(TWVL, "2")
+  field(TWST, "Sync")
   field(SCAN, "I/O Intr")
 }
 
