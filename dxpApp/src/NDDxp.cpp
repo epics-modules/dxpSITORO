@@ -1,6 +1,6 @@
 /* NDDxp.cpp
  *
- * Driver for XIA DSP modules (Saturn, DXP4C2X, xMAP, and Mercury 
+ * Driver for XIA FalconX modules 
  * 
  * Mark Rivers
  * University of Chicago
@@ -82,6 +82,7 @@ typedef enum {
 } NDDxpPresetMode_t;
 
 typedef enum {
+    NDDxpPixelAdvanceUser,
     NDDxpPixelAdvanceGate,
     NDDxpPixelAdvanceSync,
 } NDDxpPixelAdvanceMode_t;
@@ -243,6 +244,9 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     /* Register the epics exit function to be called when the IOC exits... */
     xiastatus = epicsAtExit(c_shutdown, this);
 
+    /* Read the module information */
+    getModuleInfo();
+
     /* Set the parameters in param lib */
     status |= setIntegerParam(NDDxpCollectMode, 0);
     /* Clear the acquiring flag, must do this or things don't work right because acquisitionTask does not set till 
@@ -278,7 +282,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->traceTimeBuffer = (epicsFloat64 *)calloc(this->traceLength, sizeof(epicsFloat64));
 
     /* Allocate a temporary buffer for use in mapping mode. */
-    this->pMapRaw = (epicsUInt32*)malloc(XMAP_BUFFER_READ_SIZE);
+    this->pMapRaw = (unsigned long*)malloc(XMAP_BUFFER_READ_SIZE);
     
     /* Allocate an internal buffer long enough to hold all the energy values in a spectrum */
     this->spectrumXAxisBuffer = (epicsFloat64*)calloc(MAX_MCA_BINS, sizeof(epicsFloat64));
@@ -363,7 +367,7 @@ asynStatus NDDxp::writeInt32( asynUser *pasynUser, epicsInt32 value)
     } 
     else if (function == NDDxpNextPixel) 
     {
-        for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerCard)
+        for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerModule[0])
         {
             CALLHANDEL( xiaBoardOperation(firstCh, "mapping_pixel_next", &ignored), "mapping_pixel_next" )
         }
@@ -701,9 +705,6 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
         xiastatus = xiaSetAcquisitionValues(channel, "decay_time", &dvalue);
     } else if (function == NDDxpMCARefreshPeriod) {
         xiastatus = xiaSetAcquisitionValues(DXP_ALL, "mca_refresh", &dvalue);
-asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-"%s::%s called xiaSetAcquisitionValues(%d, \"mca_refresh\", %f)\n",
-driverName, functionName, DXP_ALL, dvalue);
     }
     this->getDxpParams(pasynUser, addr);
     if (runActive) xiaStartRun(channel, 1);
@@ -860,7 +861,7 @@ asynStatus NDDxp::configureCollectMode()
     NDDxpListMode_t listMode;
     int xiastatus, acquiring;
     int i;
-    int firstCh, bufLen;
+    int bufLen;
     double dTmp;
     int pixelsPerBuffer;
     int autoPixelsPerBuffer;
@@ -947,28 +948,26 @@ asynStatus NDDxp::configureCollectMode()
             xiastatus = xiaSetAcquisitionValues(DXP_ALL, "list_mode_variant", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "list_mode_variant");
         }
-        for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerCard)
-        {
-            dTmp = XIA_MAPPING_CTL_SYNC;
-            if (pixelAdvanceMode == NDDxpPixelAdvanceGate) dTmp = XIA_MAPPING_CTL_GATE;
+        for (i=0; i<this->channelsPerModule[0]; i++) {
+            dTmp = pixelAdvanceMode;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting pixel_advance_mode = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "pixel_advance_mode", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "pixel_advance_mode", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "pixel_advance_mode");
 
             dTmp = pixelsPerRun;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting num_map_pixels = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "num_map_pixels", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "num_map_pixels", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels");
 
             dTmp = pixelsPerBuffer;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting num_map_pixels_per_buffer = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "num_map_pixels_per_buffer", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "num_map_pixels_per_buffer", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels_per_buffer");
 
             /* The xMAP and Mercury actually divides the sync input by N+1, e.g. sync_count=0 does no division
@@ -976,35 +975,32 @@ asynStatus NDDxp::configureCollectMode()
             dTmp = syncCount-1;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting sync_count = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "sync_count", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "sync_count", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "sync_count");
 
             dTmp = ignoreGate;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting gate_ignore = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "gate_ignore", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "gate_ignore", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "gate_ignore");
 
             dTmp = inputLogicPolarity;
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] setting input_logic_polarity = %f\n", 
-                driverName, functionName, firstCh, dTmp);
-            xiastatus = xiaSetAcquisitionValues(firstCh, "input_logic_polarity", &dTmp);
+                driverName, functionName, i, dTmp);
+            xiastatus = xiaSetAcquisitionValues(i, "input_logic_polarity", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "input_logic_polarity");
             
             /* Clear the normal MCA mode status settings */
-            for (i=0; i<this->channelsPerCard; i++)
-            {
-                setIntegerParam(firstCh+i, NDDxpTriggers, 0);
-                setDoubleParam(firstCh+i, mcaElapsedRealTime, 0);
-                setDoubleParam(firstCh+i, NDDxpTriggerLiveTime, 0);
-                setDoubleParam(firstCh+i, mcaElapsedLiveTime, 0);
-                callParamCallbacks(firstCh+i, firstCh+i);
-            }
+            setIntegerParam(i, NDDxpTriggers, 0);
+            setDoubleParam(i, mcaElapsedRealTime, 0);
+            setDoubleParam(i, NDDxpTriggerLiveTime, 0);
+            setDoubleParam(i, mcaElapsedLiveTime, 0);
+            callParamCallbacks(i, i);
             /* Read back the actual settings */
-            getDxpParams(this->pasynUserSelf, firstCh);
+            getDxpParams(this->pasynUserSelf, i);
         }
         break;
     }
@@ -1046,9 +1042,9 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
          * HW is acquiring or not.        */
         CALLHANDEL( xiaGetRunData(channel, "run_active", &run_active), "xiaGetRunData (run_active)" )
         setIntegerParam(addr, NDDxpAcquiring, run_active);
-asynPrint(pasynUser, ASYN_TRACE_ERROR, 
-"NDDxp::getAcquisitionStatus, addr=%d, run_active=0x%x\n", 
-addr, run_active);
+//asynPrint(pasynUser, ASYN_TRACE_ERROR, 
+//"NDDxp::getAcquisitionStatus, addr=%d, run_active=0x%x\n", 
+//addr, run_active);
     }
     //asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
     //    "%s::%s addr=%d channel=%d: acquiring=%d\n",
@@ -1142,8 +1138,9 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
         } else {
             /* We only read the module statistics data if this is the first channel in a module.
              * This assumes we are reading in numerical order, else we may get stale data! */
-            if ((channel % this->channelsPerCard) == 0) getModuleStatistics(pasynUser, channel, &moduleStats[0]);
-            stats = &moduleStats[channel % this->channelsPerCard];
+printf("%s::%s channelsPerModule[0]=%d\n", driverName, functionName, this->channelsPerModule[0]);
+            if ((channel % this->channelsPerModule[0]) == 0) getModuleStatistics(pasynUser, channel, &moduleStats[0]);
+            stats = &moduleStats[channel % this->channelsPerModule[0]];
             setIntegerParam(addr, NDDxpTriggers, (int)stats->triggers);
             setIntegerParam(addr, NDDxpEvents, (int)stats->events);
             setDoubleParam(addr, mcaElapsedRealTime, stats->realTime);
@@ -1244,8 +1241,7 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] Got pixel_advance_mode = %.1f\n", 
                 driverName, functionName, channel, dTmp);
-            pixelAdvanceMode = NDDxpPixelAdvanceSync;
-            if (dTmp == XIA_MAPPING_CTL_GATE) pixelAdvanceMode = NDDxpPixelAdvanceGate;
+            pixelAdvanceMode = (NDDxpPixelAdvanceMode_t)dTmp;
             setIntegerParam(NDDxpPixelAdvanceMode, pixelAdvanceMode);
 
             dTmp = 0;
@@ -1383,8 +1379,8 @@ asynStatus NDDxp::getMappingData()
     NDDataType_t dataType;
     int buf = 0, channel, i, k;
     NDArray *pArray=NULL;
-    epicsUInt32 *pIn=NULL;
-    epicsUInt32 *pStats;
+    unsigned long *pIn=NULL;
+    unsigned long *pStats;
     epicsUInt16 *pOut=NULL;
     int mappingMode, pixelOffset, dataOffset, events, triggers, nChans;
     double realTime, triggerLiveTime, energyLiveTime, icr, ocr;
@@ -1409,7 +1405,7 @@ asynStatus NDDxp::getMappingData()
     MBbufSize = (double)((arraySize)*sizeof(epicsUInt16)) / (double)MEGABYTE;
 
     /* First read and reset the buffers, do this as quickly as possible */
-    for (channel=0; channel<this->nChannels; channel+=this->channelsPerCard)
+    for (channel=0; channel<this->nChannels; channel+=this->channelsPerModule[0])
     {
         buf = this->currentBuf[channel];
 
@@ -1433,7 +1429,7 @@ asynStatus NDDxp::getMappingData()
             "%s::%s Got data! size=%.3fMB (%d) dt=%.3fs speed=%.3fMB/s\n",
             driverName, functionName, MBbufSize, arraySize, readoutTime, readoutBurstRate);
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
-            "%s::%s channel=%d, bufferNumber=%d, firstPixel=%d, numPixels=%d\n",
+            "%s::%s channel=%d, bufferNumber=%ld, firstPixel=%ld, numPixels=%ld\n",
             driverName, functionName, channel, pMapRaw[5], pMapRaw[9], pMapRaw[8]);
     
         /* If this is MCA mapping mode then copy the spectral data for the first pixel
@@ -1444,7 +1440,7 @@ asynStatus NDDxp::getMappingData()
         if (mappingMode == NDDxpModeMCAMapping) {
             pixelOffset = 256;
             dataOffset = pixelOffset + 256;
-            for (i=0; i<this->channelsPerCard; i++) {
+            for (i=0; i<this->channelsPerModule[0]; i++) {
                 k = channel + i;
                 nChans = pMapRaw[pixelOffset + 8 + i];
                 memcpy(pMcaRaw[k], &pMapRaw[dataOffset], nChans*sizeof(epicsUInt32));
@@ -1489,14 +1485,10 @@ asynStatus NDDxp::getMappingData()
                pOut = (epicsUInt16 *)pArray->pData;
             }
             
-            /* First get rid of the empty parts of the 32 bit words. The Handel library
-             * provides a 4MB 32 bit/word wide buffer, but the only data is in the low-order
-             * 16 bits of each word. So we strip off the empty top 16 bits of each 32 bit
-             * word. */
             pIn = this->pMapRaw;
             for (i=0; i<arraySize; i++)
             {
-                *pOut++ = (epicsUInt16) *pIn++;
+                *pOut++ = *pIn++;
             }
         }
     }
@@ -1589,16 +1581,16 @@ asynStatus NDDxp::startAcquiring(asynUser *pasynUser)
     if (acquiring) return status;
 
     /* make sure we use buffer A to start with */
-    for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerCard) this->currentBuf[firstCh] = 0;
+    for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerModule[0]) this->currentBuf[firstCh] = 0;
 
     // do xiaStart command
-asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-"%s::%s calling xiaStartRun(0, %d)\n",
-driverName, functionName, resume);
+//asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+//"%s::%s calling xiaStartRun(0, %d)\n",
+//driverName, functionName, resume);
     CALLHANDEL( xiaStartRun(0, resume), "xiaStartRun()" )
-asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-"%s::%s return from xiaStartRun(0, %d)\n",
-driverName, functionName, resume);
+//asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+//"%s::%s return from xiaStartRun(0, %d)\n",
+//driverName, functionName, resume);
 
     setIntegerParam(addr, NDDxpErased, 0); /* reset the erased flag */
     setIntegerParam(addr, mcaAcquiring, 1); /* Set the acquiring flag */
@@ -1738,7 +1730,7 @@ asynStatus NDDxp::pollMappingMode()
     
     getIntegerParam(NDDxpCollectMode, (int *)&mappingMode);
 
-    for (ch=0; ch<this->nChannels; ch+=this->channelsPerCard)
+    for (ch=0; ch<this->nChannels; ch+=this->channelsPerModule[0])
     {
         buf = this->currentBuf[ch];
 
@@ -1761,7 +1753,7 @@ asynStatus NDDxp::pollMappingMode()
     /* In list mapping mode if any buffer is full then switch buffers on the non-full ones.
      * Note: this is prone to error because they could have already switched! */
     if (anyFull && (mappingMode == NDDxpModeListMapping)) {
-        for (ch=0; ch<this->nChannels; ch+=this->channelsPerCard) {
+        for (ch=0; ch<this->nChannels; ch+=this->channelsPerModule[0]) {
             CALLHANDEL( xiaGetRunData(ch, NDDxpBufferFullString[buf], &isFull), "NDDxpBufferFullString[buf]" )
             if (isFull) continue;
             CALLHANDEL( xiaBoardOperation(ch, "buffer_switch", &ignored), "buffer_switch" )
@@ -1769,7 +1761,7 @@ asynStatus NDDxp::pollMappingMode()
         /* Now wait until all modules report they are full */
         do {
             allFull = 1;
-            for (ch=0; ch<this->nChannels; ch+=this->channelsPerCard) {
+            for (ch=0; ch<this->nChannels; ch+=this->channelsPerModule[0]) {
                 CALLHANDEL( xiaGetRunData(ch, NDDxpBufferFullString[buf], &isFull), "NDDxpBufferFullString[buf]" )
                 if (!isFull) allFull = 0;
             }
@@ -1822,6 +1814,29 @@ void NDDxp::shutdown()
     return;
 }
 
+void NDDxp::getModuleInfo()
+{
+    char module_alias[MAXALIAS_LEN];
+    char module_type[MAXITEM_LEN];
+    unsigned int numDetectors;
+    int status = 0;
+
+    /* Get the number of detectors */
+    xiaGetNumDetectors(&numDetectors);
+printf("numDetectors=%d\n", numDetectors);
+    xiaGetNumModules(&this->numModules);
+printf("numModules=%d\n", numModules);
+    /* Get the module alias for the first channel */
+    status |= xiaGetModules_VB(0, module_alias);
+printf("module alias=%s\n", module_alias);
+    /* Get the module type for this module */
+    status |= xiaGetModuleItem(module_alias, "module_type", module_type);
+printf("module type=%s\n", module_type);
+    /* Get the number of channels for this module */
+    this->channelsPerModule = (int *)malloc(this->numModules * sizeof(int));
+    status |= xiaGetModuleItem(module_alias, "number_of_channels", &this->channelsPerModule[0]);
+printf("channelsPerModule=%d\n", this->channelsPerModule[0]);
+}
 
 static const iocshArg NDDxpConfigArg0 = {"Asyn port name", iocshArgString};
 static const iocshArg NDDxpConfigArg1 = {"Number of channels", iocshArgInt};
