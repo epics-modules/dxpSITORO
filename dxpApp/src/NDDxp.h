@@ -7,7 +7,7 @@
 #include <asynNDArrayDriver.h>
 
 #define MAX_CHANNELS_PER_CARD      4
-#define DXP_MAX_SCAS              64
+#define DXP_MAX_SCAS              24
 
 typedef struct moduleStatistics {
     double realTime;
@@ -235,8 +235,6 @@ protected:
     int mcaElapsedRealTime;        /* float64, read */
     int mcaElapsedCounts;          /* float64, read */
 
-    #define LAST_DXP_PARAM mcaElapsedCounts
-
 private:
     /* Data */
     epicsUInt32 **pMcaRaw;
@@ -247,6 +245,7 @@ private:
     unsigned int numModules;
     int *channelsPerModule;
     int *firstChanOnModule;
+    int maxSCAs;
 
     epicsEvent *cmdStartEvent;
     epicsEvent *cmdStopEvent;
@@ -264,10 +263,6 @@ private:
 
 };
 
-/** Number of asyn parameters (asyn commands) this driver supports. This algorithm does NOT include the
-  * low-level parameters whose number we can only determine at run-time.
-  * That value is passed to the constructor. */
-#define NUM_DXP_PARAMS (&LAST_DXP_PARAM - &FIRST_DXP_PARAM + 1)
 #ifdef __cplusplus
 extern "C"
 {
