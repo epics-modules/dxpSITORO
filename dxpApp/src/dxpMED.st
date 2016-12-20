@@ -23,9 +23,7 @@ option -c;
 #define MAX_DETECTORS 100
 /* Maximum number of ROIs per MCA record */
 #define MAX_ROIS 32
-/* Maximum number of SCAs supported in hardware per detector 
- * Note: the Mercury and xMAP support 64 SCAs per channel but this SNL code can only support
- * 32 because all it is does is copy from ROIs, and those are limited to 32. */
+/* Maximum number of SCAs supported in hardware per detector */
 #define MAX_SCAS 32
 /* TOTAL_ROIS must be defined as MAX_DETECTORS * MAX_ROIS.
    It can't be done in SNL because of syntax limitations. */
