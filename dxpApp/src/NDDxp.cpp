@@ -119,7 +119,7 @@ extern "C" int NDDxpConfig(const char *portName, int nChannels,
 
 /* Note: we use nChannels+1 for maxAddr because the last address is used for "all" channels" */
 NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemory)
-    : asynNDArrayDriver(portName, nChannels + 1, NUM_DXP_PARAMS, maxBuffers, maxMemory,
+    : asynNDArrayDriver(portName, nChannels + 1, 0, maxBuffers, maxMemory,
             asynInt32Mask | asynFloat64Mask | asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask | asynOctetMask | asynDrvUserMask,
             asynInt32Mask | asynFloat64Mask | asynInt32ArrayMask | asynFloat64ArrayMask | asynGenericPointerMask | asynOctetMask,
             ASYN_MULTIDEVICE | ASYN_CANBLOCK, 1, 0, 0)
@@ -128,12 +128,22 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     int i, ch;
     int sca;
     char tmpStr[100];
+    unsigned short tempUS;
     double tmpDbl[2];
     double clockSpeed;
     int xiastatus = 0;
     const char *functionName = "NDDxp";
 
     this->nChannels = nChannels;
+
+    /* Register the epics exit function to be called when the IOC exits... */
+    xiastatus = epicsAtExit(c_shutdown, this);
+
+    /* Read the module information */
+    getModuleInfo();
+
+    xiastatus = xiaGetRunData(0, "max_sca_length",  &tempUS);
+    this->maxSCAs = (int)tempUS;
 
     /* Mapping mode parameters */
     createParam(NDDxpCollectModeString,            asynParamInt32,   &NDDxpCollectMode);
@@ -197,7 +207,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     createParam(NDDxpSCAPulseDurationString,       asynParamInt32,   &NDDxpSCAPulseDuration);
     createParam(NDDxpMaxSCAsString,                asynParamInt32,   &NDDxpMaxSCAs);
     createParam(NDDxpNumSCAsString,                asynParamInt32,   &NDDxpNumSCAs);
-    for (sca=0; sca<DXP_MAX_SCAS; sca++) {
+    for (sca=0; sca<this->maxSCAs; sca++) {
         /* Create SCA name strings that Handel uses */
         sprintf(SCA_NameLow[sca],  "sca%d_lo", sca);
         sprintf(SCA_NameHigh[sca], "sca%d_hi", sca);
@@ -241,11 +251,6 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     createParam(mcaElapsedRealTimeString,          asynParamFloat64, &mcaElapsedRealTime);
     createParam(mcaElapsedCountsString,            asynParamFloat64, &mcaElapsedCounts);
 
-    /* Register the epics exit function to be called when the IOC exits... */
-    xiastatus = epicsAtExit(c_shutdown, this);
-
-    /* Read the module information */
-    getModuleInfo();
 
     /* Set the parameters in param lib */
     status |= setIntegerParam(NDDxpCollectMode, 0);
@@ -310,6 +315,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
         setIntegerParam(i, NDDxpPresetEvents, 0);
         setIntegerParam(i, NDDxpPresetTriggers, 0);
         setIntegerParam(i, NDDxpForceRead, 0);
+        setIntegerParam(i, NDDxpMaxSCAs, this->maxSCAs);
         setDoubleParam (i, mcaPresetCounts, 0.0);
         setDoubleParam (i, mcaElapsedCounts, 0.0);
         setDoubleParam (i, mcaPresetRealTime, 0.0);
@@ -679,7 +685,6 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
     unsigned long runActive=0;
     double dvalue=value;
     int xiastatus;
-    asynStatus status=asynSuccess;
     static const char *functionName = "setDxpParam";
 
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
@@ -688,7 +693,7 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
     if (addr == this->nChannels) channel = DXP_ALL;
     if (channel == DXP_ALL) channel0 = 0; else channel0 = channel;
 
-    xiaGetRunData(channel0, "run_active", &runActive);
+    xiastatus = xiaGetRunData(channel0, "run_active", &runActive);
     if (runActive) xiaStopRun(channel);
 
     if (function == NDDxpDetectorPolarity) {
@@ -709,8 +714,8 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
     this->getDxpParams(pasynUser, addr);
     if (runActive) xiaStartRun(channel, 1);
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
-        "%s:%s: status=%d, exit\n",
-        driverName, functionName, status);
+        "%s:%s: xiastatus=%d, exit\n",
+        driverName, functionName, xiastatus);
     return asynSuccess;
 }
 
@@ -1241,7 +1246,7 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
             asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
                 "%s::%s [%d] Got pixel_advance_mode = %.1f\n", 
                 driverName, functionName, channel, dTmp);
-            pixelAdvanceMode = (NDDxpPixelAdvanceMode_t)dTmp;
+            pixelAdvanceMode = (NDDxpPixelAdvanceMode_t)(int)dTmp;
             setIntegerParam(NDDxpPixelAdvanceMode, pixelAdvanceMode);
 
             dTmp = 0;
