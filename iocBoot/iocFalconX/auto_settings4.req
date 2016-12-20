@@ -5,10 +5,30 @@ file "dxpHighLevel_settings.req",       P=$(P), R=dxp1:
 file "dxpHighLevel_settings.req",       P=$(P), R=dxp2:
 file "dxpHighLevel_settings.req",       P=$(P), R=dxp3:
 file "dxpHighLevel_settings.req",       P=$(P), R=dxp4:
-file "dxpSCA_32_settings.req",          P=$(P), R=dxp1:
-file "dxpSCA_32_settings.req",          P=$(P), R=dxp2:
-file "dxpSCA_32_settings.req",          P=$(P), R=dxp3:
-file "dxpSCA_32_settings.req",          P=$(P), R=dxp4:
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=0
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=1
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=2
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=3
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=4
+file "dxpSCA_settings.req",             P=$(P), R=dxp1:, N=5
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=0
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=1
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=2
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=3
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=4
+file "dxpSCA_settings.req",             P=$(P), R=dxp2:, N=5
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=0
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=1
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=2
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=3
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=4
+file "dxpSCA_settings.req",             P=$(P), R=dxp3:, N=5
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=0
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=1
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=2
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=3
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=4
+file "dxpSCA_settings.req",             P=$(P), R=dxp4:, N=5
 file "simple_mca_settings.req",         P=$(P), M=mca1
 file "simple_mca_settings.req",         P=$(P), M=mca2
 file "simple_mca_settings.req",         P=$(P), M=mca3
