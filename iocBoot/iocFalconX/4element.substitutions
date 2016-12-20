@@ -22,14 +22,34 @@ pattern
 }
 
 # SCA parameters
-file "$(DXP_SITORO)/db/dxpSCA_32.template"
+file "$(DXP_SITORO)/db/dxpSCA.template"
 {
 pattern
-{         P,       R,          IO}
-{dxpSITORO:,    dxp1:,  "@asyn(DXP1,0,1)"}
-{dxpSITORO:,    dxp2:,  "@asyn(DXP1,1,1)"}
-{dxpSITORO:,    dxp3:,  "@asyn(DXP1,2,1)"}
-{dxpSITORO:,    dxp4:,  "@asyn(DXP1,3,1)"}
+{         P,       R,   N,        IO}
+{dxpSITORO:,    dxp1:,  0, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  0, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  0, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  0, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp1:,  1, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  1, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  1, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  1, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp1:,  2, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  2, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  2, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  2, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp1:,  3, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  3, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  3, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  3, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp1:,  4, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  4, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  4, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  4, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp1:,  5, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  5, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  5, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  5, "@asyn(DXP1,3,1)"}
 }
 
 
