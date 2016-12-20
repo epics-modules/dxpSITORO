@@ -14,8 +14,7 @@ DB += dxpHighLevel.template
 DB += dxpMED.template
 DB += dxpSystem.template
 DB += dxpMapping.template
-DB += dxpSCA_16.template
-DB += dxpSCA_32.template
+DB += dxpSCA.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

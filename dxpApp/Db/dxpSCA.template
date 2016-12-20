@@ -1,0 +1,30 @@
+record(longout, "$(P)$(R)SCA$(N)Low") {
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "$(IO)DxpSCA$(N)Low")
+    field(DESC, "SCA $(N) low channel")
+    field(VAL,  "1")
+}
+
+record(longin, "$(P)$(R)SCA$(N)Low_RBV") {
+    field(DTYP, "asynInt32")
+    field(INP,  "$(IO)DxpSCA$(N)Low")
+    field(DESC, "SCA $(N) low channel")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)SCA$(N)High") {
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "$(IO)DxpSCA$(N)High")
+    field(DESC, "SCA $(N) high channel")
+    field(VAL,  "2")
+}
+
+record(longin, "$(P)$(R)SCA$(N)High_RBV") {
+    field(DTYP, "asynInt32")
+    field(INP,  "$(IO)DxpSCA$(N)High")
+    field(DESC, "SCA $(N) high channel")
+    field(SCAN, "I/O Intr")
+}
+
