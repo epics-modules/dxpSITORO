@@ -40,6 +40,10 @@ PROD_IOC_Linux     += hd-mca-preset
 PROD_IOC_WIN32     += hd-mca-preset
 hd-mca-preset_SRCS += hd-mca-preset.c
 
+PROD_IOC_Linux      += hd-mca-preset1
+PROD_IOC_WIN32      += hd-mca-preset1
+hd-mca-preset1_SRCS += hd-mca-preset1.c
+
 PROD_IOC_Linux     += hd-mm1
 PROD_IOC_WIN32     += hd-mm1
 hd-mm1_SRCS        += hd-mm1.c
