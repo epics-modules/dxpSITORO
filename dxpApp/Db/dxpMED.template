@@ -89,18 +89,53 @@ record(bi,"$(P)Acquiring") {
     field(ONAM,"Acquiring")
 }
 
-record(ai,"$(P)ElapsedReal") {
+record(ai,"$(P)MaxElapsedReal") {
     field(SCAN,"I/O Intr")
     field(DTYP, "asynFloat64")
     field(INP, "$(DETALL)MCA_ELAPSED_REAL")
     field(PREC, "2")
 }
 
-record(ai,"$(P)ElapsedLive") {
+record(ai,"$(P)MaxElapsedLive") {
     field(SCAN,"I/O Intr")
     field(DTYP, "asynFloat64")
     field(INP, "$(DETALL)MCA_ELAPSED_LIVE")
     field(PREC, "2")
+}
+
+record(ai,"$(P)MaxElapsedTriggerLive") {
+    field(SCAN,"I/O Intr")
+    field(DTYP, "asynFloat64")
+    field(INP, "$(DETALL)DxpTriggerLiveTime")
+    field(PREC, "2")
+}
+
+record(ai,"$(P)MaxTriggers") {
+    field(SCAN,"I/O Intr")
+    field(DTYP, "asynInt32")
+    field(INP, "$(DETALL)DxpTriggers")
+    field(PREC, "0")
+}
+
+record(ai,"$(P)MaxEvents") {
+    field(SCAN,"I/O Intr")
+    field(DTYP, "asynInt32")
+    field(INP, "$(DETALL)DxpEvents")
+    field(PREC, "0")
+}
+
+record(ai,"$(P)MaxInputCountRate") {
+    field(SCAN,"I/O Intr")
+    field(DTYP, "asynFloat64")
+    field(INP, "$(DETALL)DxpInputCountRate")
+    field(PREC, "1")
+}
+
+record(ai,"$(P)MaxOutputCountRate") {
+    field(SCAN,"I/O Intr")
+    field(DTYP, "asynFloat64")
+    field(INP, "$(DETALL)DxpOutputCountRate")
+    field(PREC, "1")
 }
 
 record(ai,"$(P)DeadTime") {
