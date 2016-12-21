@@ -144,6 +144,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
 
     xiastatus = xiaGetRunData(0, "max_sca_length",  &tempUS);
     this->maxSCAs = (int)tempUS;
+printf("max_sca_length=%d\n", this->maxSCAs);
 
     /* Mapping mode parameters */
     createParam(NDDxpCollectModeString,            asynParamInt32,   &NDDxpCollectMode);
@@ -216,8 +217,6 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
         createParam(tmpStr,                        asynParamInt32,   &NDDxpSCALow[sca]);
         sprintf(tmpStr, "DxpSCA%dHigh", sca);
         createParam(tmpStr,                        asynParamInt32,   &NDDxpSCAHigh[sca]);
-        sprintf(tmpStr, "DxpSCA%dCounts", sca);
-        createParam(tmpStr,                        asynParamInt32,   &NDDxpSCACounts[sca]);
     }
 
     /* INI file parameters */
@@ -320,6 +319,9 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
         setDoubleParam (i, mcaElapsedCounts, 0.0);
         setDoubleParam (i, mcaPresetRealTime, 0.0);
         setIntegerParam(i, NDDxpCurrentPixel, 0);
+        // We need to set this here because the NDDxpSCAHigh or Low could be processed with PINI before
+        // NDDxpNumSCAs and then we would get an error
+        setIntegerParam(i, NDDxpNumSCAs, this->maxSCAs);
     }
 
     /* Read the MCA and DXP parameters once */
@@ -748,6 +750,7 @@ asynStatus NDDxp::setSCAs(asynUser *pasynUser, int addr)
         setIntegerParam(NDDxpNumSCAs, numSCAs);
     }
     dTmp = numSCAs;
+printf("calling xiaSetAcquisitionValues(-1, number_of_scas, %.0f)\n", dTmp);
     CALLHANDEL(xiaSetAcquisitionValues(DXP_ALL, "number_of_scas", &dTmp), "number_of_scas");
     for (i=0; i<numSCAs; i++) {
         status = getIntegerParam(addr, NDDxpSCALow[i], &low);
@@ -765,8 +768,10 @@ asynStatus NDDxp::setSCAs(asynUser *pasynUser, int addr)
             setIntegerParam(addr, NDDxpSCAHigh[i], high);
         }
         dTmp = (double) low;
+printf("calling xiaSetAcquisitionValues(%d, %s, %.0f)\n", i, SCA_NameLow[i], dTmp);
         CALLHANDEL(xiaSetAcquisitionValues(channel, SCA_NameLow[i], &dTmp), SCA_NameLow[i]);
         dTmp = (double) high;
+printf("calling xiaSetAcquisitionValues(%d, %s, %.0f)\n", i, SCA_NameHigh[i], dTmp);
         CALLHANDEL(xiaSetAcquisitionValues(channel, SCA_NameHigh[i], &dTmp), SCA_NameHigh[i]);
     }
     getSCAs(pasynUser, addr);
@@ -1047,13 +1052,7 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
          * HW is acquiring or not.        */
         CALLHANDEL( xiaGetRunData(channel, "run_active", &run_active), "xiaGetRunData (run_active)" )
         setIntegerParam(addr, NDDxpAcquiring, run_active);
-//asynPrint(pasynUser, ASYN_TRACE_ERROR, 
-//"NDDxp::getAcquisitionStatus, addr=%d, run_active=0x%x\n", 
-//addr, run_active);
     }
-    //asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
-    //    "%s::%s addr=%d channel=%d: acquiring=%d\n",
-    //    driverName, functionName, addr, channel, acquiring);
     return(status);
 }
 
@@ -1105,8 +1104,6 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
             triggerLiveTime = MAX(triggerLiveTime, dvalue);
             getDoubleParam(i, mcaElapsedRealTime, &realTime);
             realTime = MAX(realTime, dvalue);
-            getDoubleParam(i, mcaElapsedLiveTime, &energyLiveTime);
-            energyLiveTime = MAX(energyLiveTime, dvalue);
             getIntegerParam(i, NDDxpEvents, &ivalue);
             events = MAX(events, ivalue);
             getIntegerParam(i, NDDxpTriggers, &ivalue);
@@ -1119,7 +1116,6 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
         setDoubleParam(addr, mcaElapsedLiveTime, energyLiveTime);
         setDoubleParam(addr, NDDxpTriggerLiveTime, triggerLiveTime);
         setDoubleParam(addr, mcaElapsedRealTime, realTime);
-        setDoubleParam(addr, mcaElapsedLiveTime, energyLiveTime);
         setIntegerParam(addr,NDDxpEvents, events);
         setIntegerParam(addr,NDDxpTriggers, triggers);
         setDoubleParam(addr, NDDxpInputCountRate, icr);
@@ -1143,7 +1139,6 @@ asynStatus NDDxp::getAcquisitionStatistics(asynUser *pasynUser, int addr)
         } else {
             /* We only read the module statistics data if this is the first channel in a module.
              * This assumes we are reading in numerical order, else we may get stale data! */
-printf("%s::%s channelsPerModule[0]=%d\n", driverName, functionName, this->channelsPerModule[0]);
             if ((channel % this->channelsPerModule[0]) == 0) getModuleStatistics(pasynUser, channel, &moduleStats[0]);
             stats = &moduleStats[channel % this->channelsPerModule[0]];
             setIntegerParam(addr, NDDxpTriggers, (int)stats->triggers);
@@ -1589,13 +1584,7 @@ asynStatus NDDxp::startAcquiring(asynUser *pasynUser)
     for (firstCh=0; firstCh<this->nChannels; firstCh+=this->channelsPerModule[0]) this->currentBuf[firstCh] = 0;
 
     // do xiaStart command
-//asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-//"%s::%s calling xiaStartRun(0, %d)\n",
-//driverName, functionName, resume);
     CALLHANDEL( xiaStartRun(0, resume), "xiaStartRun()" )
-//asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-//"%s::%s return from xiaStartRun(0, %d)\n",
-//driverName, functionName, resume);
 
     setIntegerParam(addr, NDDxpErased, 0); /* reset the erased flag */
     setIntegerParam(addr, mcaAcquiring, 1); /* Set the acquiring flag */
@@ -1672,14 +1661,14 @@ void NDDxp::acquisitionTask()
 
             if (mode == NDDxpModeMCA) {
                 /* In MCA mode we force a read of the data */
-                asynPrint(pasynUser, ASYN_TRACE_FLOW, 
-                    "%s::%s Detected acquisition stop! Now reading statistics\n",
-                    driverName, functionName);
-                this->getAcquisitionStatistics(this->pasynUserSelf, DXP_ALL);
                 asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
                     "%s::%s Detected acquisition stop! Now reading data\n",
                     driverName, functionName);
                 this->getMcaData(this->pasynUserSelf, DXP_ALL);
+                asynPrint(pasynUser, ASYN_TRACE_FLOW, 
+                    "%s::%s Detected acquisition stop! Now reading statistics\n",
+                    driverName, functionName);
+                this->getAcquisitionStatistics(this->pasynUserSelf, DXP_ALL);
             }
             else {
                 /* In mapping modes need to make an extra call to pollMappingMode because there could be
