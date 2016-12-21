@@ -84,11 +84,9 @@ typedef struct moduleStatistics {
 #define NDDxpNumSCAsString                  "DxpNumSCAs"
 #define NDDxpSCALowString                   "DxpSCALow"
 #define NDDxpSCAHighString                  "DxpSCAHigh"
-#define NDDxpSCACountsString                "DxpSCACounts"
-/* For each SCA there are 3 parameters
+/* For each SCA there are 2 parameters
   * DXPSCA$(N)Low
   * DXPSCA$(N)High
-  * DXPSCA$(N)Counts
 */
 
 /* INI file parameters */
@@ -202,7 +200,6 @@ protected:
     int NDDxpNumSCAs;
     int NDDxpSCALow[DXP_MAX_SCAS];
     int NDDxpSCAHigh[DXP_MAX_SCAS];
-    int NDDxpSCACounts[DXP_MAX_SCAS];
 
     /* INI file parameters */
     int NDDxpSaveSystemFile;
