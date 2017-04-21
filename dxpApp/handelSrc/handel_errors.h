@@ -271,11 +271,12 @@
                                              * the FDD doesn't match the number
                                              * requires for the hardware */
 
-/* Unit Test Errors 801 - 900 */
+/* Unit Test Errors 801 */
 #define XIA_UNIT_TEST                   801
 
-/* Debug support */
-/*#define XIA_DEBUG                     1001*/
+/* Additional PSL errors 802-900 */
+#define XIA_ACQ_OOR                     802 /* Generic acquisition value conversion
+                                             * out of range. */
 
 /* SiToro Error codes. These need to match the SiToro errors. */
 #define XIA_SI_BASE_CODE                         (2000)

@@ -106,6 +106,12 @@
 #define SCA_TRIGGER_LOW		2 /**< Generate SCA pulses when the gate source is low. */
 #define SCA_TRIGGER_ALWAYS	3 /**< Generate SCA pulses always. */
 
+/* FalconXn decay times */
+#define XIA_DECAY_LONG       0.0
+#define XIA_DECAY_MEDIUM     1.0
+#define XIA_DECAY_SHORT      2.0
+#define XIA_DECAY_VERY_SHORT 3.0
+
 #define SCA_MAX_PULSER_DURATION 262140 /**< SCA generated pulse duration in nanoseconds. */
 
 #endif /* HANDEL_CONSTANTS_H */

@@ -667,7 +667,7 @@ int psl__MappingModeControl_CloseAny(MM_Control* control)
 }
 
 int psl__MappingModeControl_OpenMM0(MM_Control* control,
-                                    int64_t     number_mca_channels,
+                                    uint16_t    number_mca_channels,
                                     uint32_t    number_stats)
 {
     int status = XIA_SUCCESS;
@@ -707,7 +707,7 @@ int psl__MappingModeControl_OpenMM0(MM_Control* control,
         return status;
     }
 
-    mm0->numMCAChannels = (uint32_t) number_mca_channels;
+    mm0->numMCAChannels = number_mca_channels;
     mm0->numStats = number_stats;
 
     control->dataFormatter = mm0;
@@ -747,7 +747,7 @@ int psl__MappingModeControl_OpenMM1(MM_Control* control,
                                     boolean_t   listmode,
                                     uint32_t    run_number,
                                     int64_t     num_pixels,
-                                    int64_t     number_mca_channels,
+                                    uint16_t    number_mca_channels,
                                     int64_t     num_pixels_per_buffer)
 {
     int status = XIA_SUCCESS;
@@ -843,7 +843,7 @@ MMC1_Data* psl__MappingModeControl_MM1Data(MM_Control* control)
     return control->dataFormatter;
 }
 
-size_t psl__MappingModeControl_MM1BufferSize(int64_t number_mca_channels,
+size_t psl__MappingModeControl_MM1BufferSize(uint16_t number_mca_channels,
                                              int64_t num_pixels_per_buffer)
 {
     if (num_pixels_per_buffer == 0)
@@ -958,7 +958,7 @@ int psl__XMAP_WritePixelHeader_MM1(MMC1_Data* mm1, MM_Pixel_Stats* stats)
 
     int i;
 
-    const uint32_t ch_block_size = mm1->numMCAChannels * 2;
+    const uint16_t ch_block_size = mm1->numMCAChannels * 2;
     const uint32_t pixel_block_size =
         XMAP_PIXEL_HEADER_SIZE_U32 * 2 + ch_block_size;
 
@@ -983,8 +983,8 @@ int psl__XMAP_WritePixelHeader_MM1(MMC1_Data* mm1, MM_Pixel_Stats* stats)
     /* 6,7: block size, 32bits */
     psl__Write32(&in[6], pixel_block_size);
 
-    /* 8,9: this channel block size, 32bits */
-    psl__Write32(&in[8], ch_block_size);
+    /* 8: this channel block size, 16bits */
+    in[8] = ch_block_size;
 
     /* 10->31: set to 0 */
     for (i = 10; i < 32; ++i)

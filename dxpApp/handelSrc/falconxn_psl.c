@@ -174,7 +174,7 @@ PSL_STATIC boolean_t psl__CanRemoveName(const char *name);
 
 PSL_STATIC int psl__DetCharacterizeStart(int detChan, Detector* detector, Module* module);
 PSL_STATIC int psl__UnloadDetCharacterization(Module* module, Detector* detector, const char *filename);
-PSL_STATIC int psl__LoadDetCharacterization(int detChan, Detector *detector, Module *module);
+PSL_STATIC int psl__LoadDetCharacterization(Detector *detector, Module *module);
 
 PSL_STATIC int psl__RefreshChannelState(Module* module, Detector* detector);
 PSL_STATIC int psl__UpdateChannelState(SiToro__Sinc__KeyValue* kv, Detector* detector);
@@ -248,385 +248,42 @@ PSL_STATIC int psl__SyncGateCollectionMode(Module *module, Detector *detector);
 #define ACQ_SYNC_LOG(_n, _v) \
     pslLog(PSL_LOG_DEBUG, "%s = %5.3f", # _n, _v)
 
-/**
- * @defgroup falconxn_psl FalconXn Product-specific Members
- *
- * @details Names, data types, units, and ranges of the FalconXn
- * product-specific APIs.
- *
- * @par Contents
- * - @ref falconxn_acq
- * - @ref falconxn_rundata
- * - @ref falconxn_sprun
- * - @ref falconxn_sprundata
- * - @ref falconxn_boardops
- *
- * @section falconxn_acq Acquisition Values
- */
-
-/**
- * @addtogroup falconxn_psl
- * @subsection falconxn_analog Analog Section
- * Acquisition values controlling the analog front end.
- */
-
-/**
- * @psl{analog_gain}
- * Acts as as a gain multiplier on the analog front end. Range:
- * [1,16].
- * @endpsl
- */
 ACQ_HANDLER_DECL(analog_gain);
-
-/**
- * @psl{analog_offset}
- * Sets the offset on the analog front end. Range: [-2048, 2047].
- * @endpsl
- */
 ACQ_HANDLER_DECL(analog_offset);
-
-/**
- * @psl{detector_polarity}
- * The input signal polarity, specified as 1, 0, "+", "-", "pos" or
- * "neg". Setting to 0 or negative effectively inverts the signal.
- * @endpsl
- */
 ACQ_HANDLER_DECL(detector_polarity);
 ACQ_SYNC_DECL(detector_polarity);
-
-/**
- * @psl{termination}
- * Input termination impedance. 0=1kohm, 1=50ohm. Default: 0.
- * @endpsl
- */
 ACQ_HANDLER_DECL(termination);
-
-/**
- * @psl{attenuation}
- * Input attenuation. 0=0dB, 1=-6dB, 2=ground. Default: 0.
- * @endpsl
- */
 ACQ_HANDLER_DECL(attenuation);
-
-/**
- * @psl{coupling}
- * AC or DC coupling. 0=AC, 1=DC. Default: 0.
- * @endpsl
- */
 ACQ_HANDLER_DECL(coupling);
-
-/**
- * @psl{decay_time}
- * This setting applies to AC coupling mode. Default: 0.
- *
- * - 0: long
- * - 1: medium
- * - 2: short
- * - 3: very short
- * @endpsl
- */
 ACQ_HANDLER_DECL(decay_time);
-
-/**
- * @psl{dc_offset}
- * Digital DC offset. Range: [-1, 1]
- * @endpsl
- */
 ACQ_HANDLER_DECL(dc_offset);
-
-/**
- * @psl{reset_blanking_enable}
- * Enables reset blanking. 1 = enabled, 0 = disabled. Default: enabled.
- * @endpsl
- */
 ACQ_HANDLER_DECL(reset_blanking_enable);
-
-/**
- * @psl{reset_blanking_threshold}
- * The threshold for reset blanking, in arbitrary units. Range: [-0.99999, 1]. Default: -0.05.
- * @endpsl
- */
 ACQ_HANDLER_DECL(reset_blanking_threshold);
-
-/**
- * @psl{reset_blanking_presamples}
- * Number of samples before reset detection to blank. Range: [4, 125]. Default: 50.
- * @endpsl
- */
 ACQ_HANDLER_DECL(reset_blanking_presamples);
-
-/**
- * @psl{reset_blanking_postsamples}
- * Number of samples after reset detection to blank. Range: [4, 1000]. Default: 50.
- * @endpsl
- */
 ACQ_HANDLER_DECL(reset_blanking_postsamples);
-
-/**
- * @psl{clock_speed}
- * Read-only value to get the sample rate in MHz.
- * @endpsl
- */
 ACQ_HANDLER_DECL(clock_speed);
-
-/**
- * @psl{adc_trace_length}
- * The number of samples to collect for an ADC trace. This is set
- * automatically by xiaDoSpecialRun() using the given `info` argument,
- * so setting the acquisition value effectively has no effect.
- * @endpsl
- */
-ACQ_HANDLER_DECL(adc_trace_length);
-
-/**
- * @addtogroup falconxn_psl
- * @subsection falconxn_pulse_control Pulse Detection
- * Acquisition values controlling pulse detection.
- */
-
-/**
- * @psl{detection_threshold}
- * Minimum height for a pulse to be detected. Range: [0, 0.999].
- * Default: 0.05.
- * @endpsl
- */
 ACQ_HANDLER_DECL(detection_threshold);
-
-/**
- * @psl{min_pulse_pair_separation}
- * Minimum number of samples between pulses. This setting controls the
- * balance of throughput and resolution. Range: [0, 1023]. Default:
- * 50.
- * @endpsl
- */
 ACQ_HANDLER_DECL(min_pulse_pair_separation);
-
-/**
- * @psl{detection_filter} Default: #XIA_FILTER_MID_RATE.
- *
- *   - #XIA_FILTER_LOW_ENERGY
- *   - #XIA_FILTER_LOW_RATE
- *   - #XIA_FILTER_MID_RATE
- *   - #XIA_FILTER_HIGH_RATE
- *   - #XIA_FILTER_MAX_THROUGHPUT
- * @endpsl
- */
 ACQ_HANDLER_DECL(detection_filter);
-
-/**
- * @psl{scale_factor}
- * Scale factor for bin scaling and spectrum calibration. Range: [0.5,
- * 200.0]. Default: 2.
- * @endpsl
- */
 ACQ_HANDLER_DECL(scale_factor);
-
-/**
- * @addtogroup falconxn_psl
- * @subsection falconxn_mca MCA Control
- * Acquisition values controlling MCA data acquisition.
- */
-
-/**
- * @psl{number_mca_channels}
- * The number of bins in the MCA spectrum, specified in bins. This
- * applies to both MCA mode and fast mapping mode. Narrowing the range
- * may improve network performance in fast mapping applications.
- * Range: [128, 4096]. Default: 4096.
- * @endpsl
- */
 ACQ_HANDLER_DECL(number_mca_channels);
-
-/**
- * @psl{mca_spectrum_accepted}
- * Whether to return the accepted spectrum in @ref rundata_mca "mca".
- * The accepted spectrum is the standard MCA histogram and so must be
- * enabled in any typical spectroscopy application.
- * @endpsl
- */
 ACQ_HANDLER_DECL(mca_spectrum_accepted);
-
-/**
- * @psl{mca_spectrum_rejected}
- * Whether to return the rejected spectrum in @ref rundata_mca "mca".
- * The rejected spectrum consists of pulses that triggered but were
- * rejected due to the detection threshold or other pulse processing
- * criteria. It is available for diagnostics purposes only, and, if
- * enabled, is appended on the end of the @ref rundata_mca "mca"
- * buffer readout. If both the accepted and rejected spectra are
- * enabled, the application must allocate a buffer that is twice the
- * length of @ref number_mca_channels.
- * @endpsl
- */
 ACQ_HANDLER_DECL(mca_spectrum_rejected);
-
-/**
- * @psl{mca_start_channel}
- * The lowest bin number in the range of MCA bins to return. This may
- * be used in conjunction with @ref rundata_number_mca_channels
- * "number_mca_channels" to narrow the range the range of bins and
- * improve network performance but is not needed in typical
- * applications. Default: 0.
- * @endpsl
- */
 ACQ_HANDLER_DECL(mca_start_channel);
-
-/**
- * @psl{mca_refresh}
- * MCA refresh period in seconds. This controls how often MCA updates
- * are sent from the FalconXn to the client machine. Default: 0.1.
- * @endpsl
- */
 ACQ_HANDLER_DECL(mca_refresh);
-
-/**
- * @psl{mca_bin_width}
- * MCA bin width in eV/bin. This value is not used to configure the
- * FalconXn but may serve as convenient storage for a multiplier value
- * for scaling graphical axes in user programs.
- * @endpsl
- */
 ACQ_HANDLER_DECL(mca_bin_width);
-
-/**
- * @psl{preset_type}
- * Criteria to stop the run. Include handel_constants.h to access
- * constants for the allowed values:
- *
- *   - #XIA_PRESET_NONE: run indefinitely
- *   - #XIA_PRESET_FIXED_REAL: run for a fixed elapsed time. Set @ref
-        preset_value in seconds.
- *   - #XIA_PRESET_FIXED_EVENTS: run until a fixed number of output pulses are
-       counted. Set @ref preset_value to the number of events.
- *   - #XIA_PRESET_FIXED_TRIGGERS: run until a fixed number of input pulses are
-        counted. Set @ref preset_value to the number of triggers.
- * @endpsl
- */
 ACQ_HANDLER_DECL(preset_type);
-
-/**
- * @psl{preset_value}
- * Preset run criteria specified in counts or seconds.
- * Required when @ref preset_type is anything other than
- * #XIA_PRESET_NONE.
- * @endpsl
- */
 ACQ_HANDLER_DECL(preset_value);
-
-/**
- * @psl{mapping_mode}
- * Toggles between the various mapping modes. Supported values are:
- *  - 0.0 = mapping mode disabled
- *  - 1.0 = MCA mapping mode
- *  - 2.0 = SCA mapping mode
- *  - 3.0 = List mode
- * @endpsl
- */
 ACQ_HANDLER_DECL(mapping_mode);
-
-/**
- * @psl{sca_trigger_mode}
- * Include handel_constants.h to access constants for the allowed
- * values:
- *   - #SCA_TRIGGER_OFF
- *   - #SCA_TRIGGER_HIGH
- *   - #SCA_TRIGGER_LOW
- *   - #SCA_TRIGGER_ALWAYS
- * @endpsl
- */
 ACQ_HANDLER_DECL(sca_trigger_mode);
-
-/**
- * @psl{sca_pulse_duration}
- * Duration of the emitted SCA pulses in ns, will be rounded to
- * multiple of 4ns. Range: [4, 262140]. Default: 400.0.
- * @endpsl
- */
 ACQ_HANDLER_DECL(sca_pulse_duration);
-
-/**
- * @psl{number_of_scas}
- * Number of SCA regions. Read the run data @ref
- * rundata_max_sca_length "max_sca_length" for maximum number of SCA
- * regions supported.
- * @endpsl
- */
 ACQ_HANDLER_DECL(number_of_scas);
-
-/**
- * @psl{sca}
- * The sca limits @a name should have the format sca{n}_[lo|hi], where
- * @a n refers to the 0-indexed SCA number.
- * @endpsl
- */
 ACQ_HANDLER_DECL(sca);
-
-/**
- * @psl{num_map_pixels}
- * Total number of pixels to acquire in the next mapping mode run. If
- * set to 0.0, then the mapping run will continue indefinitely.
- * @endpsl
- */
 ACQ_HANDLER_DECL(num_map_pixels);
-
-/**
- * @psl{num_map_pixels_per_buffer}
- * The number of pixels stored in each buffer during a mapping mode
- * run. If the value specified is larger then the maximum number of
- * pixels the buffer can hold, it will be rounded down to the maximum.
- * Setting this to -1.0 or 0.0 will automatically set the value to the
- * maximum allowed per buffer.
- * @endpsl
- */
 ACQ_HANDLER_DECL(num_map_pixels_per_buffer);
-
-/**
- * @psl{pixel_advance_mode}
- * Sets the pixel advance mode for mapping mode. The supported types
- * are listed in handel_constants.h. Manual pixel advance using
- * xiaBoardOperation() is always available; use
- * #XIA_MAPPING_CTL_USER is the default and can be used to
- * explicitly disable GATE processing on the FalconXN.
- *
- * - #XIA_MAPPING_CTL_USER
- * - #XIA_MAPPING_CTL_GATE
- * @endpsl
- */
 ACQ_HANDLER_DECL(pixel_advance_mode);
-
-/**
- * @psl{input_logic_polarity}
- * When @ref pixel_advance_mode is set to use the GATE signal, this
- * acquisition value determines which logic transition stops data
- * acquisition and clears the spectrum for the next pixel.
- *
- * - #XIA_GATE_COLLECT_HI: acquire data while the GATE signal is high
- *   and trigger pixel advance on the high-to-low transition. If @ref
- *   gate_ignore is set to 1.0, continue collecting data during the
- *   transition period.
- *
- * - #XIA_GATE_COLLECT_LO: acquire data while the GATE signal is low
- *   and trigger pixel advance on the low-to-high transition. If @ref
- *   gate_ignore is set to 1.0, continue collecting data during the
- *   transition period.
- */
 ACQ_HANDLER_DECL(input_logic_polarity);
-
-/**
- * @psl{gate_ignore}
- * Determines if data acquisition should continue or be halted during
- * pixel advance while GATE is asserted. Set to 1.0 to keep data
- * acquisition active during the transition. Default: 0.0 (ignore data
- * during the transition).
- */
 ACQ_HANDLER_DECL(gate_ignore);
-
-/**
- * @psl{sync_count}
- * Sets the number of SYNC pulses to use for each pixel. Once "sync_count"
- * pulses have been detected, the pixel is advanced.
- * @endpsl
- */
 ACQ_HANDLER_DECL(sync_count);
 
 
@@ -667,7 +324,6 @@ static const AcquisitionValue DEFAULT_ACQ_VALUES[] = {
     /* system settings */
     ACQ_DEFAULT(clock_speed,                 acqInt,     0.0, PSL_ACQ_RO,   NULL),
     ACQ_DEFAULT(mapping_mode,                acqInt,     0.0, PSL_ACQ_L_HD, NULL),
-    ACQ_DEFAULT(adc_trace_length,            acqInt,  0x2000, PSL_ACQ_L_HD, NULL),
     /* MCA mode */
     ACQ_DEFAULT(number_mca_channels,         acqInt,  4096.0, PSL_ACQ_HD, NULL),
     ACQ_DEFAULT(mca_spectrum_accepted,       acqInt,     1.0, PSL_ACQ_HD, NULL),
@@ -696,7 +352,8 @@ static const AcquisitionValue DEFAULT_ACQ_VALUES[] = {
 static const char* REMOVED_ACQ_VALUES[] = {
     "coarse_bin_scale",
     "pulse_scale_factor",
-    "mca_end_channel"
+    "mca_end_channel",
+    "adc_trace_length"
 };
 
 /* These are the allowed board operations for this hardware */
@@ -759,7 +416,8 @@ PSL_STATIC void falconXNClearCalibrationData(SincCalibrationPlot* plot)
     plot->len = 0;
 }
 
-/** @brief Clean out the calibration data.
+/*
+ * Clean out the calibration data.
  */
 PSL_STATIC void falconXNClearDetectorCalibrationData(FalconXNDetector* fDetector)
 {
@@ -773,7 +431,8 @@ PSL_STATIC void falconXNClearDetectorCalibrationData(FalconXNDetector* fDetector
     falconXNClearCalibrationData(&fDetector->calibFinal);
 }
 
-/** @brief Clean out the stats.
+/*
+ * Clean out the stats.
  */
 PSL_STATIC void falconXNClearDetectorStats(FalconXNDetector* fDetector)
 {
@@ -782,7 +441,8 @@ PSL_STATIC void falconXNClearDetectorStats(FalconXNDetector* fDetector)
         fDetector->stats[i] = 0.0;
 }
 
-/** Convert SINC stats to Handel stats.
+/*
+ * Convert SINC stats to Handel stats.
  */
 PSL_STATIC void falconXNSetDetectorStats(FalconXNDetector* fDetector,
                                          SincHistogramCountStats* stats)
@@ -817,7 +477,8 @@ PSL_STATIC void falconXNSetDetectorStats(FalconXNDetector* fDetector,
         stats->deadTime;
 }
 
-/** @brief Handle the SINC API result.
+/*
+ * Handle the SINC API result.
  */
 PSL_STATIC int falconXNSincResultToHandel(int code, const char* msg)
 {
@@ -829,17 +490,18 @@ PSL_STATIC int falconXNSincResultToHandel(int code, const char* msg)
     return handelError;
 }
 
-/** @brief Handle the SINC Error result.
+/*
+ * Handle the SINC Error result.
  */
 PSL_STATIC int falconXNSincErrorToHandel(SincError* se)
 {
     return falconXNSincResultToHandel(se->code, se->msg);
 }
 
-/**
- * @brief Get the acquisition value reference given the label.
- *  the given name could have additional parameters appended to it
- *  e.g. scalo_0 can match "sca"
+/*
+ * Get the acquisition value reference given the label.
+ * the given name could have additional parameters appended to it
+ * e.g. scalo_0 can match "sca"
  */
 PSL_STATIC AcquisitionValue* psl__GetAcquisition(FalconXNDetector* fDetector,
                                                  const char*       name)
@@ -853,7 +515,8 @@ PSL_STATIC AcquisitionValue* psl__GetAcquisition(FalconXNDetector* fDetector,
     return NULL;
 }
 
-/** @brief Convert the Handel standard double to the specified type.
+/*
+ * Convert the Handel standard double to the specified type.
  */
 #define PSL__CONVERT_TO(_t, _T, _R, _m, _M) \
 PSL_STATIC int psl__ConvertTo_ ## _t (AcquisitionValue* acq, \
@@ -861,7 +524,7 @@ PSL_STATIC int psl__ConvertTo_ ## _t (AcquisitionValue* acq, \
     if (acq->value.type != _T) \
         return XIA_UNKNOWN_VALUE; \
     if ((value < (double) _m) || (value > (double) _M))  \
-        return XIA_TYPEVAL_OOR; \
+        return XIA_ACQ_OOR; \
     acq->value.ref._R = (_t) value; \
     return XIA_SUCCESS; \
 }
@@ -906,7 +569,8 @@ PSL_STATIC PSL_INLINE int psl__SetAcqValue(AcquisitionValue* acq,
 /* Acquisition value bool value to double. */
 #define PSL_ACQ_GET_BOOL(acq) (acq->value.ref.b ? 1.0 : 0.0)
 
-/** @brief Update the acq value's default.
+/*
+ * Update the acq value's default.
  */
 PSL_STATIC int psl__UpdateDefault(XiaDefaults*      defaults,
                                   const char*       name,
@@ -985,7 +649,8 @@ PSL_STATIC int psl__UpdateDefault(XiaDefaults*      defaults,
     return XIA_SUCCESS;
 }
 
-/** @brief Check the defaults and if they have are
+/*
+ * Check the defaults and if they have are
 */
 PSL_STATIC int psl__ReloadDefaults(FalconXNDetector* fDetector)
 {
@@ -1321,7 +986,8 @@ PSL_STATIC int psl__RefreshChannelState(Module* module, Detector* detector)
     return status;
 }
 
-/** Sends a command to stop any form of data acquisition on the
+/*
+ * Sends a command to stop any form of data acquisition on the
  * channel. @a modChan is a module channel (SINC channel) or -1 for
  * all channels in the module.
  */
@@ -1350,7 +1016,8 @@ PSL_STATIC int psl__StopDataAcquisition(Module* module, int modChan, bool skipCh
     return status;
 }
 
-/** Prints a SINC param value to a string, regardless of value type.
+/*
+ * Prints a SINC param value to a string, regardless of value type.
  */
 PSL_STATIC void psl__SPrintKV(char *s, size_t max, SiToro__Sinc__KeyValue* kv)
 {
@@ -1445,7 +1112,8 @@ PSL_STATIC int psl__SetParam(Module*                 module,
     return status;
 }
 
-/** Wraps psl__GetParam to manage freeing the sinc packet. It's more
+/*
+ * Wraps psl__GetParam to manage freeing the sinc packet. It's more
  * convenient for numeric types since callers can declare a
  * psl__SincParamValue on the stack and pass a pointer without having
  * to manage memory.
@@ -1498,7 +1166,8 @@ PSL_STATIC int psl__GetParamValue(Module* module, int channel,
     return status;
 }
 
-/** @brief Perform the specified gain operation to the hardware.
+/*
+ * Perform the specified gain operation to the hardware.
 *
 */
 PSL_STATIC int psl__GainOperation(int detChan, const char *name, void *value,
@@ -1526,6 +1195,55 @@ PSL_STATIC int psl__GainOperation(int detChan, const char *name, void *value,
   pslLog(PSL_LOG_ERROR, XIA_BAD_NAME,
          "Unknown gain operation '%s' for detChan %d", name, detChan);
   return XIA_BAD_NAME;
+}
+
+PSL_STATIC int psl__GetADCTraceLength(Module* module, Detector* detector,
+                                      int64_t* length)
+{
+    int status;
+    psl__SincParamValue sincVal;
+
+    status = psl__GetParamValue(module,  psl__DetectorChannel(detector),
+                                "oscilloscope.samples",
+                                SI_TORO__SINC__KEY_VALUE__PARAM_TYPE__INT_TYPE,
+                                &sincVal);
+    if (status != XIA_SUCCESS) {
+        pslLog(PSL_LOG_ERROR, status,
+               "Unable to get the oscilloscope sample count");
+        return status;
+    }
+
+    *length = sincVal.intval;
+
+    return XIA_SUCCESS;
+}
+
+PSL_STATIC int psl__SetADCTraceLength(Module* module, Detector* detector,
+                                      int64_t length)
+{
+    int status;
+    SiToro__Sinc__KeyValue kv;
+
+    if (length > FALCONXN_MAX_ADC_SAMPLES) {
+        pslLog(PSL_LOG_WARNING, "%" PRIi64 " is out of range for adc_trace_length."
+               " Coercing to %d.",
+               length, FALCONXN_MAX_ADC_SAMPLES);
+        length = FALCONXN_MAX_ADC_SAMPLES;
+    }
+
+    si_toro__sinc__key_value__init(&kv);
+    kv.key = (char*) "oscilloscope.samples";
+    kv.has_intval = TRUE_;
+    kv.intval = length;
+
+    status = psl__SetParam(module, detector, &kv);
+    if (status != XIA_SUCCESS) {
+        pslLog(PSL_LOG_ERROR, status,
+               "Unable to set the oscilloscope sample count");
+        return status;
+    }
+
+    return XIA_SUCCESS;
 }
 
 PSL_STATIC int psl__GetADCTrace(Module* module, Detector* detector, void* buffer)
@@ -1690,7 +1408,8 @@ PSL_STATIC int psl__SetCalibration(Module* module, Detector* detector)
     return XIA_SUCCESS;
 }
 
-/** @brief Set the specified acquisition value. Values are always of
+/*
+ * Set the specified acquisition value. Values are always of
  * type double.
  */
 PSL_STATIC int psl__SetAcquisitionValues(int        detChan,
@@ -1772,7 +1491,8 @@ PSL_STATIC int psl__SetAcquisitionValues(int        detChan,
 }
 
 
-/** @brief Retrieve the current value of the requested acquisition
+/*
+ * Retrieve the current value of the requested acquisition
  *  value as a double.
  */
 PSL_STATIC int psl__GetAcquisitionValues(int        detChan,
@@ -1943,7 +1663,8 @@ ACQ_HANDLER_DECL(analog_gain)
     return XIA_SUCCESS;
 }
 
-/** Get or set analog offset, between -2048 and 2047 inclusive.
+/*
+ * Get or set analog offset, between -2048 and 2047 inclusive.
  */
 ACQ_HANDLER_DECL(analog_offset)
 {
@@ -2345,13 +2066,13 @@ ACQ_HANDLER_DECL(decay_time)
         if (kv->has_paramtype &&
             (kv->paramtype == SI_TORO__SINC__KEY_VALUE__PARAM_TYPE__OPTION_TYPE)) {
             if (STREQ(kv->optionval, "long"))
-                acq->value.ref.i = 0;
+                acq->value.ref.i = (int64_t)XIA_DECAY_LONG;
             else if (STREQ(kv->optionval, "medium"))
-                acq->value.ref.i = 1;
+                acq->value.ref.i = (int64_t)XIA_DECAY_MEDIUM;
             else if (STREQ(kv->optionval, "short"))
-                acq->value.ref.i = 2;
+                acq->value.ref.i = (int64_t)XIA_DECAY_SHORT;
             else if (STREQ(kv->optionval, "very-short"))
-                acq->value.ref.i = 3;
+                acq->value.ref.i = (int64_t)XIA_DECAY_VERY_SHORT;
             else {
                 status = XIA_BAD_VALUE;
             }
@@ -2374,13 +2095,13 @@ ACQ_HANDLER_DECL(decay_time)
 
         si_toro__sinc__key_value__init(&kv);
         kv.key = (char*) "afe.decayTime";
-        if (*value == 0.0)
+        if (*value == XIA_DECAY_LONG)
           kv.optionval = (char*) "long";
-        else if (*value == 1.0)
+        else if (*value == XIA_DECAY_MEDIUM)
           kv.optionval = (char*) "medium";
-        else if (*value == 2.0)
+        else if (*value == XIA_DECAY_SHORT)
           kv.optionval = (char*) "short";
-        else if (*value == 3.0)
+        else if (*value == XIA_DECAY_VERY_SHORT)
           kv.optionval = (char*) "very-short";
         else {
             status = XIA_BAD_VALUE;
@@ -2839,60 +2560,6 @@ ACQ_HANDLER_DECL(mapping_mode)
         if (status != XIA_SUCCESS) {
             pslLog(PSL_LOG_ERROR, status,
                    "Invalid mapping_mode: %f", *value);
-            return status;
-        }
-    }
-
-    return XIA_SUCCESS;
-}
-
-ACQ_HANDLER_DECL(adc_trace_length)
-{
-    int status;
-
-    UNUSED(defaults);
-    UNUSED(fDetector);
-
-    ACQ_HANDLER_LOG(adc_trace_length);
-
-    if (read) {
-        psl__SincParamValue sincVal;
-
-        status = psl__GetParamValue(module, channel, "oscilloscope.samples",
-                                SI_TORO__SINC__KEY_VALUE__PARAM_TYPE__INT_TYPE,
-                                &sincVal);
-        if (status != XIA_SUCCESS) {
-            pslLog(PSL_LOG_ERROR, status,
-                   "Unable to get the oscilloscope sample count");
-            return status;
-        }
-
-        acq->value.ref.i = sincVal.intval;
-        *value = (double) acq->value.ref.i;
-    }
-    else {
-        SiToro__Sinc__KeyValue kv;
-
-        if (*value > FALCONXN_MAX_ADC_SAMPLES) {
-            pslLog(PSL_LOG_WARNING, "%f is out of range for adc_trace_length. Coercing to %d.",
-                   *value, FALCONXN_MAX_ADC_SAMPLES);
-            *value = FALCONXN_MAX_ADC_SAMPLES;
-        }
-        else if (*value <= 0) {
-            pslLog(PSL_LOG_WARNING, "%f is out of range for adc_trace_length. Coercing to %d.",
-                   *value, 0x2000);
-            *value = 0x2000;
-        }
-
-        si_toro__sinc__key_value__init(&kv);
-        kv.key = (char*) "oscilloscope.samples";
-        kv.has_intval = TRUE_;
-        kv.intval = (int64_t)*value;
-
-        status = psl__SetParam(module, detector, &kv);
-        if (status != XIA_SUCCESS) {
-            pslLog(PSL_LOG_ERROR, status,
-                   "Unable to set the oscilloscope sample count");
             return status;
         }
     }
@@ -3595,8 +3262,12 @@ ACQ_HANDLER_DECL(num_map_pixels)
         *value = (double) acq->value.ref.i;
     }
     else {
-        if ((*value < 0) || (*value > (16 * 1024)))
-            return XIA_TYPEVAL_OOR;
+        /* The upper limit is constrained only by downstream mm code and
+         * the buffer/pixel format. 2^32.
+         */
+        int64_t max = 1ull << 32;
+        if ((*value < 0) || (*value > max))
+            return XIA_ACQ_OOR;
         acq->value.ref.i = (int64_t) *value;
     }
 
@@ -3624,8 +3295,10 @@ ACQ_HANDLER_DECL(num_map_pixels_per_buffer)
             *value = 0.0;
         else if ((*value > 0.0) && (*value <= XMAP_MAX_PIXELS_PER_BUFFER))
             ;
+        else if (*value > XMAP_MAX_PIXELS_PER_BUFFER) /* Truncate as XMAP DSP */
+            *value = XMAP_MAX_PIXELS_PER_BUFFER;
         else {
-            status = XIA_TYPEVAL_OOR;
+            status = XIA_ACQ_OOR;
         }
     }
 
@@ -3651,7 +3324,7 @@ ACQ_HANDLER_DECL(pixel_advance_mode)
     }
     else {
         if ((*value < 0) || (*value > XIA_MAPPING_CTL_GATE))
-            return XIA_TYPEVAL_OOR;
+            return XIA_UNKNOWN_PT_CTL;
         acq->value.ref.i = (int64_t) *value;
     }
 
@@ -3674,7 +3347,7 @@ ACQ_HANDLER_DECL(input_logic_polarity)
     else {
         if (*value != (double) XIA_GATE_COLLECT_HI &&
             *value != (double) XIA_GATE_COLLECT_LO)
-            return XIA_TYPEVAL_OOR;
+            return XIA_ACQ_OOR;
 
         acq->value.ref.i = (int64_t) *value;
     }
@@ -4068,7 +3741,7 @@ PSL_STATIC int psl__Start_MappingMode_0(unsigned short resume,
         }
 
         status = psl__MappingModeControl_OpenMM0(&fDetector->mmc,
-                                                 number_mca_channels->value.ref.i,
+                                                 (uint16_t)number_mca_channels->value.ref.i,
                                                  number_stats);
 
         if (status != XIA_SUCCESS) {
@@ -4253,7 +3926,7 @@ PSL_STATIC int psl__Start_MappingMode_1(unsigned short resume,
                                                  FALSE_,
                                                  fDetector->runNumber,
                                                  num_map_pixels->value.ref.i,
-                                                 number_mca_channels->value.ref.i,
+                                                 (uint16_t)number_mca_channels->value.ref.i,
                                                  num_map_pixels_per_buffer->value.ref.i);
 
         if (status != XIA_SUCCESS) {
@@ -4377,16 +4050,6 @@ PSL_STATIC bool psl__mm1_RunningOrReady(FalconXNDetector* fDetector)
     return psl__RunningOrReady(fDetector, MAPPING_MODE_MCA_FSM);
 }
 
-/**
- * @addtogroup falconxn_psl
- * @section falconxn_rundata Run Data
- */
-
-/**
- * @rundata{mca_length,(unsigned long)}
- * The current size of the MCA data buffer for the specified channel.
- * @endpsl
- */
 PSL_STATIC int psl__mm0_mca_length(int detChan,
                                    Detector* detector, Module* module,
                                    const char *name, void *value)
@@ -4412,14 +4075,6 @@ PSL_STATIC int psl__mm0_mca_length(int detChan,
     return XIA_SUCCESS;
 }
 
-/**
- * @rundata{mca,(unsigned long \*)}
- * The MCA data array for the specified channel. The caller is
- * expected to allocate an array of length @ref rundata_mca_length
- * "mca_length" and pass that in as the @a value parameter when
- * retrieving the MCA data.
- * @endpsl
- */
 PSL_STATIC int psl__mm0_mca(int detChan,
                             Detector* detector, Module* module,
                             const char *name, void *value)
@@ -4665,12 +4320,6 @@ PSL_STATIC int psl__mm0_output_count_rate(int detChan,
     return status;
 }
 
-/**
- * @rundata{run_active,(unsigned long)}
- * The current run status for the specified channel. If the value is
- * non-zero then a run is currently active on the channel.
- * @endpsl
- */
 PSL_STATIC int psl__mm0_run_active(int detChan,
                                    Detector* detector, Module* module,
                                    const char *name, void *value)
@@ -4691,9 +4340,9 @@ PSL_STATIC int psl__mm0_run_active(int detChan,
 
     if ((fDetector->channelState == ChannelHistogram) &&
         psl__MappingModeControl_IsMode(&fDetector->mmc, MAPPING_MODE_MCA))
-        *((int*) value) = 1;
+        *((unsigned long*) value) = 1;
     else
-        *((int*) value) = 0;
+        *((unsigned long*) value) = 0;
 
     status = psl__DetectorUnlock(detector);
     if (status != XIA_SUCCESS) {
@@ -4704,26 +4353,6 @@ PSL_STATIC int psl__mm0_run_active(int detChan,
     return status;
 }
 
-/**
- * @rundata{module_statistics_2,(double \*)}
- * Returns an array containing statistics for the module. The caller
- * is responsible for allocating enough memory for at least 9*n
- * elements (where @a n is the number of channels in the module) and
- * passing it in as the @a value parameter. The returned data is
- * stored in the array as follows:
- *
- * - 0. channel 0 realtime
- * - 1. channel 0 trigger livetime
- * - 2. reserved
- * - 3. channel 0 triggers
- * - 4. channel 0 MCA events
- * - 5. channel 0 input count rate
- * - 6. channel 0 output count rate
- * - 7. reserved
- * - 8. reserved
- * - [repeat for channels 1-7]
- * @endpsl
- */
 PSL_STATIC int psl__mm0_module_statistics_2(int detChan,
                                             Detector* detector, Module* module,
                                             const char *name, void *value)
@@ -4843,29 +4472,6 @@ PSL_STATIC int psl__mm0_total_output_events(int detChan,
     return status;
 }
 
-PSL_STATIC int psl__mm0_sca_length(int detChan,
-                                   Detector* detector, Module* module,
-                                   const char *name, void *value)
-{
-    int status = XIA_SUCCESS;
-
-    AcquisitionValue* number_of_scas;
-
-    UNUSED(detChan);
-    UNUSED(name);
-    UNUSED(module);
-
-    FalconXNDetector* fDetector = detector->pslData;
-
-    number_of_scas = psl__GetAcquisition(fDetector, "number_of_scas");
-
-    ASSERT(number_of_scas);
-
-    *((unsigned short *)value) = (unsigned short)number_of_scas->value.ref.i;
-
-    return status;
-}
-
 PSL_STATIC int psl__mm0_max_sca_length(int detChan,
                                        Detector* detector, Module* module,
                                        const char *name, void *value)
@@ -4953,7 +4559,7 @@ PSL_STATIC int psl__mm1_run_active(int detChan,
     UNUSED(name);
     UNUSED(module);
 
-    *((int*) value) = 0;
+    *((unsigned long*) value) = 0;
 
     status = psl__DetectorLock(detector);
     if (status != XIA_SUCCESS) {
@@ -4981,7 +4587,7 @@ PSL_STATIC int psl__mm1_run_active(int detChan,
                    "Pixel count reached: %s", detector->alias);
         }
         else {
-            *((int*) value) = 1;
+            *((unsigned long*) value) = 1;
         }
     }
 
@@ -5115,9 +4721,10 @@ PSL_STATIC int psl__mm1_buffer_len(int detChan,
     ASSERT(number_mca_channels);
     ASSERT(num_map_pixels_per_buffer);
 
-    *((int*) value)
-        = (int) psl__MappingModeControl_MM1BufferSize(number_mca_channels->value.ref.i,
-                                                      num_map_pixels_per_buffer->value.ref.i);
+    *((unsigned long*) value)
+        = (unsigned long) psl__MappingModeControl_MM1BufferSize(
+                              (uint16_t)number_mca_channels->value.ref.i,
+                              num_map_pixels_per_buffer->value.ref.i);
 
     status = psl__DetectorUnlock(detector);
     if (status != XIA_SUCCESS) {
@@ -5332,7 +4939,7 @@ PSL_STATIC int psl__mm1_current_pixel(int detChan,
         psl__MappingModeControl_IsMode(&fDetector->mmc, MAPPING_MODE_MCA_FSM)) {
         MMC1_Data* mm1 = psl__MappingModeControl_MM1Data(&fDetector->mmc);
         MM_Buffers* mmb = &mm1->buffers;
-        *((int*) value) = (int) psl__MappingModeBuffers_Next_PixelTotal(mmb);
+        *((unsigned long*) value) = (unsigned long) psl__MappingModeBuffers_Next_PixelTotal(mmb);
     } else {
         status = XIA_NOT_ACTIVE;
         pslLog(PSL_LOG_ERROR, status,
@@ -5454,7 +5061,8 @@ PSL_STATIC int psl__mm1_mapping_pixel_next(int detChan,
 }
 
 /*
- * Get run data handlers. The order of the handlers must
+ * Get run data handlers. The order of the handlers must match the
+ * order of the labels.
  */
 PSL_STATIC const char* getRunDataLabels[] =
 {
@@ -5467,9 +5075,7 @@ PSL_STATIC const char* getRunDataLabels[] =
     "livetime",
     "input_count_rate",
     "output_count_rate",
-    "sca_length",
     "max_sca_length",
-    "sca",
     "run_active",
     "buffer_len",
     "buffer_done",
@@ -5502,9 +5108,7 @@ PSL_STATIC DoBoardOperation_FP getRunDataHandlers[MAPPING_MODE_COUNT][GET_RUN_DA
         psl__mm0_livetime,
         psl__mm0_input_count_rate,
         psl__mm0_output_count_rate,
-        psl__mm0_sca_length,
         psl__mm0_max_sca_length,
-        NULL,   /* psl__mm0_sca */
         psl__mm0_run_active,
         NULL,   /* psl__mm0_buffer_len */
         NULL,   /* psl__mm0_buffer_done */
@@ -5532,9 +5136,7 @@ PSL_STATIC DoBoardOperation_FP getRunDataHandlers[MAPPING_MODE_COUNT][GET_RUN_DA
         NULL,   /* psl__mm1_livetime */
         NULL,   /* psl__mm1_input_count_rate */
         NULL,   /* psl__mm1_output_count_rate */
-        NULL,   /* psl__mm1_sca_length */
         psl__mm0_max_sca_length, /* Defer to mm0 routine--this is generic. */
-        NULL,   /* psl__mm1_sca */
         psl__mm1_run_active,
         psl__mm1_buffer_len,
         psl__mm1_buffer_done,
@@ -5562,9 +5164,7 @@ PSL_STATIC DoBoardOperation_FP getRunDataHandlers[MAPPING_MODE_COUNT][GET_RUN_DA
         NULL,   /* psl__mm2_livetime */
         NULL,   /* psl__mm2_input_count_rate */
         NULL,   /* psl__mm2_output_count_rate */
-        NULL,   /* psl__mm2_sca_length */
         NULL,   /* psl__mm2_max_sca_length */
-        NULL,   /* psl__mm2_sca */
         NULL,   /* psl__mm2_run_active */
         NULL,   /* psl__mm2_buffer_len */
         NULL,   /* psl__mm2_buffer_done */
@@ -5658,25 +5258,6 @@ PSL_STATIC int psl__CheckDetCharWaveform(const char* name, SincCalibrationPlot* 
     return status;
 }
 
-/**
- * @addtogroup falconxn_psl
- * @section falconxn_sprun Special Runs
- */
-
-/**
- * @sprun{adc_trace,(double)}
- * Configures an ADC trace according to the two-element @a info array.
- * Element 0 is the number of samples to collect. This value may be
- * coerced according to the allowed range of values, so users should
- * check it after xiaDoSpecialRun() returns successfully. The value
- * returned in element 0 should be used to size the array passed to
- * xiaGetSpecialRunData().
- *
- * The actual trace is triggered and read to the host when
- * xiaGetSpecialRunData() is called.
- * @endpsl
- */
-
 PSL_STATIC int psl__SpecialRun(int detChan, const char *name, void *info,
                                XiaDefaults *defaults, Detector *detector,
                                Module *module)
@@ -5694,12 +5275,13 @@ PSL_STATIC int psl__SpecialRun(int detChan, const char *name, void *info,
            module->alias, fDetector->modDetChan, detChan, name);
 
     if (STREQ(name, "adc_trace")) {
-        AcquisitionValue* acq = psl__GetAcquisition(fDetector, "adc_trace_length");
-        int channel = fDetector->modDetChan;
         double* value = info;
-        boolean_t read = FALSE_;
-        ASSERT(acq);
-        status = ACQ_HANDLER_CALL(adc_trace_length);
+        if (*value <= 0) {
+            pslLog(PSL_LOG_WARNING, "%f is out of range for adc_trace_length. Coercing to %d.",
+                   *value, 0x2000);
+            *value = 0x2000;
+        }
+        status = psl__SetADCTraceLength(module, detector, (int64_t)*value);
     }
     else if (STREQ(name, "detc-start")) {
         status = psl__DetCharacterizeStart(detChan, detector, module);
@@ -5756,32 +5338,6 @@ PSL_STATIC int psl__SpecialRun(int detChan, const char *name, void *info,
     return status;
 }
 
-/* doxygen can't see the comment blocks inside the function if we don't
- * generate docs for all (static) members. Since we're only processing
- * the file for special doc sections and not all the code members, we'll
- * have to document special run data out here.
- */
-
-/**
- * @addtogroup falconxn_psl
- * @section falconxn_sprundata Special Run Data
- */
-
-/**
- * @sprundata{adc_trace,(unsigned int)}
- * Reads out an array of ADC trace samples. The caller is responsible
- * to allocate an array as long as the length value passed back from
- * xiaDoSpecialRun() (or by subsequently reading @ref
- * sprundata_adc_trace_length).
- * @endpsl
- */
-
-/**
- * @sprundata{adc_trace_length,(double)}
- * Gets the length set by the last call to xiaDoSpecialRun().
- * @endpsl
- */
-
 PSL_STATIC int psl__GetSpecialRunData(int detChan, const char *name, void *value,
                                       XiaDefaults *defaults,
                                       Detector *detector, Module *module)
@@ -5796,6 +5352,7 @@ PSL_STATIC int psl__GetSpecialRunData(int detChan, const char *name, void *value
 
     pslLog(PSL_LOG_DEBUG,
            "Detector %s (%d): %s", detector->alias, detChan, name);
+
     if (STREQ(name, "adc_trace")) {
         status = psl__GetADCTrace(module, detector, value);
         if (status != XIA_SUCCESS) {
@@ -5805,18 +5362,13 @@ PSL_STATIC int psl__GetSpecialRunData(int detChan, const char *name, void *value
         return status;
     }
     else if (STREQ(name, "adc_trace_length")) {
-        AcquisitionValue* acq = psl__GetAcquisition(fDetector, "adc_trace_length");
-        int channel = fDetector->modDetChan;
-        boolean_t read = TRUE_;
-        double length = 0;
-        ASSERT(acq);
-        status = psl__Acq_adc_trace_length(module, detector, channel, fDetector,
-            defaults, acq, "adc_trace_length", &length, read);
-        *((int*) value) = (int)length;
+        int64_t length;
+        status = psl__GetADCTraceLength(module, detector, &length);
         if (status != XIA_SUCCESS) {
             pslLog(PSL_LOG_ERROR, status,
                    "Unable to get ADC trace length");
         }
+        *((unsigned long *)value) = (unsigned long)length;
         return status;
     }
 
@@ -6110,18 +5662,18 @@ PSL_STATIC int psl__ModuleTransactionEnd(Module* module)
     return XIA_SUCCESS;
 }
 
+/*
+ * Get the Detector struct for a SINC channel within a module. The
+ * SINC channel number is the same as the module channel.
+ */
 PSL_STATIC Detector* psl__FindDetector(Module* module, int channel)
 {
-    size_t modChan;
-    for (modChan = 0; modChan < module->number_of_channels; ++modChan) {
-        if (module->channels[modChan] == channel) {
-            Detector* detector = xiaFindDetector(module->detector[modChan]);
-            if (detector != NULL) {
-                return detector;
-            }
-        }
-    }
-    return NULL;
+    ASSERT(channel < (int)module->number_of_channels);
+
+    if (channel >= (int)module->number_of_channels)
+        return NULL;
+
+    return xiaFindDetector(module->detector[channel]);
 }
 
 PSL_STATIC int psl__ModuleResponse(Module* module, int channel, int type, void* resp)
@@ -7872,7 +7424,7 @@ PSL_STATIC int psl__UserSetup(int detChan, Detector *detector, Module *module)
     /*
      * Load the detector characterization data if there is any.
      */
-    status = psl__LoadDetCharacterization(detChan, detector, module);
+    status = psl__LoadDetCharacterization(detector, module);
 
     if ((status != XIA_SUCCESS) && (status != XIA_NOT_FOUND)) {
         pslLog(PSL_LOG_ERROR, status,
@@ -8443,7 +7995,7 @@ PSL_STATIC int psl__ReadDetCharacterizationWave(FILE* dcFile,
     return status;
 }
 
-PSL_STATIC int psl__LoadDetCharacterization(int detChan, Detector *detector, Module *module)
+PSL_STATIC int psl__LoadDetCharacterization(Detector *detector, Module *module)
 {
     int status;
 
@@ -8456,7 +8008,7 @@ PSL_STATIC int psl__LoadDetCharacterization(int detChan, Detector *detector, Mod
     /*
      * Check a firmware set is present for this channel.
      */
-    sprintf(item, "firmware_set_chan%d", detChan);
+    sprintf(item, "firmware_set_chan%d", psl__DetectorChannel(detector));
 
     /*
      * If there is no detector characterisation data it just means the
@@ -8869,19 +8421,6 @@ PSL_STATIC int psl__SyncGateCollectionMode(Module *module, Detector *detector)
     return XIA_SUCCESS;
 }
 
-/**
- * @addtogroup falconxn_psl
- * @section falconxn_boardops Board Operations
- */
-
-/**
- * @boardop{apply,(null)}
- * Acquisition values are applied immediately by
- * xiaSetAcquisitinValues. The apply operation may be called as a
- * debugging step to check internal consistency of the parameters on
- * the board.
- * @endpsl
- */
 PSL_STATIC int psl__BoardOp_Apply(int detChan, Detector* detector, Module* module,
                                   const char *name, void *value)
 {
@@ -9077,14 +8616,6 @@ PSL_STATIC int psl__BoardOp_GetBoardInfo(int detChan, Detector* detector, Module
     return XIA_SUCCESS;
 }
 
-/**
- * @boardop{get_connected,(int)}
- * Pings the FalconXn and returns greater than zero if it is
- * connected. This is provided for diagnostics purposes but may not be
- * needed in typical applications, as the other Handel APIs will
- * return errors if the connection has been lost.
- * @endpsl
- */
 PSL_STATIC int psl__BoardOp_GetConnected(int detChan, Detector* detector, Module* module,
                                          const char *name, void *value)
 {
@@ -9125,14 +8656,6 @@ PSL_STATIC int psl__BoardOp_GetConnected(int detChan, Detector* detector, Module
     return XIA_SUCCESS;
 }
 
-/**
- * @boardop{get_channel_count,(int)}
- * Returns the number of channels supported by the connected
- * FalconXn. This is provided for diagnostics purposes only. @a
- * number_of_channels as specified in the Handel .ini file is the
- * official number of channels initialized for use in the APIs.
- * @endpsl
- */
 PSL_STATIC int psl__BoardOp_GetChannelCount(int detChan, Detector* detector, Module* module,
                                             const char *name, void *value)
 {
@@ -9181,12 +8704,6 @@ PSL_STATIC int psl__BoardOp_GetChannelCount(int detChan, Detector* detector, Mod
     return XIA_SUCCESS;
 }
 
-/**
- * @boardop{get_serial_number,(char \*)}
- * Returns the serial number as a string. The caller is
- * responsible for allocating @a value of length at least 32.
- * @endpsl
- */
 PSL_STATIC int psl__BoardOp_GetSerialNumber(int detChan, Detector* detector, Module* module,
                                             const char *name, void *value)
 {
@@ -9234,12 +8751,6 @@ PSL_STATIC int psl__BoardOp_GetSerialNumber(int detChan, Detector* detector, Mod
     return XIA_SUCCESS;
 }
 
-/**
- * @boardop{get_firmware_version,(char \*)}
- * Returns the firmware version as a string. The caller is
- * responsible for allocating @a value of length at least 32.
- * @endpsl
- */
 PSL_STATIC int psl__BoardOp_GetFirmwareVersion(int detChan, Detector* detector, Module* module,
                                                const char *name, void *value)
 {

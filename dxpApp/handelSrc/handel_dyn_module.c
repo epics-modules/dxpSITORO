@@ -1143,7 +1143,7 @@ HANDEL_EXPORT int HANDEL_API xiaGetModules(char *modules[])
     Module *current = xiaGetModuleHead();
 
 
-    for (i = 0; current != NULL; current = getListNext(current)) {
+    for (i = 0; current != NULL; current = getListNext(current), i++) {
 
         strcpy(modules[i], current->alias);
     }

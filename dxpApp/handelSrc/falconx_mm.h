@@ -171,7 +171,7 @@ typedef struct
 
 typedef struct
 {
-    uint32_t   numMCAChannels;
+    uint16_t   numMCAChannels; /* 16 bits constrained by buffer format. */
     int        detChan;
     boolean_t  listMode;
     uint32_t   runNumber;
@@ -273,7 +273,7 @@ boolean_t psl__MappingModeControl_IsMode(MM_Control* control, uint32_t mode);
 int psl__MappingModeControl_CloseAny(MM_Control* control);
 
 int psl__MappingModeControl_OpenMM0(MM_Control* control,
-                                    int64_t     number_mca_channels,
+                                    uint16_t    number_mca_channels,
                                     uint32_t    number_stats);
 int psl__MappingModeControl_CloseMM0(MM_Control* control);
 MMC0_Data* psl__MappingModeControl_MM0Data(MM_Control* control);
@@ -283,11 +283,11 @@ int psl__MappingModeControl_OpenMM1(MM_Control* control,
                                     boolean_t   listmode,
                                     uint32_t    run_number,
                                     int64_t     num_pixels,
-                                    int64_t     number_mca_channels,
+                                    uint16_t    number_mca_channels,
                                     int64_t     num_pixels_buffer);
 int psl__MappingModeControl_CloseMM1(MM_Control* control);
 MMC1_Data* psl__MappingModeControl_MM1Data(MM_Control* control);
-size_t psl__MappingModeControl_MM1BufferSize(int64_t number_mca_channels,
+size_t psl__MappingModeControl_MM1BufferSize(uint16_t number_mca_channels,
                                              int64_t num_pixels_per_buffer);
 
 MM_Mode psl__MappingModeControl_Mode(MM_Control* control);

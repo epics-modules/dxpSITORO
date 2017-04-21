@@ -252,20 +252,13 @@ PSL_SHARED int PSL_API pslDestroySCAs(Module *m, unsigned int modChan)
 /** Set the number of SCA to a new given value
  *  Allocate or free data if needed, returns XIA_NOMEM if failed
  */
-PSL_SHARED int PSL_API pslSetNumberSCAs(Module *m, XiaDefaults *defs, int detChan, int nSCA)
+PSL_SHARED int PSL_API pslSetNumberSCAs(Module *m, XiaDefaults *defs, int modChan, int nSCA)
 {
   int status;
-  unsigned int modChan;
 
   unsigned short *lo, *hi;
   char limit[9];
 
-  status = pslGetModChan(detChan, m, &modChan);
-
-  if (status != XIA_SUCCESS) {
-    pslLog(PSL_LOG_ERROR, status, "Unable to get modChan");
-    return status;
-  }
 
   /* If the number of SCAs shrank then we need to remove the limits
   * that are greater then the new number of SCAs.

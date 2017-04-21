@@ -141,7 +141,7 @@ typedef struct
     uint32_t                 errorBits;     /* Error bits returned from the List API. */
     uint64_t                 timestamp;     /* Current timestamp. */
     psl__SiToroListModeStats stats;         /* Extracted stats. */
-    /* Intput buffering of data from SiToro */
+    /* Input buffering of data from SiToro */
     uint32_t*                buffer;        /* Output buffer. */
     uint32_t                 bufferSize;    /* The size of the buffer */
     uint32_t                 bufferLevel;   /* The level of data in the buffer. */
@@ -3968,7 +3968,7 @@ PSL_STATIC int psl__ProcessListData_Copy(SiToroDetector* siDetector,
              */
             memcpy(buffer->buffer + buffer->level, binner->buffer, copy * sizeof(uint32_t));
             buffer->level += copy;
-            binner->bufferLevel -= copy;
+            binner->bufferLevel -= (uint32_t) copy;
 
             /*
              * Compact the list mode input buffer.
