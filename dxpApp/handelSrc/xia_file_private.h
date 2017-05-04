@@ -69,6 +69,7 @@ extern "C" {
   XIA_EXPORT int   xia_fclose(FILE *fp);
   XIA_EXPORT int   xia_num_open_handles(void);
   XIA_EXPORT void  xia_print_open_handles(FILE *stream);
+  XIA_EXPORT void  xia_print_open_handles_stdout(void);
 
 #ifdef __cplusplus
 }

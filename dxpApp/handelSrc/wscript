@@ -10,7 +10,10 @@ VERSION = '1.0'
 windows = os.name == 'nt'
 
 top = '.'
-out = 'build-' + sys.platform
+
+# Allow overriding the configure/build directory by setting WAFLOCK=.lock-wafFOO.
+if not os.getenv('WAFLOCK'):
+    out = 'build-' + sys.platform
 
 def options(opt):
     opt.add_option('--sitoro',
@@ -18,12 +21,18 @@ def options(opt):
                    default = '',
                    dest = 'sitoro_path',
                    help = 'Set the path to the SiToro release.')
+    opt.add_option('--release',
+                   action = 'store_true',
+                   default = False,
+                   dest = 'releasing',
+                   help = 'Update xia_version.h with version control info.')
     opt.add_option('--show-commands',
                    action = 'store_true',
                    default = False,
                    dest = 'show_commands',
                    help = 'Print the commands as strings.')
     opt.load('compiler_c')
+
 
 #
 # Configure the variants.
@@ -131,6 +140,7 @@ def build(bld):
 
     includes = ['.', 'inc', 'libsinc-c']
 
+    bld.env.GVER_FLAGS = '--release' if bld.options.releasing else ''
     bld(rule      = '${RUBY} ${GVER} ${GVER_FLAGS} ${SRC} ${TGT}',
         target   = 'xia_version.h',
         source   = 'tools/releaser/version.yml')

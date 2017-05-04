@@ -71,7 +71,7 @@
  *  strustture. It is also called the absolute detector number.
  *
  *    int status;
- *    unsigned int modChan;
+ *    int modChan;
  *    modChan = xiaGetModChan(detChan);
  *    if (modChan == 999)
  *       error(...)
@@ -197,7 +197,7 @@ typedef int (*getAcquisitionValues_FP)(int detChan, Detector *detector, Module *
 
 
 typedef int (*getDefaultAlias_FP)(char *, char **, double *);
-typedef int (*freeSCAs_FP)(Module *m, unsigned int);
+typedef int (*freeSCAs_FP)(Module *m, int modChan);
 typedef unsigned int (*getNumDefaults_FP)(void);
 
 typedef int (*gainCalibrate_FP)(int detChan, Detector *det, int modChan,

@@ -1717,7 +1717,7 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
         if (current->ch != NULL) {
             if (current->psl) {
                 for (i = 0; i < current->number_of_channels; i++) {
-                    status = current->psl->freeSCAs(current, i);
+                    status = current->psl->freeSCAs(current, (int) i);
 
                     if (status != XIA_SUCCESS) {
 

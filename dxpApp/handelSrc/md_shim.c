@@ -50,6 +50,7 @@
 #include "Dlldefs.h"
 #include "handel_errors.h"
 
+#include "md_shim.h"
 #include "md_generic.h"
 #include "md_threads.h"
 

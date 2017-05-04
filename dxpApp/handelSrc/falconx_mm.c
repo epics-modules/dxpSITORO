@@ -92,7 +92,7 @@ static boolean_t psl__MappingModeBuffers_Full(MM_Buffers* buffers, int buffer)
     return
         (buffers->buffer[buffer].level > 0) &&
         ((buffers->buffer[buffer].level >= buffers->buffer[buffer].size) ||
-         ((buffers->numPixels > 0) && (buffers->pixel >= buffers->numPixels)));
+         psl__MappingModeBuffers_PixelsReceived(buffers));
 }
 
 boolean_t psl__MappingModeBuffers_A_Full(MM_Buffers* buffers)
@@ -353,28 +353,6 @@ void psl__MappingModeBuffers_Pixel_Inc(MM_Buffers* buffers)
     MM_Buffer* mmb = &buffers->buffer[buffer];
     ++buffers->pixel;
     ++mmb->bufferPixel;
-}
-
-void psl__MappingModeBuffers_Pixel_Dec(MM_Buffers* buffers)
-{
-    int buffer = psl__MappingModeBuffers_Next(buffers);
-    MM_Buffer* mmb = &buffers->buffer[buffer];
-    --buffers->pixel;
-    --mmb->bufferPixel;
-}
-
-void psl__MappingModeBuffers_Pixel_SetMarker(MM_Buffers* buffers)
-{
-    int buffer = psl__MappingModeBuffers_Next(buffers);
-    MM_Buffer* mmb = &buffers->buffer[buffer];
-    mmb->marker = mmb->level;
-}
-
-void psl__MappingModeBuffers_Pixel_RewindToMarker(MM_Buffers* buffers)
-{
-    int buffer = psl__MappingModeBuffers_Next(buffers);
-    MM_Buffer* mmb = &buffers->buffer[buffer];
-    mmb->level = mmb->marker;
 }
 
 int psl__MappingModeBuffers_CopyIn(MM_Buffers* buffers, void* value, size_t size)
@@ -651,7 +629,7 @@ int psl__MappingModeBinner_DataCopy(MM_Binner*      binner,
     return status;
 }
 
-boolean_t psl__MappingModeControl_IsMode(MM_Control* mmc, uint32_t mode)
+boolean_t psl__MappingModeControl_IsMode(MM_Control* mmc, MM_Mode mode)
 {
     return (mmc->mode == mode) && (mmc->dataFormatter != NULL);
 }
@@ -805,7 +783,7 @@ int psl__MappingModeControl_OpenMM1(MM_Control* control,
      */
     mm1->detChan = detChan;
     mm1->listMode = listmode;
-    mm1->numMCAChannels = (uint32_t) number_mca_channels;
+    mm1->numMCAChannels = (uint16_t) number_mca_channels;
     mm1->runNumber = run_number;
 
     control->dataFormatter = mm1;

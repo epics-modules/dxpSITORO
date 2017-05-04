@@ -184,8 +184,8 @@ typedef struct
 
 /* Mapping mode control. */
 typedef struct {
-    /* The mode.. */
-    uint32_t mode;
+    /* The mode. */
+    MM_Mode mode;
 
     /* Data formatter, an opaque handle. */
     void* dataFormatter;
@@ -211,17 +211,13 @@ void      psl__MappingModeBuffers_Toggle(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_Update(MM_Buffers* buffers);
 void      psl__MappingModeBuffers_Overrun(MM_Buffers* buffers);
 uint32_t  psl__MappingModeBuffers_Overruns(MM_Buffers* buffers);
+void      psl__MappingModeBuffers_Pixel_Inc(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_PixelsReceived(MM_Buffers* buffers);
 
 boolean_t psl__MappingModeBuffers_A_Full(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_A_Active(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_B_Full(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_B_Active(MM_Buffers* buffers);
-
-void      psl__MappingModeBuffers_Pixel_Inc(MM_Buffers* buffers);
-void      psl__MappingModeBuffers_Pixel_Dec(MM_Buffers* buffers);
-void      psl__MappingModeBuffers_Pixel_SetMarker(MM_Buffers* buffers);
-void      psl__MappingModeBuffers_Pixel_RewindToMarker(MM_Buffers* buffers);
 
 int       psl__MappingModeBuffers_Next(MM_Buffers* buffers);
 char      psl__MappingModeBuffers_Next_Label(MM_Buffers* buffers);
@@ -254,7 +250,7 @@ int psl__MappingModeBuffers_CopyIn(MM_Buffers* buffers, void* value, size_t size
 int psl__MappingModeBuffers_CopyOut(MM_Buffers* buffers, void* value, size_t* size);
 
 /*
- * Maping Mode Binner.
+ * Mapping Mode Binner.
  */
 int psl__MappingModeBinner_Open(MM_Binner* binner,
                                 size_t     bins);
@@ -268,7 +264,7 @@ int psl__MappingModeBinner_DataCopy(MM_Binner*      binner,
 /*
  * Mapping Mode Control.
  */
-boolean_t psl__MappingModeControl_IsMode(MM_Control* control, uint32_t mode);
+boolean_t psl__MappingModeControl_IsMode(MM_Control* control, MM_Mode mode);
 
 int psl__MappingModeControl_CloseAny(MM_Control* control);
 

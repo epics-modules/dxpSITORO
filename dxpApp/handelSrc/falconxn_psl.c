@@ -230,8 +230,6 @@ PSL_STATIC int psl__SyncGateCollectionMode(Module *module, Detector *detector);
                                     boolean_t         read)
 #define ACQ_HANDLER(_n) psl__Acq_ ## _n
 /* #define ACQ_HANDLER_NAME(_n) "psl__Acq_" # _n */
-#define ACQ_HANDLER_CALL(_n) \
-    ACQ_HANDLER(_n)(module, detector, channel, fDetector, defaults, acq, name, value, read)
 #define ACQ_HANDLER_LOG(_n) \
     pslLog(PSL_LOG_DEBUG, "ACQ %s: %s (%s:%d)",   \
            read ? "read": "write", name, module->alias, channel)
@@ -262,6 +260,7 @@ ACQ_HANDLER_DECL(reset_blanking_threshold);
 ACQ_HANDLER_DECL(reset_blanking_presamples);
 ACQ_HANDLER_DECL(reset_blanking_postsamples);
 ACQ_HANDLER_DECL(clock_speed);
+ACQ_HANDLER_DECL(adc_trace_decimation);
 ACQ_HANDLER_DECL(detection_threshold);
 ACQ_HANDLER_DECL(min_pulse_pair_separation);
 ACQ_HANDLER_DECL(detection_filter);
@@ -323,6 +322,7 @@ static const AcquisitionValue DEFAULT_ACQ_VALUES[] = {
     ACQ_DEFAULT(detection_filter,            acqInt, XIA_FILTER_MID_RATE, PSL_ACQ_HD, NULL),
     /* system settings */
     ACQ_DEFAULT(clock_speed,                 acqInt,     0.0, PSL_ACQ_RO,   NULL),
+    ACQ_DEFAULT(adc_trace_decimation,        acqInt,     0.0, PSL_ACQ_RO,   NULL),
     ACQ_DEFAULT(mapping_mode,                acqInt,     0.0, PSL_ACQ_L_HD, NULL),
     /* MCA mode */
     ACQ_DEFAULT(number_mca_channels,         acqInt,  4096.0, PSL_ACQ_HD, NULL),
@@ -2537,6 +2537,29 @@ ACQ_HANDLER_DECL(clock_speed)
     return XIA_SUCCESS;
 }
 
+ACQ_HANDLER_DECL(adc_trace_decimation)
+{
+    int status;
+
+    UNUSED(name);
+    UNUSED(channel);
+    UNUSED(module);
+    UNUSED(defaults);
+    UNUSED(fDetector);
+    UNUSED(detector);
+
+    if (!read) {
+        status = XIA_READ_ONLY;
+        pslLog(PSL_LOG_ERROR, status,
+               "Unable to set the ADC trace decimation, read only");
+        return status;
+    }
+
+    acq->value.ref.i = 2;
+    *value = (double) acq->value.ref.i;
+    return XIA_SUCCESS;
+}
+
 ACQ_HANDLER_DECL(mapping_mode)
 {
     int status;
@@ -3938,7 +3961,7 @@ PSL_STATIC int psl__Start_MappingMode_1(unsigned short resume,
         }
 
         /*
-         * Flag to disable implicit pixel marker rewind for GATE or
+         * Flag to disable waiting for user pixel advance for GATE or
          * SYNC advance, assuming we only get transitional spectra.
          */
         if (pixel_advance_mode->value.ref.i != XIA_MAPPING_CTL_USER) {
@@ -4038,7 +4061,7 @@ PSL_STATIC int psl__StopRun(int detChan, Detector *detector, Module *module)
  * the given mode and the current state is running or ready. That
  * means it is valid to read the mapping data for that mode.
  */
-PSL_STATIC bool psl__RunningOrReady(FalconXNDetector* fDetector, int mode)
+PSL_STATIC bool psl__RunningOrReady(FalconXNDetector* fDetector, MM_Mode mode)
 {
     return (fDetector->channelState == ChannelHistogram ||
             fDetector->channelState == ChannelReady) &&
@@ -5491,43 +5514,56 @@ PSL_STATIC int psl__IniWrite(FILE* fp, const char* section, const char* path,
 {
     UNUSED(fp);
     UNUSED(path);
+    UNUSED(value);
 
-    if (STREQ(section, "detector")) {
-        int status;
+    pslLog(PSL_LOG_DEBUG, "Writing section %s[%d]", section, index);
 
-        char item[MAXITEM_LEN];
-        char firmware[MAXITEM_LEN];
-        char filename[MAXITEM_LEN];
+    if (STREQ(section, "module")) {
+        int modChan;
 
-        Detector* detector = value;
+        for (modChan = 0; modChan < (int) module->number_of_channels; modChan++) {
+            Detector* chanDetector;
+            char item[MAXITEM_LEN];
+            char firmware[MAXITEM_LEN];
+            char filename[MAXITEM_LEN];
+            int status;
 
-        /*
-         * Check a firmware set is present for this channel. It must exist
-         * before running a detector characterization.
-         */
-        sprintf(item, "firmware_set_chan%d", index);
+            chanDetector = psl__FindDetector(module, modChan);
+            if (chanDetector == NULL) {
+                status = XIA_INVALID_DETCHAN;
+                pslLog(PSL_LOG_ERROR, status,
+                       "Cannot find channel %s:%d", module->alias, modChan);
+                return status;
+            }
 
-        status = xiaGetModuleItem(module->alias, item, firmware);
+            /*
+             * Check a firmware set is present for this channel. It must exist
+             * before running a detector characterization.
+             */
+            sprintf(item, "firmware_set_chan%d", modChan);
 
-        if (status != XIA_SUCCESS) {
-            pslLog(PSL_LOG_ERROR, status,
-                   "Error getting the firmware from the module: %s", item);
-            return status;
+            status = xiaGetModuleItem(module->alias, item, firmware);
+
+            if (status != XIA_SUCCESS) {
+                pslLog(PSL_LOG_ERROR, status,
+                       "Error getting the firmware from the module: %s", item);
+                return status;
+            }
+
+            status = xiaGetFirmwareItem(firmware, 0, "filename", filename);
+
+            if (status != XIA_SUCCESS) {
+                pslLog(PSL_LOG_ERROR, status,
+                       "Error getting the filename from the firmware set alias: %s",
+                       firmware);
+                return status;
+            }
+
+            /*
+             * Do not abort the INI write because it can become corrupted.
+             */
+            psl__UnloadDetCharacterization(module, chanDetector, filename);
         }
-
-        status = xiaGetFirmwareItem(firmware, 0, "filename", filename);
-
-        if (status != XIA_SUCCESS) {
-            pslLog(PSL_LOG_ERROR, status,
-                   "Error getting the filename from the firmware set alias: %s",
-                   firmware);
-            return status;
-        }
-
-        /*
-         * Do not abort the INI write because it can become corrupted.
-         */
-        psl__UnloadDetCharacterization(module, detector, filename);
     }
 
     return XIA_SUCCESS;
@@ -5862,7 +5898,7 @@ PSL_STATIC int psl__ReceiveHistogram_MM1(Module*                  module,
     mmb = &mm1->buffers;
 
     /*
-     * We need to channels we expect to match the number received or the buffer
+     * We need channels to match the number received or the buffer
      * sizing does not match and we could corrupt memory.
      */
     if (mm1->numMCAChannels != (uint32_t) accepted->len) {
@@ -5880,6 +5916,17 @@ PSL_STATIC int psl__ReceiveHistogram_MM1(Module*                  module,
         pslLog(PSL_LOG_INFO,
                "Pixel count reached: %s", detector->alias);
       return status;
+    }
+
+    /*
+     * Drop histograms while awaiting user advance.
+     */
+    if (mm1->pixelAdvanceCounter == 0) {
+        pslLog(PSL_LOG_DEBUG,
+               "Pixels=%d: %s. Waiting for user advance.",
+               (int) psl__MappingModeBuffers_Next_PixelTotal(mmb),
+               detector->alias);
+        return XIA_SUCCESS;
     }
 
     /*
@@ -5925,18 +5972,6 @@ PSL_STATIC int psl__ReceiveHistogram_MM1(Module*                  module,
                    "Error adding an XMAP buffer header: %s", detector->alias);
             return status;
         }
-    } else {
-        /*
-         * If the user has indicated a next pixel rewind the pixel and
-         * overwrite it with this histogram. In GATE or SYNC advance
-         * mode, this should be -1 to disable rewind; we assume all
-         * received histograms correspond to transitions indicating a
-         * new pixel.
-         */
-        if (mm1->pixelAdvanceCounter == 0) {
-            psl__MappingModeBuffers_Pixel_Dec(&mm1->buffers);
-            psl__MappingModeBuffers_Pixel_RewindToMarker(&mm1->buffers);
-        }
     }
 
     if (mm1->pixelAdvanceCounter > 0)
@@ -5956,11 +5991,9 @@ PSL_STATIC int psl__ReceiveHistogram_MM1(Module*                  module,
         (uint32_t) fDetector->stats[FALCONXN_STATS_PULSES_ACCEPTED];
 
     /*
-     * Set the buffer marker to the current level, add the XMAP pixel header,
-     * increment the pixel counters, then copy in the histogram.
+     * Add the XMAP pixel header, increment the pixel counters, then
+     * copy in the histogram.
      */
-    psl__MappingModeBuffers_Pixel_SetMarker(&mm1->buffers);
-
     status = psl__XMAP_WritePixelHeader_MM1(mm1, &pstats);
     if (status != XIA_SUCCESS) {
         pslLog(PSL_LOG_ERROR, status,
@@ -6792,6 +6825,7 @@ PSL_STATIC int psl__ModuleReceiveProcessor(Module*                   module,
         case SI_TORO__SINC__MESSAGE_TYPE__HISTOGRAM_DATAGRAM_RESPONSE:
         case SI_TORO__SINC__MESSAGE_TYPE__DOWNLOAD_CRASH_DUMP_COMMAND:
         case SI_TORO__SINC__MESSAGE_TYPE__DOWNLOAD_CRASH_DUMP_RESPONSE:
+        case SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_COMMAND:
         default:
             pslLog(PSL_LOG_INFO,
                    "Invalid message type for FalconXN connection: %s:%d: %d",
@@ -7391,7 +7425,7 @@ PSL_STATIC int psl__EndDetChan(int detChan, Detector *detector, Module *module)
  */
 PSL_STATIC bool psl__AcqRemoved(const char *name)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < sizeof(REMOVED_ACQ_VALUES) / sizeof(REMOVED_ACQ_VALUES[0]); i++) {
         if (STREQ(name, REMOVED_ACQ_VALUES[i]))
@@ -7600,6 +7634,8 @@ PSL_STATIC int psl__DetCharacterizeStart(int detChan, Detector* detector, Module
 {
     int status;
 
+    int modChan;
+
     char item[MAXITEM_LEN];
     char firmware[MAXITEM_LEN];
 
@@ -7608,11 +7644,13 @@ PSL_STATIC int psl__DetCharacterizeStart(int detChan, Detector* detector, Module
 
     SiToro__Sinc__KeyValue kv;
 
+    modChan = xiaGetModChan(detChan);
+
     /*
      * Check a firmware set is present for this channel. It must exist
      * before running a detector characterization.
      */
-    sprintf(item, "firmware_set_chan%d", detChan);
+    sprintf(item, "firmware_set_chan%d", modChan);
 
     status = xiaGetModuleItem(module->alias, item, firmware);
 
@@ -8209,7 +8247,7 @@ PSL_STATIC int psl__LoadDetCharacterization(Detector *detector, Module *module)
 PSL_STATIC int psl__SyncPixelAdvanceMode(Module *module, Detector *detector)
 {
     int status;
-    char *mode;
+    const char *mode;
     AcquisitionValue *pixel_advance_mode;
     FalconXNDetector *fDetector = detector->pslData;
 

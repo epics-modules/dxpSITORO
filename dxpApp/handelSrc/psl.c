@@ -201,17 +201,16 @@ PSL_SHARED int pslRemoveDefault(const char *name, XiaDefaults *defs)
  * @returns Error status indicating success or failure.
  *
  */
-PSL_SHARED int pslGetModChan(int detChan, Module *m,
-                             unsigned int *modChan)
+PSL_SHARED int pslGetModChan(int detChan, Module *m, int *modChan)
 {
-    unsigned int i;
+    int i;
 
 
     ASSERT(m != NULL);
     ASSERT(modChan != NULL);
 
 
-    for (i = 0; i < m->number_of_channels; i++) {
+    for (i = 0; i < (int) m->number_of_channels; i++) {
         if (m->channels[i] == detChan) {
             *modChan = i;
             return XIA_SUCCESS;
@@ -234,7 +233,7 @@ PSL_SHARED int pslGetModChan(int detChan, Module *m,
  * @return Integer indicating success or failure.
  *
  */
-PSL_SHARED int PSL_API pslDestroySCAs(Module *m, unsigned int modChan)
+PSL_SHARED int PSL_API pslDestroySCAs(Module *m, int modChan)
 {
     ASSERT(m != NULL);
 

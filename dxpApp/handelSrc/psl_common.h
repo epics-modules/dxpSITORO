@@ -84,9 +84,8 @@ PSL_SHARED int PSL_API pslGetDefault(const char *name, void *value,
                                      XiaDefaults *defaults);
 PSL_SHARED int PSL_API pslSetDefault(const char *name, void *value,
                                      XiaDefaults *defaults);
-PSL_SHARED int pslGetModChan(int detChan, Module *m,
-                             unsigned int *modChan);
-PSL_SHARED int PSL_API pslDestroySCAs(Module *m, unsigned int modChan);
+PSL_SHARED int pslGetModChan(int detChan, Module *m, int *modChan);
+PSL_SHARED int PSL_API pslDestroySCAs(Module *m, int modChan);
 PSL_SHARED int PSL_API pslSetNumberSCAs(Module *m, XiaDefaults *defs, int modChan, int nSCA);
 PSL_SHARED XiaDaqEntry * pslFindEntry(const char *name, XiaDefaults *defs);
 PSL_SHARED int pslInvalidate(const char *name, XiaDefaults *defs);

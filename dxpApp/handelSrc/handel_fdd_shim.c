@@ -1,6 +1,8 @@
 
 #include "xia_common.h"
 
+#include "xia_handel.h"
+
 #include "handeldef.h"
 #include "handel_generic.h"
 #include "handel_errors.h"

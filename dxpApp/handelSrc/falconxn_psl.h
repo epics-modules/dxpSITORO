@@ -76,7 +76,7 @@ typedef struct
 } Sinc_Response;
 
 /* The state of the Sinc channel. This tracks the Sinc parameter channel.state
- * and allows the PSL to remember whether it started a run, characterization,etc.
+ * and allows the PSL to remember whether it started a run, characterization, etc.
  */
 typedef enum {
     ChannelDisconnected,
@@ -321,4 +321,4 @@ struct _FalconXNDetector {
     MM_Control mmc;
 };
 
-#endif /* FALCONX_PSL_H */
+#endif /* FALCONXN_PSL_H */
