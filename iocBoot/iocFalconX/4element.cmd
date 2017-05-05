@@ -40,7 +40,7 @@ NDFileTIFFConfigure("DXP1TIFF", 20, 0, "DXP1", 0)
 dbLoadRecords("$(ADCORE)/db/NDFileTIFF.template",  "P=dxpSITORO:,R=TIFF1:,PORT=DXP1TIFF,ADDR=0,TIMEOUT=1,NDARRAY_PORT=DXP1")
 
 # Create a NeXus file saving plugin
-NDFileNexusConfigure("DXP1Nexus", 20, 0, "DXP1", 0, 0, 80000)
+NDFileNexusConfigure("DXP1Nexus", 20, 0, "DXP1", 0)
 dbLoadRecords("$(ADCORE)/db/NDFileNexus.template", "P=dxpSITORO:,R=Nexus1:,PORT=DXP1Nexus,ADDR=0,TIMEOUT=1,NDARRAY_PORT=DXP1")
 
 
@@ -55,7 +55,7 @@ dbLoadRecords("$(SSCAN)/sscanApp/Db/scan.db","P=dxpSITORO:,MAXPTS1=2000,MAXPTS2=
 
 iocInit
 
-seq dxpMED, "P=dxpSITORO:, DXP=dxp, MCA=mca, N_DETECTORS=4, N_SCAS=6"
+seq dxpMED, "P=dxpSITORO:, DXP=dxp, MCA=mca, N_DETECTORS=4, N_SCAS=4"
 
 ### Start up the autosave task and tell it what to do.
 # Save settings every thirty seconds
