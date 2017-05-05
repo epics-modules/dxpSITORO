@@ -8,11 +8,11 @@
 <body>
   <div style="text-align: center">
     <h1>
-      DXP - EPICS software for XIA Digital Signal Processing Systems</h1>
+      dxpSITORO - EPICS software for XIA SITORO Digital Signal Processing Systems</h1>
     <h2>
-      Release 3-4</h2>
+      Release 1-0</h2>
     <h2>
-      December 10, 2014</h2>
+      Janauary XXX, 2017</h2>
     <h2>
       Mark Rivers</h2>
     <h2>
@@ -27,30 +27,24 @@
     <li><a href="#EPICS_Records">EPICS Records, Databases, and medm screens</a>
       <ul>
         <li><a href="#dxpHighLevel">dxpHighLevel.template</a></li>
-        <li><a href="#dxpSCA_16">dxpSCA_16.template</a></li>
-        <li><a href="#dxpLowLevel">dxpLowLevel.template</a></li>
+        <li><a href="#dxpSCA">dxpSCA.template</a></li>
         <li><a href="#dxpSystem">dxpSystem.template</a></li>
-        <li><a href="#dxpSaturn">dxpSaturn.template</a></li>
         <li><a href="#Saturn_medm">Saturn medm screens</a></li>
         <li><a href="#dxpMED">dxpMED.template</a></li>
         <li><a href="#multielement_medm">Multi-element detector medm screens</a></li>
         <li><a href="#dxpMapping">dxpMapping.template</a></li>
       </ul>
     </li>
-    <li><a href="#Mapping_Mode">Using mapping modes with the xMAP and Mercury</a></li>
+    <li><a href="#Mapping_Mode">Using mapping modes</a></li>
     <li><a href="#Installing">Installing EPICS</a>
       <ul>
         <li><a href="#Installing_Windows">Windows</a></li>
         <li><a href="#Installing_Linux">Linux</a></li>
-        <li><a href="#Installing_vxWorks">vxWorks</a></li>
       </ul>
     </li>
     <li><a href="#Running">Running</a>
       <ul>
-        <li><a href="#Running_Saturn">Saturn</a></li>
-        <li><a href="#Running_xMAP">xMAP</a></li>
-        <li><a href="#Running_Mercury">Mercury</a></li>
-        <li><a href="#Running_DXP2X">DXP2X</a></li>
+        <li><a href="#Running_Falcon">Falcon</a></li>
       </ul>
     </li>
     <li><a href="#Performance">Performance</a></li>
@@ -58,11 +52,11 @@
   <h2 id="Overview">
     Overview</h2>
   <p>
-    The EPICS DXP module provides support for the digital signal processor based multichannel
+    The EPICS DXP module provides support for the SITORO based digital signal processor based multichannel
     analyzers from <a href="http://www.xia.com">X-ray Instrumentation Associates (XIA)</a>.
-    These devices all contain the functional equivalent of the shaping amplifier, ADC,
+    These devices include the FalconXN models, and all contain the functional equivalent of the shaping amplifier, ADC,
     and MCA of a conventional pulse-height analysis system. The term "DXP" in this document
-    stands for Digital X-ray Processor, and refers to all models of the XIA hardware.
+    stands for Digital X-ray Processor.
   </p>
   <p>
     DXP supports the following hardware:</p>
