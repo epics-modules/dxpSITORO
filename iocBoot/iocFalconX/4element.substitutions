@@ -42,14 +42,6 @@ pattern
 {dxpSITORO:,    dxp2:,  3, "@asyn(DXP1,1,1)"}
 {dxpSITORO:,    dxp3:,  3, "@asyn(DXP1,2,1)"}
 {dxpSITORO:,    dxp4:,  3, "@asyn(DXP1,3,1)"}
-{dxpSITORO:,    dxp1:,  4, "@asyn(DXP1,0,1)"}
-{dxpSITORO:,    dxp2:,  4, "@asyn(DXP1,1,1)"}
-{dxpSITORO:,    dxp3:,  4, "@asyn(DXP1,2,1)"}
-{dxpSITORO:,    dxp4:,  4, "@asyn(DXP1,3,1)"}
-{dxpSITORO:,    dxp1:,  5, "@asyn(DXP1,0,1)"}
-{dxpSITORO:,    dxp2:,  5, "@asyn(DXP1,1,1)"}
-{dxpSITORO:,    dxp3:,  5, "@asyn(DXP1,2,1)"}
-{dxpSITORO:,    dxp4:,  5, "@asyn(DXP1,3,1)"}
 }
 
 
