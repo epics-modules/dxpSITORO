@@ -46,8 +46,8 @@
 #define LEN_SCA_NAME              10
 #define MAPPING_CLOCK_PERIOD     320e-9
 
-/** < The maximum number of bytes in the mapping mode buffer */
-#define MAPPING_BUFFER_SIZE 2228352
+/** < The maximum number of 16-bit words in the mapping mode buffer */
+#define MAPPING_BUFFER_SIZE 2228352*2
 #define MEGABYTE             1048576
 
 #define CALLHANDEL( handel_call, msg ) { \
@@ -285,7 +285,7 @@ printf("max_sca_length=%d\n", this->maxSCAs);
     this->traceTimeBuffer = (epicsFloat64 *)calloc(this->traceLength, sizeof(epicsFloat64));
 
     /* Allocate a temporary buffer for use in mapping mode. */
-    this->pMapRaw = (epicsUInt32*)malloc(MAPPING_BUFFER_SIZE * sizeof(epicsUInt32));
+    this->pMapRaw = (epicsUInt16*)malloc(MAPPING_BUFFER_SIZE * sizeof(epicsUInt16));
     
     /* Allocate an internal buffer long enough to hold all the energy values in a spectrum */
     this->spectrumXAxisBuffer = (epicsFloat64*)calloc(MAX_MCA_BINS, sizeof(epicsFloat64));
@@ -942,7 +942,7 @@ asynStatus NDDxp::configureCollectMode()
         if (syncCount < 1) syncCount = 1;
         getIntegerParam(NDDxpIgnoreGate, &ignoreGate);
         getIntegerParam(NDDxpInputLogicPolarity, &inputLogicPolarity);
-        setIntegerParam(NDDataType, NDUInt32);
+        setIntegerParam(NDDataType, NDUInt16);
             
         if (collectMode == NDDxpModeListMapping) {
             getIntegerParam(NDDxpListMode, (int *)&listMode);
@@ -1286,19 +1286,14 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
             inputLogicPolarity = (int)dTmp;
             setIntegerParam(NDDxpInputLogicPolarity, inputLogicPolarity);
 
-            /* In list mode Handel returns an error reading buffer_len, so hardcode it */
-            if (collectMode == NDDxpModeListMapping) {
-                bufLen = MAPPING_BUFFER_SIZE / 2;
-            } 
-            else {
-                bufLen = 0;
-                xiastatus = xiaGetRunData(channel, "buffer_len", &bufLen);
-                status = this->xia_checkError(pasynUserSelf, xiastatus, "GET buffer_len");
-                asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                    "%s::%s [%d] Got buffer_len = %lu\n", 
-                    driverName, functionName, channel, bufLen);
-            }
-            setIntegerParam(channel, NDArraySize, (int)bufLen);
+            bufLen = 0;
+            xiastatus = xiaGetRunData(channel, "buffer_len", &bufLen);
+            status = this->xia_checkError(pasynUserSelf, xiastatus, "GET buffer_len");
+            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+                "%s::%s [%d] Got buffer_len = %lu\n", 
+                driverName, functionName, channel, bufLen);
+            // Handel reports the buffer size in 32-bit words, we want to use 16-bit words
+            setIntegerParam(channel, NDArraySize, (int)bufLen*2);
         }
     }
     asynPrint(pasynUser, ASYN_TRACE_FLOW, 
@@ -1375,9 +1370,8 @@ asynStatus NDDxp::getMappingData()
     NDDataType_t dataType;
     int buf = 0, channel, i;
     NDArray *pArray=NULL;
-    epicsUInt16 *pRaw16= (epicsUInt16 *)this->pMapRaw;
     epicsUInt16 *pStats;
-    epicsUInt32 *pOut=NULL;
+    epicsUInt16 *pOut=NULL;
     epicsUInt32 bufferNumber;
     epicsUInt32 firstPixel;
     int mappingMode, pixelOffset, dataOffset, events, triggers, nChans;
@@ -1413,7 +1407,7 @@ asynStatus NDDxp::getMappingData()
         status = xia_checkError(this->pasynUserSelf, xiastatus, "GetRunData mapping");
 // Print the first 20 numbers in the buffer
 printf("mapping buffer");
-for (i=0; i<32; i++) printf(" 0x%x", pRaw16[i]);
+for (i=0; i<32; i++) printf(" 0x%x", this->pMapRaw[i]);
 printf("\n");
         epicsTimeGetCurrent(&after);
         readoutTime = epicsTimeDiffInSeconds(&after, &now);
@@ -1427,29 +1421,29 @@ printf("\n");
         if (buf == 0) this->currentBuf[channel] = 1;
         else this->currentBuf[channel] = 0;
         callParamCallbacks();
-        bufferNumber = pRaw16[5] + (pRaw16[6]<<16);
-        firstPixel = pRaw16[9] + (pRaw16[10]<<16);
+        bufferNumber = this->pMapRaw[5] + (this->pMapRaw[6]<<16);
+        firstPixel = this->pMapRaw[9] + (this->pMapRaw[10]<<16);
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
             "%s::%s Got data! size=%.3fMB (%d) dt=%.3fs speed=%.3fMB/s\n",
             driverName, functionName, MBbufSize, arraySize, readoutTime, readoutBurstRate);
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
             "%s::%s channel=%d, bufferNumber=%d, firstPixel=%d, numPixels=%d\n",
-            driverName, functionName, channel, bufferNumber, firstPixel, pRaw16[8]);
+            driverName, functionName, channel, bufferNumber, firstPixel, this->pMapRaw[8]);
  printf("%s::%s channel=%d, bufferNumber=%d, firstPixel=%d, numPixels=%d\n",
- driverName, functionName, channel, bufferNumber, firstPixel, pRaw16[8]);
+ driverName, functionName, channel, bufferNumber, firstPixel, this->pMapRaw[8]);
    
         /* If this is MCA mapping mode then copy the spectral data for the first pixel
          * in this buffer to the mcaRaw buffers.
          * This provides an update of the spectra and statistics while mapping is in progress
          * if the user sets the MCA spectra to periodically read. */
-        mappingMode = pRaw16[3];
+        mappingMode = this->pMapRaw[3];
         if (mappingMode == NDDxpModeMCAMapping) {
             pixelOffset = 256;
             dataOffset = pixelOffset + 256;
-            nChans = pRaw16[pixelOffset + 8];
-            memcpy(pMcaRaw[channel], &pRaw16[dataOffset], nChans*sizeof(epicsUInt32));
+            nChans = this->pMapRaw[pixelOffset + 8];
+            memcpy(pMcaRaw[channel], &this->pMapRaw[dataOffset], nChans*sizeof(epicsUInt32));
             dataOffset += nChans;
-            pStats = &pRaw16[pixelOffset + 32];
+            pStats = &this->pMapRaw[pixelOffset + 32];
             realTime        = (pStats[0] + (pStats[1]<<16)) * MAPPING_CLOCK_PERIOD;
             triggerLiveTime = (pStats[2] + (pStats[3]<<16)) * MAPPING_CLOCK_PERIOD;
             triggers        =  pStats[4] + (pStats[5]<<16);
@@ -1482,13 +1476,13 @@ printf("\n");
             /* If this is the first module then allocate an NDArray for the callback */
             if (channel == 0)
             {
-               dims[0] = this->nChannels*arraySize;
-               dims[1] = 1;
+               dims[0] = arraySize;
+               dims[1] = this->nChannels;
                pArray = this->pNDArrayPool->alloc(2, dims, dataType, 0, NULL );
-               pOut = (epicsUInt32 *)pArray->pData;
+               pOut = (epicsUInt16 *)pArray->pData;
             }
             
-            memcpy(pOut, this->pMapRaw, arraySize*sizeof(epicsUInt32));
+            memcpy(pOut, this->pMapRaw, arraySize*sizeof(epicsUInt16));
             pOut += arraySize;
         }
     }
