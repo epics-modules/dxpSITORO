@@ -235,7 +235,7 @@ protected:
 private:
     /* Data */
     epicsUInt32 **pMcaRaw;
-    epicsUInt32 *pMapRaw;
+    epicsUInt16 *pMapRaw;
     epicsFloat64 *tmpStats;
 
     int nChannels;
