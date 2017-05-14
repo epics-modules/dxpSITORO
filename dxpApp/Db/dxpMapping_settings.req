@@ -1,4 +1,5 @@
 $(P)CollectMode
+$(P)NDArrayMode
 $(P)ListMode
 $(P)PixelAdvanceMode
 $(P)PixelsPerRun
