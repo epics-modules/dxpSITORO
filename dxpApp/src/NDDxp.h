@@ -6,8 +6,9 @@
 
 #include <asynNDArrayDriver.h>
 
-#define MAX_CHANNELS_PER_CARD      4
+#define MAX_CHANNELS_PER_SYSTEM    8
 #define DXP_MAX_SCAS              24
+#define MAX_ATTR_NAME_LEN        256
 
 typedef struct moduleStatistics {
     double realTime;
@@ -21,8 +22,51 @@ typedef struct moduleStatistics {
     double reserved3;
 } moduleStatistics;
 
+typedef enum {
+    dxpNDArrayModeRawBuffers,
+    dxpNDArrayModeMCASpectra
+} dxpNDArrayMode_t;
+
+/* These structures must be packed */
+#pragma pack(1)
+typedef struct falconBufferHeader {
+    epicsUInt16 tag0;            /* Tag word 0 */
+    epicsUInt16 tag1;            /* Tag word 1 */
+    epicsUInt16 headerSize;      /* Buffer header size */
+    epicsUInt16 mappingMode;     /* Mapping mode (1=Full spectrum, 2=Multiple ROI, 3=List mode) */
+    epicsUInt16 runNumber;       /* Run number */
+    epicsUInt32 bufferNumber;    /* Sequential buffer number, low word first */
+    epicsUInt16 bufferID;        /* 0=A, 1=B */
+    epicsUInt16 numPixels;       /* Number of pixels in buffer */
+    epicsUInt32 firstPixel;      /* Starting pixel number, low word first */
+    epicsUInt16 moduleNumber;
+    epicsUInt16 channelID;
+    epicsUInt16 channelElement;
+    epicsUInt16 reserved1[6];
+    epicsUInt16 channelSize;
+    epicsUInt16 reserved2[3];
+    epicsUInt16 bufferErrors;
+} falconBufferHeader;
+
+typedef struct falconMCAPixelHeader {
+    epicsUInt16 tag0;            /* Tag word 0 */
+    epicsUInt16 tag1;            /* Tag word 1 */
+    epicsUInt16 headerSize;      /* Buffer header size */
+    epicsUInt16 mappingMode;     /* Mapping mode (1=Full spectrum, 2=Multiple ROI, 3=List mode) */
+    epicsUInt32 pixelNumber;     /* Pixel number */
+    epicsUInt32 blockSize;       /* Total pixel block size, low word first */
+    epicsUInt16 spectrumSize;
+    epicsUInt16 reserved1[23];
+    epicsUInt32 realTime;
+    epicsUInt32 triggerLiveTime;
+    epicsUInt32 triggers;
+    epicsUInt32 outputCounts;
+} falconMCAPixelHeader;
+#pragma pack()
+
 /* Mapping mode parameters */
 #define NDDxpCollectModeString              "DxpCollectMode"
+#define NDDxpNDArrayModeString              "DxpNDArrayMode"
 #define NDDxpPixelsPerRunString             "DxpPixelsPerRun"
 #define NDDxpPixelsPerBufferString          "DxpPixelsPerBuffer"
 #define NDDxpAutoPixelsPerBufferString      "DxpAutoPixelsPerBuffer"
@@ -138,6 +182,7 @@ protected:
     /* Mapping mode parameters */
     int NDDxpCollectMode;                   /** < Change mapping mode (0=mca; 1=spectra mapping; 2=sca mapping) (int32 read/write) addr: all/any */
     #define FIRST_DXP_PARAM NDDxpCollectMode
+    int NDDxpNDArrayMode;                   /** < NDArray mode (=Raw buffers, 1=MCA spectra) */
     int NDDxpPixelsPerRun;                  /** < Preset value how many pixels to acquire in one run (r/w) mapping mode*/
     int NDDxpPixelsPerBuffer;
     int NDDxpAutoPixelsPerBuffer;
@@ -254,10 +299,19 @@ private:
     epicsFloat64 *traceTimeBuffer;
     epicsFloat64 *spectrumXAxisBuffer;
     
-    moduleStatistics moduleStats[MAX_CHANNELS_PER_CARD];
+    moduleStatistics moduleStats[MAX_CHANNELS_PER_SYSTEM];
 
     bool polling;
-
+    int uniqueId;
+    char attrRealTimeName           [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrRealTimeDescription    [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrLiveTimeName           [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrLiveTimeDescription    [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrTriggersName           [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrTriggersDescription    [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrOutputCountsName       [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrOutputCountsDescription[MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+ 
 };
 
 #ifdef __cplusplus
