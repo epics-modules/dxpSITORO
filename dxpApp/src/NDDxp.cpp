@@ -286,7 +286,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->traceTimeBuffer = (epicsFloat64 *)calloc(this->traceLength, sizeof(epicsFloat64));
 
     /* Allocate a temporary buffer for use in mapping mode. */
-    this->pMapRaw = (epicsUInt16*)malloc(MAPPING_BUFFER_SIZE * sizeof(epicsUInt16));
+    this->pMapRaw = (epicsUInt16*)malloc(MAPPING_BUFFER_SIZE * sizeof(epicsUInt16) * this->nChannels);
     
     /* Allocate an internal buffer long enough to hold all the energy values in a spectrum */
     this->spectrumXAxisBuffer = (epicsFloat64*)calloc(MAX_MCA_BINS, sizeof(epicsFloat64));
@@ -1378,23 +1378,23 @@ asynStatus NDDxp::getMappingData()
 {
     asynStatus status = asynSuccess;
     int xiastatus;
+    int pixel;
+    int numPixels;
     int arrayCallbacks;
     NDDataType_t dataType;
     int dxpNDArrayMode;
-    int buf=0, channel;
+    int buf=0;
+    int channel;
     int spectrumChannels=0;
+    int blockSize = 0;
     NDArray *pArray=0;
     epicsUInt16 *pOut=0;
     falconBufferHeader *pBH=0;
     falconMCAPixelHeader *pMPH=0;
     epicsUInt16 *pData=0;
-    std::vector<epicsUInt16> spectBuffer;
+    epicsUInt16 *pBuffer;
     double realTime;
     double triggerLiveTime;
-    std::vector<double> realTimeArray;
-    std::vector<double> liveTimeArray;
-    std::vector<epicsUInt32> triggersArray;
-    std::vector<epicsUInt32> outputCountsArray;
     double energyLiveTime, icr, ocr;
     size_t dims[2];
     int bufferCounter, arraySize;
@@ -1418,12 +1418,12 @@ asynStatus NDDxp::getMappingData()
     MBbufSize = (double)((arraySize)*sizeof(epicsUInt32)) / (double)MEGABYTE;
 
     /* First read and reset the buffers, do this as quickly as possible */
-    for (channel=0; channel<this->nChannels; channel++) {
+    for (channel=0, pBuffer=this->pMapRaw; channel<this->nChannels; channel++, pBuffer += arraySize) {
         buf = this->currentBuf[channel];
 
         /* The buffer is full so read it out */
         epicsTimeGetCurrent(&now);
-        xiastatus = xiaGetRunData(channel, NDDxpBufferString[buf], this->pMapRaw);
+        xiastatus = xiaGetRunData(channel, NDDxpBufferString[buf], pBuffer);
         status = xia_checkError(this->pasynUserSelf, xiastatus, "GetRunData mapping");
         epicsTimeGetCurrent(&after);
         readoutTime = epicsTimeDiffInSeconds(&after, &now);
@@ -1437,24 +1437,24 @@ asynStatus NDDxp::getMappingData()
         if (buf == 0) this->currentBuf[channel] = 1;
         else this->currentBuf[channel] = 0;
         callParamCallbacks();
-        pBH = (falconBufferHeader *)this->pMapRaw;
+        pBH = (falconBufferHeader *)pBuffer;
+        numPixels = pBH->numPixels;
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
             "%s::%s Got data! size=%.3fMB (%d) dt=%.3fs speed=%.3fMB/s\n",
             driverName, functionName, MBbufSize, arraySize, readoutTime, readoutBurstRate);
         asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
             "%s::%s channel=%d, bufferNumber=%d, firstPixel=%d, numPixels=%d\n",
-            driverName, functionName, channel, pBH->bufferNumber, pBH->firstPixel, pBH->numPixels);
- printf("%s::%s channel=%d, bufferNumber=%d, firstPixel=%d, numPixels=%d\n",
- driverName, functionName, channel, pBH->bufferNumber, pBH->firstPixel, pBH->numPixels);
+            driverName, functionName, channel, pBH->bufferNumber, pBH->firstPixel, numPixels);
    
         /* If this is MCA mapping mode then copy the spectral data for the first pixel
          * in this buffer to the mcaRaw buffers.
          * This provides an update of the spectra and statistics while mapping is in progress
          * if the user sets the MCA spectra to periodically read. */
         if (pBH->mappingMode == NDDxpModeMCAMapping) {
-            pMPH = (falconMCAPixelHeader *)(this->pMapRaw + 256);
+            pMPH = (falconMCAPixelHeader *)(pBuffer + 256);
             spectrumChannels = pMPH->spectrumSize / 2;
-            pData = this->pMapRaw + 512;
+            blockSize = pMPH->blockSize;
+            pData = pBuffer + 512;
             memcpy(pMcaRaw[channel], pData, spectrumChannels*sizeof(epicsUInt32));
             realTime        = pMPH->realTime * MAPPING_CLOCK_PERIOD;
             triggerLiveTime = pMPH->triggerLiveTime * MAPPING_CLOCK_PERIOD;
@@ -1479,65 +1479,48 @@ asynStatus NDDxp::getMappingData()
             setDoubleParam(channel, NDDxpOutputCountRate, ocr);
             callParamCallbacks(channel);
         }
-            
-        if (arrayCallbacks) {
-            if (dxpNDArrayMode == dxpNDArrayModeRawBuffers) {
-                /* If this is the first module then allocate an NDArray for the callback */
-                if (channel == 0) {
-                   dims[0] = arraySize;
-                   dims[1] = this->nChannels;
-                   pArray = this->pNDArrayPool->alloc(2, dims, NDUInt16, 0, NULL );
-                   pOut = (epicsUInt16 *)pArray->pData;
-                }
-                
-                memcpy(pOut, this->pMapRaw, arraySize*sizeof(epicsUInt16));
-                pOut += arraySize;
-            } 
-            
-            else if (dxpNDArrayMode == dxpNDArrayModeMCASpectra) {
-                /* If this is the first channel then allocate a buffer to accumulate the spectra */
-                if (channel == 0) {
-                    int numSpectra = this->nChannels * pBH->numPixels;
-                    spectBuffer.resize(pMPH->spectrumSize * numSpectra);
-                    realTimeArray.resize(numSpectra);
-                    liveTimeArray.resize(numSpectra);
-                    triggersArray.resize(numSpectra);
-                    outputCountsArray.resize(numSpectra);
-                }
-                
-                // Loop over pixels in this buffer copy the data
-                pOut = &spectBuffer[channel * pMPH->spectrumSize];
-                int i = channel;
-                for (int pixel=0; pixel<pBH->numPixels; pixel++) {
-                    memcpy(pOut, pData, pMPH->spectrumSize*sizeof(epicsUInt16));
-                    realTimeArray[i] = pMPH->realTime;
-                    liveTimeArray[i] = pMPH->triggerLiveTime;
-                    triggersArray[i] = pMPH->triggers;
-                    outputCountsArray[i] = pMPH->outputCounts;
-                    pData += pMPH->blockSize;
-                    pOut += pMPH->spectrumSize * this->nChannels;
-                    i += this->nChannels;
-                }
-            }
-        }
     }
-    // In MCA mapping mode we do NDArray callbacks for each pixel
+    
+    // We have now read the mapping data into a large buffer
+        
     if (arrayCallbacks) {
-        if (dxpNDArrayMode == dxpNDArrayModeMCASpectra) {
-            for (int pixel=0; pixel<pBH->numPixels; pixel++) {
+        if (dxpNDArrayMode == dxpNDArrayModeRawBuffers) {
+            dims[0] = arraySize;
+            dims[1] = this->nChannels;
+            pArray = this->pNDArrayPool->alloc(2, dims, NDUInt16, 0, NULL );
+            memcpy(pArray->pData, this->pMapRaw, arraySize * this->nChannels * sizeof(epicsUInt16));
+            updateTimeStamp(&pArray->epicsTS);
+            pArray->timeStamp = pArray->epicsTS.secPastEpoch + pArray->epicsTS.nsec / 1.e9;
+            /* Get any attributes that have been defined for this driver */
+            this->getAttributes(pArray->pAttributeList);
+            pArray->uniqueId = this->uniqueId++;
+            // Get any other attributes
+            doCallbacksGenericPointer(pArray, NDArrayData, 0);
+            pArray->release();
+        }
+            
+        else if (dxpNDArrayMode == dxpNDArrayModeMCASpectra) {
+            for (pixel=0; pixel<numPixels; pixel++)  {
+                spectrumChannels = pMPH->spectrumSize / 2;
                 dims[0] = spectrumChannels;
                 dims[1] = this->nChannels;
                 pArray = this->pNDArrayPool->alloc(2, dims, NDUInt32, 0, NULL );
+                pBuffer = this->pMapRaw;
                 pOut = (epicsUInt16 *)pArray->pData;
-                // Create attributes for statistics
-                int i, j;
-                for (i=0, j = pixel * this->nChannels; 
-                     i<this->nChannels; 
-                     i++, j++) {
-                    pArray->pAttributeList->add(attrRealTimeName[i],     attrRealTimeDescription[i],     NDAttrFloat64, &realTimeArray[j]);
-                    pArray->pAttributeList->add(attrLiveTimeName[i],     attrLiveTimeDescription[i],     NDAttrFloat64, &liveTimeArray[j]);
-                    pArray->pAttributeList->add(attrTriggersName[i],     attrTriggersDescription[i],     NDAttrInt32,   &triggersArray[j]);
-                    pArray->pAttributeList->add(attrOutputCountsName[i], attrOutputCountsDescription[i], NDAttrInt32,   &outputCountsArray[j]);
+                for (channel=0; channel<this->nChannels; channel++) {
+                    pBH = (falconBufferHeader *)pBuffer;
+                    pMPH = (falconMCAPixelHeader *)(pBuffer + 256 + pixel * blockSize);
+                    pData = (pBuffer + 512 + pixel * blockSize);
+                    memcpy(pOut, pData, pMPH->spectrumSize*sizeof(epicsUInt16));
+                    // Create attributes for statistics
+                    realTime        = pMPH->realTime * MAPPING_CLOCK_PERIOD;
+                    triggerLiveTime = pMPH->triggerLiveTime * MAPPING_CLOCK_PERIOD;
+                    pArray->pAttributeList->add(attrRealTimeName[channel],     attrRealTimeDescription[channel],     NDAttrFloat64, &realTime);
+                    pArray->pAttributeList->add(attrLiveTimeName[channel],     attrLiveTimeDescription[channel],     NDAttrFloat64, &triggerLiveTime);
+                    pArray->pAttributeList->add(attrTriggersName[channel],     attrTriggersDescription[channel],     NDAttrInt32,   &pMPH->triggers);
+                    pArray->pAttributeList->add(attrOutputCountsName[channel], attrOutputCountsDescription[channel], NDAttrInt32,   &pMPH->outputCounts);
+                    pBuffer += arraySize;
+                    pOut += pMPH->spectrumSize;
                 }
                 /* Get any attributes that have been defined for this driver */
                 this->getAttributes(pArray->pAttributeList);
@@ -1547,18 +1530,6 @@ asynStatus NDDxp::getMappingData()
                 doCallbacksGenericPointer(pArray, NDArrayData, 0);
                 pArray->release();
             }
-        }
-
-        // In Raw Buffer mapping mode we do NDArray callbacks for the entire buffer
-        if (dxpNDArrayMode == dxpNDArrayModeRawBuffers) {
-            updateTimeStamp(&pArray->epicsTS);
-            pArray->timeStamp = pArray->epicsTS.secPastEpoch + pArray->epicsTS.nsec / 1.e9;
-            /* Get any attributes that have been defined for this driver */
-            this->getAttributes(pArray->pAttributeList);
-            pArray->uniqueId = this->uniqueId++;
-            // Get any other attributes
-            doCallbacksGenericPointer(pArray, NDArrayData, 0);
-            pArray->release();
         }
     }
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
@@ -1876,19 +1847,14 @@ void NDDxp::getModuleInfo()
 
     /* Get the number of detectors */
     xiaGetNumDetectors(&numDetectors);
-printf("numDetectors=%d\n", numDetectors);
     xiaGetNumModules(&this->numModules);
-printf("numModules=%d\n", numModules);
     /* Get the module alias for the first channel */
     status |= xiaGetModules_VB(0, module_alias);
-printf("module alias=%s\n", module_alias);
     /* Get the module type for this module */
     status |= xiaGetModuleItem(module_alias, "module_type", module_type);
-printf("module type=%s\n", module_type);
     /* Get the number of channels for this module */
     this->channelsPerModule = (int *)malloc(this->numModules * sizeof(int));
     status |= xiaGetModuleItem(module_alias, "number_of_channels", &this->channelsPerModule[0]);
-printf("channelsPerModule=%d\n", this->channelsPerModule[0]);
 }
 
 static const iocshArg NDDxpConfigArg0 = {"Asyn port name", iocshArgString};
