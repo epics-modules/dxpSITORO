@@ -26,10 +26,6 @@ file "simple_mca_settings.req",         P=$(P), M=mca2
 file "simple_mca_settings.req",         P=$(P), M=mca3
 file "simple_mca_settings.req",         P=$(P), M=mca4
 
-file "NDFileNetCDF_settings.req",       P=$(P), R=netCDF1:
-file "NDFileTIFF_settings.req",         P=$(P), R=TIFF1:
-file "NDFileNexus_settings.req",        P=$(P), R=Nexus1:
-
 file scan_settings.req                  P=$(P), S=scan1
 file scan_settings.req                  P=$(P), S=scan2
 file scan_settings.req                  P=$(P), S=scan3
@@ -38,3 +34,4 @@ file scan_settings.req                  P=$(P), S=scanH
 
 file saveData_settings.req              P=$(P)
 
+file "commonPlugin_settings.req",       P=$(P)
