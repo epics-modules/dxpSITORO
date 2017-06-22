@@ -1,14 +1,14 @@
 
 file {
 	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4element_SITORO.adl"
-	version=030107
+	version=030109
 }
 display {
 	object {
-		x=697
-		y=83
+		x=794
+		y=172
 		width=635
-		height=590
+		height=615
 	}
 	clr=14
 	bclr=4
@@ -128,7 +128,7 @@ rectangle {
 		x=319
 		y=35
 		width=310
-		height=285
+		height=310
 	}
 	"basic attribute" {
 		clr=54
@@ -607,9 +607,9 @@ text {
 		height=20
 	}
 	display[0] {
-		label="asyn record"
-		name="asynRecord.adl"
-		args="P=$(P), R=Asyn"
+		label="Common Plugins"
+		name="commonPlugins.adl"
+		args="P=$(P)"
 	}
 	clr=14
 	bclr=51
@@ -618,13 +618,13 @@ text {
 	object {
 		x=403
 		y=292
-		width=110
+		width=70
 		height=20
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Asyn record"
+	textix="Plugins"
 }
 text {
 	object {
@@ -1095,304 +1095,342 @@ text {
 	limits {
 	}
 }
-text {
-	object {
-		x=389
-		y=332
-		width=170
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Elapsed (maximum)"
-}
-rectangle {
+composite {
 	object {
 		x=319
-		y=325
+		y=350
 		width=310
 		height=260
 	}
-	"basic attribute" {
-		clr=54
-		fill="outline"
-		width=2
-	}
-}
-"text update" {
-	object {
-		x=331
-		y=532
-		width=70
-		height=20
-	}
-	monitor {
-		chan="$(P)IDeadTime"
-		clr=15
-		bclr=14
-	}
-	clrmod="alarm"
-	align="horiz. right"
-	limits {
-	}
-}
-text {
-	object {
-		x=406
-		y=532
-		width=210
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Instant dead time (%)"
-}
-"text update" {
-	object {
-		x=331
-		y=557
-		width=70
-		height=20
-	}
-	monitor {
-		chan="$(P)DeadTime"
-		clr=15
-		bclr=14
-	}
-	clrmod="alarm"
-	align="horiz. right"
-	limits {
-	}
-}
-text {
-	object {
-		x=406
-		y=557
-		width=210
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Average dead time (%)"
-}
-composite {
-	object {
-		x=426
-		y=357
-		width=170
-		height=170
-	}
 	"composite name"=""
 	children {
 		text {
 			object {
-				x=426
+				x=389
 				y=357
-				width=60
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Events"
-		}
-		text {
-			object {
-				x=426
-				y=382
-				width=80
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Triggers"
-		}
-		text {
-			object {
-				x=426
-				y=407
-				width=90
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Real time"
-		}
-		text {
-			object {
-				x=426
-				y=482
-				width=160
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Input count rate"
-		}
-		text {
-			object {
-				x=426
-				y=507
 				width=170
 				height=20
 			}
 			"basic attribute" {
 				clr=14
 			}
-			textix="Output count rate"
+			textix="Elapsed (maximum)"
 		}
-		text {
+		rectangle {
 			object {
-				x=426
-				y=457
-				width=160
-				height=20
+				x=319
+				y=350
+				width=310
+				height=260
 			}
 			"basic attribute" {
-				clr=14
+				clr=54
+				fill="outline"
+				width=2
 			}
-			textix="Energy live time"
 		}
-		text {
-			object {
-				x=426
-				y=432
-				width=170
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Trigger live time"
-		}
-	}
-}
-composite {
-	object {
-		x=331
-		y=357
-		width=90
-		height=170
-	}
-	"composite name"=""
-	children {
 		"text update" {
 			object {
 				x=331
-				y=357
-				width=90
+				y=557
+				width=70
 				height=20
 			}
 			monitor {
-				chan="$(P)MaxEvents"
-				clr=54
-				bclr=4
+				chan="$(P)IDeadTime"
+				clr=15
+				bclr=14
 			}
+			clrmod="alarm"
 			align="horiz. right"
 			limits {
 			}
 		}
+		text {
+			object {
+				x=406
+				y=557
+				width=210
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Instant dead time (%)"
+		}
 		"text update" {
+			object {
+				x=331
+				y=582
+				width=70
+				height=20
+			}
+			monitor {
+				chan="$(P)DeadTime"
+				clr=15
+				bclr=14
+			}
+			clrmod="alarm"
+			align="horiz. right"
+			limits {
+			}
+		}
+		text {
+			object {
+				x=406
+				y=582
+				width=210
+				height=20
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Average dead time (%)"
+		}
+		composite {
+			object {
+				x=426
+				y=382
+				width=170
+				height=170
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=426
+						y=382
+						width=60
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Events"
+				}
+				text {
+					object {
+						x=426
+						y=407
+						width=80
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Triggers"
+				}
+				text {
+					object {
+						x=426
+						y=432
+						width=90
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Real time"
+				}
+				text {
+					object {
+						x=426
+						y=507
+						width=160
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Input count rate"
+				}
+				text {
+					object {
+						x=426
+						y=532
+						width=170
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Output count rate"
+				}
+				text {
+					object {
+						x=426
+						y=482
+						width=160
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Energy live time"
+				}
+				text {
+					object {
+						x=426
+						y=457
+						width=170
+						height=20
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Trigger live time"
+				}
+			}
+		}
+		composite {
 			object {
 				x=331
 				y=382
 				width=90
-				height=20
+				height=170
 			}
-			monitor {
-				chan="$(P)MaxTriggers"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=331
-				y=407
-				width=90
-				height=20
-			}
-			monitor {
-				chan="$(P)MaxElapsedReal"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=331
-				y=482
-				width=90
-				height=20
-			}
-			monitor {
-				chan="$(P)MaxInputCountRate"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=331
-				y=507
-				width=90
-				height=20
-			}
-			monitor {
-				chan="$(P)MaxOutputCountRate"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=331
-				y=457
-				width=90
-				height=20
-			}
-			monitor {
-				chan="$(P)MaxElapsedLive"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=331
-				y=432
-				width=90
-				height=20
-			}
-			monitor {
-				chan="$(P)MaxElapsedTriggerLive"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=331
+						y=382
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxEvents"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=407
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxTriggers"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=432
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxElapsedReal"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=507
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxInputCountRate"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=532
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxOutputCountRate"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=482
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxElapsedLive"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=331
+						y=457
+						width=90
+						height=20
+					}
+					monitor {
+						chan="$(P)MaxElapsedTriggerLive"
+						clr=54
+						bclr=4
+					}
+					align="horiz. right"
+					limits {
+					}
+				}
 			}
 		}
 	}
+}
+"related display" {
+	object {
+		x=328
+		y=317
+		width=70
+		height=20
+	}
+	display[0] {
+		label="asyn record"
+		name="asynRecord.adl"
+		args="P=$(P), R=Asyn"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=403
+		y=317
+		width=110
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Asyn record"
 }
