@@ -8,7 +8,7 @@ display {
 		x=399
 		y=61
 		width=340
-		height=590
+		height=560
 	}
 	clr=14
 	bclr=4
@@ -160,44 +160,6 @@ text {
 		clr=53
 	}
 	textix="Mapping settings"
-}
-text {
-	object {
-		x=125
-		y=560
-		width=180
-		height=20
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="File saving plugins"
-}
-"related display" {
-	object {
-		x=23
-		y=560
-		width=97
-		height=21
-	}
-	display[0] {
-		label="netCDF file plugin"
-		name="NDFileNetCDF.adl"
-		args="P=$(P), R=netCDF1:"
-	}
-	display[1] {
-		label="TIFF file plugin"
-		name="NDFileTIFF.adl"
-		args="P=$(P), R=TIFF1:"
-	}
-	display[2] {
-		label="NeXus file plugin"
-		name="NDFileNexus.adl"
-		args="P=$(P), R=Nexus1:"
-	}
-	clr=14
-	bclr=51
-	label="More"
 }
 rectangle {
 	object {
