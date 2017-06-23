@@ -1,12 +1,9 @@
-HTMLFLAGS = --book --duplex --no-numbered --format pdf14 --title --size letter --browserwidth 800 
-
-%.pdf: %.html
-	-htmldoc $(HTMLFLAGS) --outfile $@ $<
-
-all: dxpDoc.pdf doxygen mappingDocs install
 
 doxygen:
 	doxygen
+
+areaDetectorDoc.pdf:
+	-htmldoc --book --duplex --no-numbered --format pdf14 --title --size letter --outfile html/areaDetectorDoc.pdf ../ADCore/documentation/areaDetectorDoc.html
 
 mappingDocs:
 	./makeMappingDocs
