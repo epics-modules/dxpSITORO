@@ -1,9 +1,5 @@
-# Database for XIA DXP detectors (DXP-2X, Saturn, and xMAP).
-# This database contains records for high-level DXP parameters each channel, i.e. this file
-# gets loaded once for each channel.
-# The global records, i.e. 1 per system are contained in dxpMED.template.
-# The global records that are specific to the xMAP are contained in xMAP.template and for the Saturn in
-# dxpSaturn.template
+# Database for XIA FalconX detectors 
+# This database contains records for each channel, i.e. this file gets loaded once for each channel.
 
 record(mbbo, "$(P)$(R)PresetMode") {
     field(PINI, "YES")
