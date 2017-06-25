@@ -229,18 +229,8 @@ rectangle {
 		height=20
 	}
 	display[0] {
-		label="Filter parameters"
-		name="4elementFilters_SITORO.adl"
-		args="P=$(P), D=$(D)"
-	}
-	display[1] {
-		label="Pre-amp parameters"
-		name="4element_PreAmp_SITORO.adl"
-		args="P=$(P), D=$(D)"
-	}
-	display[2] {
-		label="SITORO outputs"
-		name="SITORO_Outputs.adl"
+		label="Detector setup"
+		name="4element_DetectorSetup_SITORO.adl"
 		args="P=$(P), D=$(D)"
 	}
 	clr=14
@@ -256,7 +246,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="DXP parameters"
+	textix="Detector setup"
 }
 text {
 	object {
