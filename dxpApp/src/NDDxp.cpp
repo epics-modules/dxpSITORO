@@ -127,7 +127,6 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     int sca;
     char tmpStr[100];
     unsigned short tempUS;
-    double tmpDbl[2];
     double clockSpeed;
     int xiastatus = 0;
     const char *functionName = "NDDxp";
@@ -141,6 +140,11 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     getModuleInfo();
 
     xiastatus = xiaGetRunData(0, "max_sca_length",  &tempUS);
+    if (xiastatus != 0) {
+        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+            "%s::%s error calling xiaGetRunData for max_sca_length, status=%d\n",
+            driverName, functionName, xiastatus);
+    }
     this->maxSCAs = (int)tempUS;
     /* There is a bug in the firmware which causes maxSCAs to be wrong. Force it to be 16/nChannels */
     this->maxSCAs = 16/nChannels;
@@ -273,11 +277,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     this->tmpStats = (epicsFloat64*)calloc(28, sizeof(epicsFloat64));
     this->currentBuf = (epicsUInt32*)calloc(this->nChannels, sizeof(epicsUInt32));
 
-    tmpDbl[0] = DEFAULT_TRACE_POINTS;
-    xiastatus = xiaDoSpecialRun(0, "adc_trace", tmpDbl);
-    xiastatus = xiaGetSpecialRunData(0, "adc_trace_length",  tmpDbl);
-    if (xiastatus != XIA_SUCCESS) printf("Error calling xiaGetSpecialRunData for adc_trace_length");
-    this->traceLength = (int)tmpDbl[0];
+    this->traceLength = DEFAULT_TRACE_POINTS;
 
     /* Allocate a buffer for the trace data */
     this->traceBuffer = (epicsInt32 *)malloc(this->traceLength * sizeof(epicsInt32));
@@ -1379,7 +1379,7 @@ asynStatus NDDxp::getMappingData()
     asynStatus status = asynSuccess;
     int xiastatus;
     int pixel;
-    int numPixels;
+    int numPixels=0;
     int arrayCallbacks;
     NDDataType_t dataType;
     int dxpNDArrayMode;
@@ -1568,7 +1568,6 @@ asynStatus NDDxp::getTrace(asynUser* pasynUser, int addr,
         }
     } else {
         info[0] = this->traceLength;
-
         xiastatus = xiaDoSpecialRun(channel, "adc_trace", info);
         status = this->xia_checkError(pasynUser, xiastatus, "adc_trace");
         // Don't return error, read it out or we get stuck permanently with module busy
