@@ -49,6 +49,12 @@ NDDxpConfig($(PORT),  4, 0, 0)
 
 dbLoadTemplate("4element.substitutions")
 
+# Create a standard arrays plugin. driver.
+NDStdArraysConfigure("Image1", 20, 0, "$(PORT)", 0, 0, 0, 0, 0, 5)
+# This creates a waveform large enough for max. buffer size (~4.5 MB) times 4 detectors
+# This waveform only allows transporting 8-bit images
+dbLoadRecords("NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),TYPE=Int32,FTVL=LONG,NELEMENTS=20000000")
+
 < $(ADCORE)/iocBoot/commonPlugins.cmd
 
 #xiaSetLogLevel(4)
