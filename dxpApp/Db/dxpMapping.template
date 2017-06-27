@@ -8,9 +8,6 @@ record(mbbo, "$(P)CollectMode") {
   field(ONVL, "1")
   field(ONST, "MCA mapping")
   field(TWVL, "2")
-  field(TWST, "SCA mapping")
-  field(THVL, "3")
-  field(THST, "List mapping")
   field(IVOA, "Don't drive outputs")
 }
 
@@ -23,9 +20,6 @@ record(mbbi, "$(P)CollectMode_RBV") {
   field(ONVL, "1")
   field(ONST, "MCA mapping")
   field(TWVL, "2")
-  field(TWST, "SCA mapping")
-  field(THVL, "3")
-  field(THST, "List mapping")
   field(SCAN, "I/O Intr")
 }
 
