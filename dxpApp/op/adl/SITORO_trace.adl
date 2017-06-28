@@ -1,7 +1,7 @@
 
 file {
-	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/dxp_trace.adl"
-	version=030107
+	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/SITORO_trace.adl"
+	version=030109
 }
 display {
 	object {
@@ -156,7 +156,7 @@ text {
 }
 composite {
 	object {
-		x=231
+		x=50
 		y=350
 		width=165
 		height=42
@@ -165,7 +165,7 @@ composite {
 	children {
 		composite {
 			object {
-				x=231
+				x=50
 				y=372
 				width=165
 				height=20
@@ -174,7 +174,7 @@ composite {
 			children {
 				menu {
 					object {
-						x=231
+						x=50
 						y=373
 						width=80
 						height=18
@@ -187,7 +187,7 @@ composite {
 				}
 				"message button" {
 					object {
-						x=316
+						x=135
 						y=372
 						width=80
 						height=20
@@ -204,7 +204,7 @@ composite {
 		}
 		text {
 			object {
-				x=268
+				x=87
 				y=350
 				width=90
 				height=20
@@ -214,5 +214,32 @@ composite {
 			}
 			textix="Read Rate"
 		}
+	}
+}
+text {
+	object {
+		x=290
+		y=372
+		width=180
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Trace time (usec):"
+}
+"text update" {
+	object {
+		x=475
+		y=372
+		width=82
+		height=20
+	}
+	monitor {
+		chan="$(P)TraceTime"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }

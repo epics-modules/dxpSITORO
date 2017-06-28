@@ -1,7 +1,7 @@
 
 file {
 	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/4element_trace_SITORO.adl"
-	version=030107
+	version=030109
 }
 display {
 	object {
@@ -325,5 +325,32 @@ menu {
 	}
 	y2_axis {
 		rangeStyle="auto-scale"
+	}
+}
+text {
+	object {
+		x=360
+		y=560
+		width=180
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Trace time (usec):"
+}
+"text update" {
+	object {
+		x=545
+		y=560
+		width=82
+		height=20
+	}
+	monitor {
+		chan="$(P)TraceTime"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
