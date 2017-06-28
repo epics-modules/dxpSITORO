@@ -3,12 +3,13 @@ O.*
 *.swp
 *BAK.adl
 bin/
-db/
+db
 dbd/
 html/
 include/
 lib/
 templates/
+dxpSITORODoxygenHTML/
 cdCommands
 envPaths*
 dllPath.bat
