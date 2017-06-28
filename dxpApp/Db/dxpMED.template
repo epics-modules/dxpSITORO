@@ -219,11 +219,6 @@ record(bo,"$(P)DoReadTraces") {
     field(ONAM, "Read")
 }
 
-record(ai,"$(P)TraceTimes") {
-    field(VAL,"0.1")
-    field(PREC,"2")
-}
-
 record(bo,"$(P)CopyDetectionThreshold") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
