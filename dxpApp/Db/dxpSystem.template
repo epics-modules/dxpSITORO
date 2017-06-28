@@ -33,6 +33,16 @@ record(ai, "$(P)MCARefreshPeriod_RBV") {
     field(SCAN, "I/O Intr")
 }
 
+record(ai,"$(P)TraceTime") {
+    field(DESC, "Trace time per point")
+    field(EGU, "micro seconds")
+    field(DTYP, "asynFloat64")
+    field(INP, "$(IO)DxpTraceTime")
+    field(PREC, "4")
+    field(SCAN, "I/O Intr")
+}
+
+
 record(waveform, "$(P)TraceTimeArray") {
     field(DESC, "Trace time array")
     field(DTYP, "asynFloat64ArrayIn")
