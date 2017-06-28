@@ -31,29 +31,17 @@
         <li><a href="#dxpSCA">dxpSCA.template</a></li>
         <li><a href="#dxpSystem">dxpSystem.template</a></li>
         <li><a href="#dxpMED">dxpMED.template</a></li>
-        <li><a href="#medm">medm screens</a></li>
         <li><a href="#dxpMapping">dxpMapping.template</a></li>
       </ul>
     </li>
-    <li><a href="#Mapping_Mode">Using mapping modes</a></li>
-    <li><a href="#Installing">Installing EPICS</a>
-      <ul>
-        <li><a href="#Installing_Windows">Windows</a></li>
-        <li><a href="#Installing_Linux">Linux</a></li>
-      </ul>
-    </li>
-    <li><a href="#Running">Running</a>
-      <ul>
-        <li><a href="#Running_Falcon">Falcon</a></li>
-      </ul>
-    </li>
-    <li><a href="#Performance">Performance</a></li>
+    <li><a href="#medm">medm screens</a></li>
+    <li><a href="#Installing">Installing dxpSITORO</a></li>
   </ul>
   <h2 id="Overview">
     Overview</h2>
   <p>
-    The EPICS DXP module provides support for the SITORO based digital signal processor
-    based multichannel analyzers from <a href="http://www.xia.com">X-ray Instrumentation
+    The EPICS dxpSITORO module provides support for the SITORO based digital signal
+    processor based multichannel analyzers from <a href="http://www.xia.com">X-ray Instrumentation
       Associates (XIA)</a>. These devices include the FalconXN models, and all contain
     the functional equivalent of the shaping amplifier, ADC, and MCA of a conventional
     pulse-height analysis system. The FalconX is based on the SITORO technology from
@@ -75,13 +63,13 @@
     <li>Control and data acquisition are available over the network, from any application
       or language that supports the EPICS Channel Access protocol (based on TCP/IP). This
       means that EPICS clients written in languages like Python, IDL, LabView, etc. can
-      control the DXP modules and read the data. These applications can be running on
-      any computer on the Internet, they do not need to run on the computer that is attached
-      to the XIA hardware. This client/server model is very desirable in complex data
-      acquisition environments, such as synchrotron beamlines, because it allows the DXP
-      control and data acquisition to be integrated with other hardware and software.
-      For example, a control software program can move a motor, command the DXP to acquire
-      data, and write the data to disk.</li>
+      control the FalconX modules and read the data. These applications can be running
+      on any computer on the Internet, they do not need to run on the computer that is
+      controlling to the XIA hardware. This client/server model is very desirable in complex
+      data acquisition environments, such as synchrotron beamlines, because it allows
+      the FalconX control and data acquisition to be integrated with other hardware and
+      software. For example, a control software program can move a motor, command the
+      FalconX to acquire data, and write the data to disk.</li>
   </ul>
   <h2 id="Architecture">
     Architecture</h2>
@@ -109,16 +97,16 @@
       and FalconX parameters in multi-element detector systems.</li>
     <li>Support for the plugins from the <a href="http://cars.uchicago.edu/software/epics/areaDetector.html">
       areaDetector</a> package. These plugins are used to stream data to disk in the mappping
-      modes, and to define ROIs.</li>
+      modes, to define ROIs, compute statistics, etc.</li>
     <li>Databases for single-element and multi-element detector systems.</li>
     <li>medm display screens.</li>
     <li>Example IOC boot directories for the FalconX.</li>
   </ul>
   <p>
-    The overall architecture of the EPICS DXP software is shown in the diagram below.
-    At the top level are EPICS Channel Access client applications, such as the IDL MCA
-    Display program, the Python Multi-Element Detector control programs, medm, spec,
-    and others.</p>
+    The overall architecture of the EPICS dxpSITORO software is shown in the diagram
+    below. At the top level are EPICS Channel Access client applications, such as the
+    IDL MCA Display program, the Python Multi-Element Detector control programs, medm,
+    spec, and others.</p>
   <p style="text-align: center">
     <img alt="dxpSITOROFlowchart.png" src="dxpSITOROFlowchart.png" /></p>
   <h2 id="EPICS_Records">
@@ -127,7 +115,7 @@
     This document does not attempt to explain the meaning or use of all of the FalconX
     parameters. The best documentation of the operation of the FalconX modules is provided
     by XIA in the <a href="FalconXn_QSG.pdf">FalconX Quick Start Guide</a>. This also
-    describe the ProSpect software, which is useful to set up test the hardware.</p>
+    describes the ProSpect software, which is useful to set up and test the hardware.</p>
   <p>
     For many parameters in the following databases there is both an EPICS output record
     (ao, bo, mbbo, etc.) and a corresponding EPICS input record (ai, bi, mbbi, etc.).
@@ -150,14 +138,14 @@
   <p>
     Steps 1-3 apply to both output records and to input records. Steps 4 and 5 typically
     only apply to output records, and step 7 only to input records. If there is no auto_settings*.sav
-    file then most of the DXP parameter records will obtain their initial values from
-    the .ini file. Thus, by deleting the auto_settings*.sav file one can force EPICS
-    to use the same parameters that have been saved into an .ini file by ProSpect.</p>
+    file then most of the parameter records will obtain their initial values from the
+    .ini file. Thus, by deleting the auto_settings*.sav file one can force EPICS to
+    use the same parameters that have been saved into an .ini file by ProSpect.</p>
   <h3 id="dxpHighLevel">
     dxpHighLevel.template</h3>
   <p>
     The following records are defined in the database dxpHighLevel.template. They control
-    the high-level DXP parameters such as peaking time, etc. One instance of this database
+    the high-level parameters such as peaking time, etc. One instance of this database
     is loaded for each detector channel in the system. All of the record names in the
     template file are preceeded by the macro parameters $(P)$(R), where $(P) is the
     prefix for this detector system, and $(R) is the name of this specific channel.
@@ -191,7 +179,6 @@
         <td>
           The detection filter type. Choices are:
           <ul>
-            <li>Low energy</li>
             <li>LowEnergy</li>
             <li>LowRate</li>
             <li>MidRate</li>
@@ -208,7 +195,7 @@
           ao<br />
           ai</td>
         <td>
-          The threshold in keV.</td>
+          The threshold in keV (?).</td>
       </tr>
       <tr valign="top">
         <td>
@@ -219,16 +206,6 @@
           longout</td>
         <td>
           The minimum number of samples between pulses.</td>
-      </tr>
-      <tr valign="top">
-        <td>
-          DecayTime<br />
-          DecayTime_RBV</td>
-        <td>
-          ao<br />
-          ai</td>
-        <td>
-          The decay time in microseconds for RC pre-amps.</td>
       </tr>
       <tr>
         <td align="center" colspan="3">
@@ -255,9 +232,7 @@
           ao<br />
           ai</td>
         <td>
-          For reset pre-amps the time in microseconds to recover after a pre-amp reset. <i>Note:
-            older xMAPs (before revision D) should use 10 microseconds, newer xMAPs (revision
-            D and later) can use 1 microsecond.</i></td>
+          For reset pre-amps the time in microseconds to recover after a pre-amp reset.</td>
       </tr>
       <tr valign="top">
         <td>
@@ -277,7 +252,7 @@
           ao<br />
           ai</td>
         <td>
-          Scale factor to calibrate the energy correctly.</td>
+          Scale factor to control the energy range of the spectra.</td>
       </tr>
       <tr>
         <td align="center" colspan="3">
@@ -291,11 +266,10 @@
           mbbo<br />
           mbbi</td>
         <td>
-          The preset counting mode. On the xMAP and Mercury the choices are:
+          The preset counting mode. The choices are:
           <ul>
             <li>"No preset" Count until acquisition is stopped manually.</li>
-            <li>"Real time" Count for a preset real time. The real time is set by the PRTM field
-              of the corresponding MCA record.</li>
+            <li>"Real time" Count for a preset real time.</li>
             <li>"Events" The preset number of events is set by the PresetEvents record.</li>
             <li>"Triggers" The preset number of triggers is set by the PresetTriggers record.</li>
           </ul>
@@ -399,7 +373,7 @@
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Mapping Records (for xMAP and Mercury)</b></td>
+          <b>Mapping Records</b></td>
       </tr>
       <tr valign="top">
         <td>
@@ -420,10 +394,16 @@
           waveform</td>
         <td>
           The diagnostic trace data. The array is read from the hardware when this record
-          is processed. The type of diagnostic trace data to read is selected with TraceMode,
-          and the time per sample is selected with TraceTime. <i>Note: this record should not
-            be processed while normal data acquisition is in progress or it will slow things
-            down.</i></td>
+          is processed. <i>Note: this record should not be processed while normal data acquisition
+            is in progress or it will slow things down.</i></td>
+      </tr>
+      <tr valign="top">
+        <td>
+          TraceTime</td>
+        <td>
+          ai</td>
+        <td>
+          The time per sample in microseconds for the TraceData arrays.</td>
       </tr>
       <tr valign="top">
         <td>
@@ -442,9 +422,10 @@
     The following records are defined in the databases dxpSCA.template. They control
     the 16 (FalconX1), 4 (FalconX4) or 2 (FalconX8) single-channel-analyzers (SCAs)
     for each channel. Each SCA is defined by a low channel and a high channel. The SCA
-    definitions are for hardware ROI mapping. The FalconX puts out a pulse a TTL output
-    line when an x-ray falls within the channel range of that SCA. This allows very
-    fast mapping, since there is no need to read the spectrum at each point in the scan.</p>
+    definitions are for hardware ROI mapping. The FalconX puts out a pulse on a TTL
+    output line when an x-ray falls within the channel range of that SCA. This allows
+    very fast mapping, since there is no need to read the spectrum at each point in
+    the scan.</p>
   <p>
     One instance of this database is loaded for each SCA and each detector channel in
     the system. All of the record names in the template file are preceeded by the macro
@@ -491,9 +472,9 @@
     dxpSystem.template</h3>
   <p>
     The following records are defined in the database dxpSystem.template. One instance
-    of this database is loaded for each DXP system, since they control system-wide parameters.
-    All of the record names in the template file are preceeded by the macro parameter
-    $(P), the prefix for this detector system.</p>
+    of this database is loaded for each FalconX system, since they control system-wide
+    parameters. All of the record names in the template file are preceeded by the macro
+    parameter $(P), the prefix for this detector system.</p>
   <table border="1" cellpadding="5">
     <tbody>
       <tr>
@@ -921,14 +902,6 @@
       </tr>
       <tr valign="top">
         <td>
-          TraceTimes</td>
-        <td>
-          ai</td>
-        <td>
-          The time per sample in microseconds for the TraceData arrays.</td>
-      </tr>
-      <tr valign="top">
-        <td>
           ReadTraces</td>
         <td>
           bo</td>
@@ -977,8 +950,8 @@
     of this database is loaded for a FalconX system, since they control system-wide
     mapping parameters.</p>
   <p>
-    This document does not attempt to explain the mapping mode features of the xMAP
-    or Mercury that these records control. The user should read the <a href="FalconXn Mapping Buffer Specification.pdf">
+    This document does not attempt to explain the mapping mode features of the FalconX
+    that these records control. The user should read the <a href="FalconXn Mapping Buffer Specification.pdf">
       FalconX mapping document</a> to understand the mapping features. Note that the
     document says that list mode mapping is supported, but this is not yet the case,
     currently only MCA mapping is supported by the XIA Handel library.</p>
@@ -1112,8 +1085,7 @@
           Flag controlling how the number of pixels per buffer is determined. Choices are
           0=Manual and 1=Auto. If Manual is selected then the number of pixels per buffer
           is controlled by the PixelsPerBuffer record. If Auto is selected then the maximum
-          number of pixels that the 2MB mapping buffer can hold is automatically computed.
-        </td>
+          number of pixels that the mapping buffer can hold is automatically computed. </td>
       </tr>
       <tr valign="top">
         <td>
@@ -1123,7 +1095,7 @@
         <td>
           The size of the buffer being used in units of 32-bit words. This will be the first
           dimension of the array passed to the plugins when a buffer is read out. The maximum
-          value is 4M=4456704, but it can be less than this depending on the value of PixelsPerBuffer_RBV.
+          value is 4456704 but it can be less than this depending on the value of PixelsPerBuffer_RBV.
         </td>
       </tr>
       <tr valign="top">
@@ -1211,14 +1183,64 @@
     When NDArrayMode=Raw buffers the data in each NDArray object is a 32-bit unsigned
     integer array with dimensions [BufferSize, NumDetectors]. BufferSize is the size
     of the double-buffered memory in use, which is controlled by the AutoPixelsPerBuffer
-    and PixelsPerBuffer records. It has a maximum value of 2^24 (4456704) but can be
-    smaller than this. In MCA mapping mode the buffer for each module in this array
-    contains the data for each pixel, including the elapsed live and real time, triggers
-    and events, and the MCA data. In List mapping mode the buffer will contain the event
+    and PixelsPerBuffer records. It has a maximum value of 4456704 but can be smaller
+    than this. In MCA mapping mode the buffer for each module in this array contains
+    the data for each pixel, including the elapsed live and real time, triggers and
+    events, and the MCA data. In List mapping mode the buffer will contain the event
     data for each x-ray event. The details of the buffer structure are beyond the scope
     of this document, but the buffer structure is thoroughly described in the <a href="FalconXn Mapping Buffer Specification.pdf">
       FalconX mapping document</a>.
   </p>
+  <p>
+    To collect mapping mode data one would typically execute the following steps:</p>
+  <ol>
+    <li>Select the MCA mapping mode (CollectMode record)</li>
+    <li>Select the pixel advance mode (PixelAdvanceMode record)</li>
+    <li>Select the number of pixels per run (PixelsPerRun record)</li>
+    <li>In the netCDF or HDF5 plugin
+      <ul>
+        <li>Set the Enable record to Enable.</li>
+        <li>Set the FilePath, FileName, FileNumber, FileTemplate, AutoIncrement, FileWriteMode,
+          NumCapture, and Autosave records to the desired values. Typically AutoIncrement=Yes,
+          FileWriteMode=Stream, NumCapture= number of buffers to be captured = PixelsPerRun/PixelsPerBuffer.</li>
+        <li>If FileWriteMode is Stream then start capture/streaming with the Capture record.
+          <i>NOTE: Before stream or capture can be started there must have been at least 1 callback
+            to the plugin in the current mapping mode with the same CollectMode and PixelsPerBuffer
+            currently in use. This is because stream and capture modes need to know the buffer
+            size that will be received at the time that capture/streaming is started. This can
+            be done by simply enabling the file plugin and doing a quick run. Just start a run,
+            advance a few pixels with the NextPixel record, and stop the run. Even though only
+            a few pixels have been collected the entire buffer is read out, so the size is correct.</i></li>
+      </ul>
+    </li>
+    <li>Start acquisition with the EraseStart record.</li>
+    <li>Do something that causes the pixels to advance. This could be using the NextPixel
+      record, or an external advance source such as a pulse generator, motor pulse train,
+      etc.</li>
+    <li>Each time a buffer fills up the file plugin will be called, writing data to disk.</li>
+    <li>Each time the buffer fills up the MCA spectra for the first pixel in that buffer
+      will be sent to the MCA records, so they can be displayed. This provides a periodic
+      visual feedback on the MCA data.</li>
+    <li>Once the requested number of pixels per run has occured acquisition will automatically
+      stop.</li>
+    <li>If the file plugin is in stream mode and NumCapture was specified correctly, then
+      it will also automatically stop capturing when the last buffer is received. If NumCapture
+      was 0 or was too large, then stream/capture should be manually stopped by writing
+      0 to the Capture record.</li>
+  </ol>
+  <p>
+    Data acquisition in mapping mode is very flexible. When doing a 2-D map, for example,
+    one could stream the data for the entire map into a single large netCDF file. Alternatively,
+    one could save just a single scan row into each file, and restart the file plugin
+    for each row, using a new file name, or auto-increment on the file number. Data
+    can be saved into HDF5, NeXus, netCDF or TIFF files.</p>
+  <p>
+    There are IDL functions available in the <a href="http://cars.uchicago.edu/software/idl/detectors.html">
+      CARS IDL detector package</a> to conveniently extract the mapping mode data from
+    netCDF files produced with the netCDF plugin. <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#read_nd_netcdf">
+      read_nd_netcdf.pro</a> reads the data from a netCDF file written by the areaDetector
+    NDFileNetCDF plugin. If raw buffers were written to the file then <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#decode_falcon_buffers">
+      decode_falcon_buffers.pro</a> can be used to decode the data.</p>
   <h3 id="medm">
     medm screens</h3>
   <p>
@@ -1340,74 +1362,24 @@
       <img alt="HDF5_SITORO.png" src="HDF5_SITORO.png" /></p>
     <hr />
   </div>
-  <p>
-    To collect mapping mode data one would typically execute the following steps:</p>
-  <ol>
-    <li>Select the MCA mapping mode (CollectMode record)</li>
-    <li>Select the pixel advance mode (PixelAdvanceMode record)</li>
-    <li>Select the number of pixels per run (PixelsPerRun record)</li>
-    <li>In the netCDF or HDF5 plugin
-      <ul>
-        <li>Set the Enable record to Enable.</li>
-        <li>Set the FilePath, FileName, FileNumber, FileTemplate, AutoIncrement, FileWriteMode,
-          NumCapture, and Autosave records to the desired values. Typically AutoIncrement=Yes,
-          FileWriteMode=Stream, NumCapture= number of buffers to be captured = PixelsPerRun/PixelsPerBuffer.</li>
-        <li>If FileWriteMode is Stream then start capture/streaming with the Capture record.
-          <i>NOTE: Before stream or capture can be started there must have been at least 1 callback
-            to the plugin in the current mapping mode with the same CollectMode and PixelsPerBuffer
-            currently in use. This is because stream and capture modes need to know the buffer
-            size that will be received at the time that capture/streaming is started. This can
-            be done by simply enabling the file plugin and doing a quick run. Just start a run,
-            advance a few pixels with the NextPixel record, and stop the run. Even though only
-            a few pixels have been collected the entire buffer is read out, so the size is correct.</i></li>
-      </ul>
-    </li>
-    <li>Start acquisition with the EraseStart record.</li>
-    <li>Do something that causes the pixels to advance. This could be using the NextPixel
-      record, or an external advance source such as a pulse generator, motor pulse train,
-      etc.</li>
-    <li>Each time a buffer fills up the file plugin will be called, writing data to disk.</li>
-    <li>Each time the buffer fills up the MCA spectra for the first pixel in that buffer
-      will be sent to the MCA records, so they can be displayed. This provides a periodic
-      visual feedback on the MCA data.</li>
-    <li>Once the requested number of pixels per run has occured acquisition will automatically
-      stop.</li>
-    <li>If the file plugin is in stream mode and NumCapture was specified correctly, then
-      it will also automatically stop capturing when the last buffer is received. If NumCapture
-      was 0 or was too large, then stream/capture should be manually stopped by writing
-      0 to the Capture record.</li>
-  </ol>
-  <p>
-    Data acquisition in mapping mode is very flexible. When doing a 2-D map, for example,
-    one could stream the data for the entire map into a single large netCDF file. Alternatively,
-    one could save just a single scan row into each file, and restart the file plugin
-    for each row, using a new file name, or auto-increment on the file number. Data
-    can be saved into HDF5, NeXus, netCDF or TIFF files.</p>
-  <p>
-    There are IDL functions available in the <a href="http://cars.uchicago.edu/software/idl/detectors.html">
-      CARS IDL detector package</a> to conveniently extract the mapping mode data from
-    netCDF files produced with the netCDF plugin. <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#read_nd_netcdf">
-      read_nd_netcdf.pro</a> reads the data from a netCDF file written by the areaDetector
-    NDFileNetCDF plugin. If raw buffers were written to the file then <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#decode_falcon_buffers">
-      decode_falcon_buffers.pro</a> can be used to decode the data.</p>
   <h2 id="Installing">
     Installing the EPICS dxpSITORO software</h2>
   <p>
     To install the dxpSITORO software first decide whether you want to build the software
-    from source code, or install the pre-built binaries. Most users will just download
-    the pre-built binaries. The Windows binaries should run on almost any version of
-    Windows. The Linux binaries are normally built with Redhat RHEL7, but builds for
-    other Linux versions can be provides on request.</p>
+    from source code, or install the pre-built binaries. The Windows binaries should
+    run on almost any version of Windows. The Linux binaries are normally built with
+    Redhat RHEL7, but builds for other Linux versions can be provides on request.</p>
   <p>
     Building from the source code requires downloading <a href="http://www.aps.anl.gov/epics/base/index.php">
       EPICS base</a> and all of the required <a href="http://www.aps.anl.gov/aod/bcda/synApps/index.php">
-        synApps components</a>. To build from source code on Windows for the windows-x86-static
-    architecture requires Microsoft Visual Studio 2015 or later, plus perl and GNU make.
-    It is beyond the scope of this document to describe how to build the source code.
-    Consult other EPICS documentation for this.</p>
+        synApps components</a>, including <a href="https://github.com/areaDetector/ADCore">
+          areaDetector/ADCore</a> and <a href="https://github.com/areaDetector/ADSupport">ADSupport</a>.
+    To build from source code on Windows requires Microsoft Visual Studio 2015 or later,
+    plus perl and GNU make. It is beyond the scope of this document to describe how
+    to build the source code. Consult other EPICS documentation for this.</p>
   <p>
-    The DXP software provides example IOC directory, iocBoot/FalconX. This create EPICS
-    process variables with names like dxpSITORO:dxp1:DetectorPolarity, where dxpSITORO
+    The dxpSITORO software provides example IOC directory, iocBoot/FalconX. This create
+    EPICS process variables with names like dxpSITORO:dxp1:DetectorPolarity, where dxpSITORO
     is the "prefix" for the process variable names, dxp1 is for the first detector channel,
     and DetectorPolarity is the parameter being controller. This prefix would be OK
     for installations where there will be at most one FalconX on the subnet. However,
@@ -1421,13 +1393,13 @@
   <ul>
     <li>Make a copy of the iocFalconX directory, for example to ioc13IDD_FalconX.</li>
     <li>Edit all files in that directory (including 4element.cmd, 4element.substitutions,
-      and START_IOC*), changing all occurances of the prefix dxpSITORO: for example to
-      the prefix 13IDD_SITORO:.</li>
+      and START_IOC*), changing all occurances of the prefix dxpSITORO: to another prefix,
+      for example to the prefix 13IDD_SITORO:.</li>
     <li>If you have created any higher-level medm screens that load the medm screens in
       this package, you will need to edit them to pass the new prefix.</li>
-    <li>The next time you unpack a new version of the EPICS DXP software it will overwrite
-      the iocFalconX directory. However, if you have made your own new directory that
-      will not be modified.</li>
+    <li>The next time you unpack a new version of the EPICS dxpSITORO software it will
+      overwrite the iocFalconX directory. However, if you have made your own new directory
+      that will not be modified.</li>
   </ul>
   <p>
     The dxpSITORO application uses the EPICS save/restore facility. This means that
@@ -1438,33 +1410,34 @@
     from the file called autosave/auto_settings4.sav. It is a good idea to make copies
     of this file from time to time so that you can get back to old settings if the file
     is lost or corrupted.</p>
-  <h3 id="Installing_Windows">
-    Installing the dxpSITORO software on Windows</h3>
   <p>
-    To install the software with a FalconX on a Windows PC do the following:</p>
-  <ul>
-    <li>Install the latest version of the Prospect software from XIA. It will run a Configuration
-      Wizard that will create an initial .ini file with the correct settings for your
-      system. You can copy that file to the iocFalconX directory or edit the falconxn4.ini
-      file there. It is useful to have ProSpect available on the computer to compare with
-      the EPICS software. ProSpect is needed to "characterize" the detector, which measures
-      the pulse shape from each detector element and derives a model to fit the shape.
-    </li>
-    <li>Copy all of the medm .adl files into a single directory. This is simpler than
-      defining EPICS_DISPLAY_PATH to point to all of the required directories. For example,
-      if you decide to put the .adl files in C:\epics_adls, and if you unpacked the dxpSITORO
-      tar file distribution into C:\epics\dxpSITORO, then type the following commands
-      at the Cygwin bash shell prompt:
-      <pre>      $ mkdir /cygdrive/c/epics_adls
-      $ find /cygdrive/c/epics/dxpSITORO -name '*.adl' -exec cp -f -p -v {} /cygdrive/c/epics_adls \;
+    Even if the EPICS IOC will be run on Linux it is advisable to install have a Windows
+    PC on which you should install the latest version of the Prospect software from
+    XIA. ProSpect is needed to "characterize" the detector, which measures the pulse
+    shape from each detector element and derives a model to fit the shape. ProSpect
+    can also run a Configuration Wizard that will create an initial .ini file with the
+    correct settings for your system. You can copy that file to the iocFalconX directory
+    or edit the falconxn4.ini file there. It is useful to have ProSpect available on
+    the computer to compare with the EPICS software.</p>
+  <p>
+    Copy all of the medm .adl files into a single directory. This is simpler than defining
+    EPICS_DISPLAY_PATH to point to all of the required directories. For example, if
+    you decide to put the .adl files in ./epics_adls, and if you unpacked the synApps
+    modules include areaDetector into ./epics/support and unpacked the dxpSITORO distribution
+    into ./epics/support/dxpSITORO then type the following commands at the Linux or
+    Cygwin bash shell prompt:</p>
+  <pre>      $ mkdir ./epics_adls
+      $ find ./epics/support -name '*.adl' -exec cp -f -p -v {} ./epics_adls \;
       </pre>
-      Define the environment variable EPICS_DISPLAY_PATH to point to C:\epics_adls. For
-      the Windows shell use the Windows&nbsp;Control&nbsp;Panel/System/Advanced/Environment&nbsp;Variables.</li>
-    <li>If you installed pre-built binaries, rather than building from source, then edit
-      the envPaths file in iocBoot/iocFalconX. Change the paths to the locations of the
-      directories on your system. Don't worry about the path for directories that don't
-      exist, like SNCSEQ, EPICS_BASE, etc.</li>
-  </ul>
+  <p>
+    Define the environment variable EPICS_DISPLAY_PATH to point to this epics_adls directory.
+    For the Windows shell use the Windows Control Panel/System/Advanced/Environment
+    Variables.</p>
+  <p>
+    If you installed pre-built binaries, rather than building from source, then edit
+    the envPaths file in iocBoot/iocFalconX. Change the paths to the locations of the
+    directories on your system. Don't worry about the path for directories that don't
+    exist, like SNCSEQ, EPICS_BASE, etc.</p>
   <hr />
   <address>
     Suggestions and comments to: <a href="mailto:rivers@cars.uchicago.edu">Mark Rivers
