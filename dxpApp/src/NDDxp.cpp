@@ -1361,9 +1361,7 @@ asynStatus NDDxp::getMcaData(asynUser *pasynUser, int addr)
 //            pArray->timeStamp = now.secPastEpoch + now.nsec / 1.e9;
 //            pArray->uniqueId = spectrumCounter;
 //            /* TODO: Need to copy the data here */
-//            //this->unlock();
 //            doCallbacksGenericPointer(pArray, NDArrayData, addr);
-//            //this->lock();
 //            pArray->release();
 //       }
     }
