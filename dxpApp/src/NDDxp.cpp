@@ -1221,6 +1221,14 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
         setIntegerParam(channel, NDDxpDetectorPolarity, (int)dvalue);
         xiaGetAcquisitionValues(channel, "decay_time", &dvalue);
         setDoubleParam(channel, NDDxpDecayTime, dvalue);
+        xiaGetAcquisitionValues(channel, "detection_threshold", &dvalue);
+        setDoubleParam(channel, NDDxpDetectionThreshold, dvalue);
+        xiaGetAcquisitionValues(channel, "min_pulse_pair_separation", &dvalue);
+        setDoubleParam(channel, NDDxpMinPulsePairSeparation, dvalue);
+        xiaGetAcquisitionValues(channel, "detection_filter", &dvalue);
+        setIntegerParam(channel, NDDxpDetectionFilter, (int)dvalue);
+        xiaGetAcquisitionValues(channel, "scale_factor", &dvalue);
+        setDoubleParam(channel, NDDxpScaleFactor, dvalue);
         
         // Read mapping parameters, which are assumed to be the same for all modules 
         dTmp = 0;
