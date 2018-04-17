@@ -1224,7 +1224,7 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
         xiaGetAcquisitionValues(channel, "detection_threshold", &dvalue);
         setDoubleParam(channel, NDDxpDetectionThreshold, dvalue);
         xiaGetAcquisitionValues(channel, "min_pulse_pair_separation", &dvalue);
-        setDoubleParam(channel, NDDxpMinPulsePairSeparation, dvalue);
+        setIntegerParam(channel, NDDxpMinPulsePairSeparation, (int)dvalue);
         xiaGetAcquisitionValues(channel, "detection_filter", &dvalue);
         setIntegerParam(channel, NDDxpDetectionFilter, (int)dvalue);
         xiaGetAcquisitionValues(channel, "scale_factor", &dvalue);
