@@ -8,6 +8,7 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
+INC += base64.h
 INC += protobuf-c.h
 INC += sinc.h
 INC += sinc.pb-c.h
@@ -16,6 +17,7 @@ LIBRARY_IOC_Linux  += sinc
 LIBRARY_IOC_WIN32  += sinc
 
 sinc_SRCS += api.c
+sinc_SRCS += base64.c
 sinc_SRCS += blocking.c
 sinc_SRCS += command.c
 sinc_SRCS += decode.c
