@@ -31,9 +31,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 #ifndef XIA_FILE_PRIVATE_H
@@ -70,6 +67,7 @@ extern "C" {
   XIA_EXPORT int   xia_num_open_handles(void);
   XIA_EXPORT void  xia_print_open_handles(FILE *stream);
   XIA_EXPORT void  xia_print_open_handles_stdout(void);
+  XIA_EXPORT char *xia_sgets(char *dest, int max, const char **stream);
 
 #ifdef __cplusplus
 }

@@ -114,4 +114,14 @@
 
 #define SCA_MAX_PULSER_DURATION 262140 /**< SCA generated pulse duration in nanoseconds. */
 
+/* FalconXn SINC param readout string length */
+#define XIA_DEBUG_PARAM_LEN 32
+
+/* Supported board features returned by get_board_features board operations */
+#define BOARD_SUPPORTS_NO_EXTRA_FEATURES 0x0;
+/* FalconX features 0x11 - 0x18 */
+#define BOARD_SUPPORTS_TERMINATAION_50OHM       0x11  /* Support for "50ohm" for termination */
+#define BOARD_SUPPORTS_ATTENUATION_GROUND       0x12  /* Support for "Ground" for attenuation */
+
+
 #endif /* HANDEL_CONSTANTS_H */

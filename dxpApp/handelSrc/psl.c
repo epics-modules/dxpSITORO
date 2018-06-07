@@ -173,7 +173,7 @@ PSL_SHARED int pslRemoveDefault(const char *name, XiaDefaults *defs)
                 prev->next = e->next;
             }
 
-            pslLog(PSL_LOG_DEBUG, "e = %p", e);
+            pslLog(PSL_LOG_DEBUG, "e = %p", (void*) e);
 
             free(e->name);
             free(e);

@@ -32,9 +32,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 
@@ -125,6 +122,7 @@ HANDEL_STATIC int  _addNumChans(Module *module, void *nChans, const char *name);
 HANDEL_STATIC int  _addChannel(Module *module, void *val, const char *name);
 HANDEL_STATIC int  _addFirmware(Module *module, void *val, const char *name);
 HANDEL_STATIC int  _addDefault(Module *module, void *val, const char *name);
+HANDEL_STATIC int  _addData(Module *module, void *val, const char *name);
 HANDEL_STATIC int  _addInterface(Module *module, void *val, const char *name);
 HANDEL_STATIC int  _doAddModuleItem(Module *module, void *data,
                                     unsigned int i, const char *name);
@@ -139,14 +137,12 @@ HANDEL_STATIC int  _parseDetectorIdx(const char *str, int *idx, char *alias);
 static const char *interfaceStr[] = {
     "none",
     "INET",
-    "sitoro"
 };
 
 /* This array is mainly used to compare names with the possible sub-interface
  * values. This should be update every time a new interface is added.
  */
 static const char *subInterfaceStr[] = {
-    "id",
     "inet_address",
     "inet_port",
     "inet_timeout",
@@ -159,8 +155,8 @@ static ModItem_t items[] = {
     {"channel",            _addChannel,    TRUE_},
     {"firmware",           _addFirmware,   TRUE_},
     {"default",            _addDefault,    TRUE_},
+    {"data",               _addData,       TRUE_},
     {"interface",          _addInterface,  TRUE_},
-    {"id",                 _addInterface,  TRUE_},
     {"inet_address",       _addInterface,  TRUE_},
     {"inet_port",          _addInterface,  TRUE_},
     {"inet_timeout",       _addInterface,  TRUE_},
@@ -528,36 +524,8 @@ HANDEL_STATIC int HANDEL_API xiaProcessInterface(Module *chosen,
         else if (STREQ(name, "inet_timeout")) {
             chosen->interface_->info.inet->timeout = *((unsigned int*) value);
         }
-    } else if (STREQ(name, "id") ||
-               STREQ(interface_, "sitoro")) {
-        /* Check that this module is really a sitoro */
-        if ((chosen->interface_->type != SITORO)  &&
-            (chosen->interface_->type != NO_INTERFACE)) {
-            status = XIA_WRONG_INTERFACE;
-            xiaLog(XIA_LOG_ERROR, status, "xiaProcessInterface",
-                   "Item %s is not a valid element of the current interface", name);
-            return status;
-        }
-
-        /* See if we need to create a new interface */
-        if (chosen->interface_->type == NO_INTERFACE) {
-            chosen->interface_->type = SITORO;
-            chosen->interface_->info.sitoro =
-                (Interface_SiToro *)handel_md_alloc(sizeof(Interface_SiToro));
-            if (chosen->interface_->info.sitoro == NULL) {
-                status = XIA_NOMEM;
-                xiaLog(XIA_LOG_ERROR, status, "xiaProcessInterface",
-                            "Unable to allocate memory for sitoro");
-                return status;
-            }
-
-            chosen->interface_->info.sitoro->id = 0;
-        }
-
-        if (STREQ(name, "id")) {
-            chosen->interface_->info.sitoro->id = *((unsigned int*) value);
-        }
-    } else {
+    }
+    else {
         status = XIA_MISSING_INTERFACE;
         xiaLog(XIA_LOG_ERROR, status, "xiaProcessInterface",
                "'%s' is a member of an unknown interface", name);
@@ -1388,7 +1356,7 @@ HANDEL_STATIC int HANDEL_API xiaGetAlias(Module *chosen, int chan, void *value)
 
     xiaLog(XIA_LOG_DEBUG, "xiaGetAlias",
            "chosen = %p, chan = %d, alias = %d",
-           chosen, chan, chosen->channels[chan]);
+           (void *)chosen, chan, chosen->channels[chan]);
 
     *((int *)value) = chosen->channels[chan];
 
@@ -1622,6 +1590,20 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
     {
         for (i = 0; i < current->number_of_channels; i++)
         {
+            /* Clean up each channel, for products that use ch.pslData. */
+            if (current->ch[i].pslData && current->psl) {
+                status = current->psl->endDetChan(current->channels[i], NULL, current);
+                if (status != XIA_SUCCESS) {
+                    xiaLog(XIA_LOG_ERROR, status, "xiaRemoveModule",
+                           "Error ending channel %s:%d",
+                           current->alias, i);
+                }
+            }
+
+            /* Clean up the detector, for products that use
+             * detector->pslData. This should be reworked to only
+             * remove detectors that are not referenced by any module.
+             */
             status = xiaRemoveDetector(current->detector[i]);
 
             if (status != XIA_SUCCESS) {
@@ -1631,6 +1613,7 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
 
                 /* We continue since we'll leak memory if we return. */
             }
+
         }
 
         for (i = 0; i < current->number_of_channels; i++)
@@ -1727,6 +1710,12 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
 
                         /* We continue since we'll leak memory if we return. */
                     }
+                }
+            }
+
+            for (i = 0; i < current->number_of_channels; i++) {
+                if (current->ch[i].data.data != NULL) {
+                    handel_md_free(current->ch[i].data.data);
                 }
             }
 
@@ -2600,6 +2589,9 @@ HANDEL_STATIC int _initChannels(Module *module)
         module->ch[i].n_sca = 0;
         module->ch[i].sca_lo = NULL;
         module->ch[i].sca_hi = NULL;
+        module->ch[i].data.data = NULL;
+        module->ch[i].data.length = 0;
+        module->ch[i].pslData = NULL;
     }
 
     return XIA_SUCCESS;
@@ -3022,6 +3014,71 @@ HANDEL_STATIC int  _addDefault(Module *module, void *val, const char *name)
         xiaLog(XIA_LOG_ERROR, status, "_addDefault",
                "Error adding default '%s' to module '%s'",
                (char *)val, module->alias);
+        return status;
+    }
+
+    return XIA_SUCCESS;
+}
+
+/*
+ * Add channel PSL data.
+ */
+HANDEL_STATIC int _addData(Module *module, void *val, const char *name)
+{
+    GenBuffer *buf = (GenBuffer*)val;
+
+    int status;
+    int j;
+
+    xiaLog(XIA_LOG_DEBUG, "_addData", "name = %s", name);
+
+    /* Determine if the name string is "data_all" or "data_chan{n}" */
+    if (STREQ(name, "data_all")) {
+        for (j = 0; j < (int)module->number_of_channels; j++) {
+            module->ch[j].data.data = handel_md_alloc(buf->length);
+            if (module->ch[j].data.data == NULL) {
+                status = XIA_NOMEM;
+                xiaLog(XIA_LOG_ERROR, status, "_addData",
+                       "Unable to allocate memory for chosen->data[%d]", j);
+                return status;
+            }
+
+            memcpy(module->ch[j].data.data, buf->data, buf->length);
+            module->ch[j].data.length = buf->length;
+        }
+
+        return XIA_SUCCESS;
+    }
+
+    /* At this point we have a "chan{n}" name or a bad name. */
+    if (sscanf(name, "data_chan%d", &j) == 1) {
+        xiaLog(XIA_LOG_DEBUG, "_addData", "idx = %d", j);
+
+        if ((j >= (int)module->number_of_channels) ||
+            (j < 0)) {
+            status = XIA_BAD_CHANNEL;
+            xiaLog(XIA_LOG_ERROR, status, "_addData", "Specified channel is invalid");
+            return status;
+        }
+
+        xiaLog(XIA_LOG_DEBUG, "_addData",
+               "name = %s, new value = %.32s",
+               name, (char*)buf->data);
+
+        module->ch[j].data.data = handel_md_alloc(buf->length);
+        if (module->ch[j].data.data == NULL) {
+            status = XIA_NOMEM;
+            xiaLog(XIA_LOG_ERROR, status, "_addData",
+                   "Unable to allocate memory for chosen->data[%d]", j);
+            return status;
+        }
+
+        memcpy(module->ch[j].data.data, buf->data, buf->length);
+        module->ch[j].data.length = buf->length;
+    }
+    else {
+        status = XIA_BAD_NAME;
+        xiaLog(XIA_LOG_ERROR, status, "_addData", "Invalid name: %s", name);
         return status;
     }
 

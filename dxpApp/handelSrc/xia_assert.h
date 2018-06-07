@@ -32,9 +32,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  * This contains a modified implementation of the ASSERT() macro
  * discusssed in "Writing Solid Code", by Steve Maguire, pp 17-18
  *

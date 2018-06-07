@@ -31,9 +31,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 #ifndef XIA_FILE_H
@@ -52,7 +49,7 @@ XIA_SHARED int   xia_fclose(FILE *fp);
 XIA_SHARED int   xia_num_open_handles(void);
 XIA_SHARED void  xia_print_open_handles(FILE *stream);
 XIA_SHARED void  xia_print_open_handles_stdout(void);
-
+XIA_SHARED char *xia_sgets(char *dest, int max, const char **stream);
 
 /** Common macros **/
 #define xia_file_open(name, mode) xia_fopen(name, mode, XIA_FILE, __LINE__)

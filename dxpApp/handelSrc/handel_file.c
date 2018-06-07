@@ -32,13 +32,11 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 
 #include <stdio.h>
+#include <sys/stat.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
@@ -57,6 +55,15 @@
 #include "handel_file.h"
 #include "handel_log.h"
 
+#include "base64.h"
+
+PRAGMA_PUSH
+PRAGMA_IGNORE_STRICT_PROTOTYPES
+
+#include "miniz.h"
+
+PRAGMA_POP
+
 /** Structures **/
 
 /* This structure exists so that we can re-use the
@@ -71,27 +78,34 @@ typedef struct
     /* Section heading name: the part in brackets */
     const char *section;
 
+    boolean_t multiSection;
+
 } SectionInfo;
 
 
 /** Prototypes **/
 HANDEL_STATIC int HANDEL_API xiaWriteIniFile(const char *filename);
 
+HANDEL_STATIC int HANDEL_API xiaFindEntryStart(FILE *fp, const char *section, fpos_t *start);
 HANDEL_STATIC int HANDEL_API xiaFindEntryLimits(FILE *fp, const char *section,
                         fpos_t *start, fpos_t *end);
+HANDEL_STATIC int HANDEL_API xiaGetLine_N(FILE *fp, char *lline, int len);
 HANDEL_STATIC int HANDEL_API xiaGetLine(FILE *fp, char *line);
 HANDEL_STATIC int HANDEL_API xiaGetLineData(const char *line,
                                             char *name, char *value);
 HANDEL_STATIC int HANDEL_API xiaSetPosOnNext(FILE *fp, fpos_t *start, fpos_t *end,
                                              const char *name, fpos_t *newPos,
                                              boolean_t after);
+HANDEL_SHARED int HANDEL_API xiaCopyFile(const char *src, const char *dest);
 
 HANDEL_STATIC int xiaLoadDetector(FILE *fp, fpos_t *start, fpos_t *end);
 HANDEL_STATIC int xiaLoadModule(FILE *fp, fpos_t *start, fpos_t *end);
+HANDEL_STATIC int xiaLoadModChanData(FILE *fp, fpos_t *start, fpos_t *end);
 HANDEL_STATIC int xiaLoadFirmware(FILE *fp, fpos_t *start, fpos_t *end);
 HANDEL_STATIC int xiaLoadDefaults(FILE *fp, fpos_t *start, fpos_t *end);
 
 HANDEL_STATIC int HANDEL_API xiaReadPTRRs(FILE *fp, fpos_t *start, fpos_t *end, char *alias);
+HANDEL_STATIC int HANDEL_API xiaReadChanData(FILE *fp);
 
 static int writeInterface(FILE *fp, Module *m);
 
@@ -106,27 +120,21 @@ typedef struct _InterfaceWriter {
 static int writeINET(FILE *fp, Module *module);
 #endif /* EXCLUDE_INET */
 
-#ifndef EXCLUDE_SITORO
-static int writeSITORO(FILE *fp, Module *module);
-#endif /* EXCLUDE_SITORO */
-
 static InterfaceWriters_t INTERFACE_WRITERS[] = {
   /* Sentinel */
   {0, NULL},
 #ifndef EXCLUDE_INET
   {INET,          writeINET},
 #endif /* EXCLUDE_INET */
-#ifndef EXCLUDE_SITORO
-  {SITORO,        writeSITORO},
-#endif /* EXCLUDE_SITORO */
 };
 
 static SectionInfo sectionInfo[] =
 {
-    {xiaLoadDetector, "detector definitions"},
-    {xiaLoadFirmware, "firmware definitions"},
-    {xiaLoadDefaults, "default definitions"},
-    {xiaLoadModule,   "module definitions"}
+ {xiaLoadDetector,    "detector definitions", TRUE_},
+ {xiaLoadFirmware,    "firmware definitions", TRUE_},
+ {xiaLoadDefaults,    "default definitions", TRUE_},
+ {xiaLoadModule,      "module definitions", TRUE_},
+ {xiaLoadModChanData, "module channel data", FALSE_}
 };
 
 
@@ -228,6 +236,8 @@ HANDEL_STATIC int HANDEL_API xiaWriteIniFile(const char *filename)
     unsigned int j;
 
     FILE *iniFile = NULL;
+    char tmpFilename[MAX_PATH_LEN];
+    const char tmpExt[] = ".tmp";
 
     char* path = NULL;
     const char* lastSlash = NULL;
@@ -250,7 +260,15 @@ HANDEL_STATIC int HANDEL_API xiaWriteIniFile(const char *filename)
         return status;
     }
 
-    iniFile = xia_file_open(filename, "w");
+    /*
+     * Write a temp file first so we don't wreck the user's file if anything
+     * goes wrong.
+     */
+    strncpy(tmpFilename, filename, sizeof(tmpFilename) - 1);
+    strncpy(tmpFilename + strlen(filename), tmpExt,
+            sizeof(tmpFilename) - 1 - strlen(filename));
+
+    iniFile = xia_file_open(tmpFilename, "wb");
     if (iniFile == NULL)
     {
         status = XIA_OPEN_FILE;
@@ -549,14 +567,205 @@ HANDEL_STATIC int HANDEL_API xiaWriteIniFile(const char *filename)
         fprintf(iniFile, "END #%d\n\n", i);
     }
 
+    fprintf(iniFile, "[module channel data]\n\n");
+
+    for (module = xiaGetModuleHead(), i = 0;
+         module != NULL;
+         module = module->next, i++)
+    {
+        fprintf(iniFile, "START %s\n", module->alias);
+
+        for (j = 0; j < module->number_of_channels; j++)
+        {
+            /*
+             * Base64-encode a blob of data from each channel that has it.
+             * The PSL manages the format of the blob.
+             */
+            if (module->ch[j].data.length > 0) {
+                uLong dataCmpSize;
+                byte_t *dataCmp;
+                int cmpStatus;
+
+                dataCmpSize = compressBound((uLong)module->ch[j].data.length);
+
+                dataCmp = handel_md_alloc(dataCmpSize);
+                if (!dataCmp) {
+                    if (path)
+                        handel_md_free(path);
+                    xia_file_close(iniFile);
+                    return XIA_NOMEM;
+                }
+
+                cmpStatus = compress(dataCmp, &dataCmpSize,
+                                     module->ch[j].data.data,
+                                     (uLong)module->ch[j].data.length);
+                if (cmpStatus != Z_OK) {
+                    if (path)
+                        handel_md_free(path);
+                    xia_file_close(iniFile);
+                    handel_md_free(dataCmp);
+                    xiaLog(XIA_LOG_ERROR, XIA_ENCODE, "xiaWriteIniFile",
+                           "Compressing %s data_chan%u: %d",
+                           module->alias, j, cmpStatus);
+                    return XIA_ENCODE;
+                }
+
+                char *dataEnc;
+                size_t dataEncSize;
+                int encStatus;
+
+                dataEncSize = dataCmpSize * 4 / 3;                /* Inflate by 4/3 */
+                dataEncSize = ((dataEncSize - 1) | (4-1)) + 1;    /* Get a multiple of 4 */
+                dataEncSize++;                                    /* Add the null terminator */
+
+                dataEnc = handel_md_alloc(dataEncSize);
+                if (!dataEnc) {
+                    handel_md_free(dataCmp);
+                    if (path)
+                        handel_md_free(path);
+                    xia_file_close(iniFile);
+                    return XIA_NOMEM;
+                }
+
+                encStatus = Base64Encode(dataCmp, dataCmpSize,
+                                         dataEnc, dataEncSize);
+                if (encStatus) {
+                    handel_md_free(dataCmp);
+                    if (path)
+                        handel_md_free(path);
+                    xia_file_close(iniFile);
+                    handel_md_free(dataEnc);
+                    xiaLog(XIA_LOG_ERROR, XIA_ENCODE, "xiaWriteIniFile",
+                           "Encoding %s data_chan%u: %d",
+                           module->alias, j, encStatus);
+                    return XIA_ENCODE;
+                }
+
+                handel_md_free(dataCmp);
+
+                fprintf(iniFile, "data_chan%u_len = %zu\n", j, strlen(dataEnc));
+				fprintf(iniFile, "data_chan%u = ", j);
+				fputs(dataEnc, iniFile);
+				fprintf(iniFile, "\n");
+
+                handel_md_free(dataEnc);
+            }
+        }
+
+        fprintf(iniFile, "END %s\n", module->alias);
+    }
+
     if (path)
         handel_md_free(path);
 
     xia_file_close(iniFile);
 
+    status = xiaCopyFile(tmpFilename, filename);
+    if (status == XIA_SUCCESS) {
+        remove(tmpFilename);
+    }
+    else {
+        status = XIA_BAD_FILE_WRITE;
+        xiaLog(XIA_LOG_ERROR, status, "xiaWriteIniFile",
+               "Failed to copy temp file %s to destination %s.", tmpFilename, filename);
+        return status;
+    }
+
     return XIA_SUCCESS;
 }
 
+HANDEL_SHARED int HANDEL_API xiaCopyFile(const char *src, const char *dest)
+{
+    int status;
+    FILE *srcfp = NULL, *destfp = NULL;
+    struct stat sb;
+    char *data;
+
+    size_t objsRead;
+
+	size_t toWrite;
+    size_t haveWritten = 0;
+    size_t written =  0;
+
+
+    ASSERT(src);
+    ASSERT(dest);
+
+
+    xiaLog(XIA_LOG_DEBUG, "xiaCopyFile", "Copying file %s to %s", src, dest);
+
+    srcfp = xia_file_open(src, "rb");
+
+    if (srcfp == NULL) {
+        status = XIA_OPEN_FILE;
+        xiaLog(XIA_LOG_ERROR, status, "xiaCopyFile", "Could not open %s", src);
+        return status;
+    }
+
+    destfp = xia_file_open(dest, "w");
+
+    if (destfp == NULL) {
+        xia_file_close(srcfp);
+        status = XIA_OPEN_FILE;
+        xiaLog(XIA_LOG_ERROR, status, "xiaCopyFile", "Could not open %s", dest);
+        return status;
+    }
+
+    if (stat(src, &sb) < 0) {
+        xia_file_close(srcfp);
+        xia_file_close(destfp);
+        xiaLog(XIA_LOG_ERROR, XIA_NOT_FOUND, "xiaCopyFile",
+               "Could not stat: %s", src);
+        return XIA_NOT_FOUND;
+    }
+
+	data = handel_md_alloc((size_t) (sb.st_size + 1));
+
+    if (data == NULL) {
+        xia_file_close(srcfp);
+        xia_file_close(destfp);
+        xiaLog(XIA_LOG_ERROR, XIA_NOMEM, "xiaCopyFile",
+               "No memory when loading data to copy: %d (%s)",
+               (int) sb.st_size, src);
+        return XIA_NOMEM;
+    }
+
+    memset(data, 0, (size_t) (sb.st_size + 1));
+
+    objsRead = fread(data, (size_t) sb.st_size, 1, srcfp);
+    xia_file_close(srcfp);
+    if (objsRead != 1) {
+        handel_md_free(data);
+        xia_file_close(destfp);
+        xiaLog(XIA_LOG_ERROR, XIA_BAD_FILE_READ, "xiaCopyFile",
+               "Could not read: %s", src);
+        return XIA_BAD_FILE_READ;
+    }
+
+	toWrite = (size_t) sb.st_size;
+
+    while (toWrite) {
+        written = fwrite(data + haveWritten, 1, toWrite, destfp);
+
+        if (((ssize_t) written) < 0) {
+            handel_md_free(data);
+            xia_file_close(destfp);
+            status = XIA_BAD_FILE_WRITE;
+            xiaLog(XIA_LOG_ERROR, status, "psl__UnloadDetCharacterization",
+                   "Copying file failed: %s: (%d) %s",
+                   dest, errno, strerror(errno));
+            return status;
+        }
+
+        haveWritten += written;
+        toWrite -= written;
+    }
+
+    handel_md_free(data);
+    xia_file_close(destfp);
+
+    return XIA_SUCCESS;
+}
 
 /*****************************************************************************
  *
@@ -609,6 +818,29 @@ HANDEL_SHARED int HANDEL_API xiaReadIniFile(const char *inifile)
 
     for (i = 0; i < numSections; i++)
     {
+        if (!sectionInfo[i].multiSection) {
+            fpos_t unknownEnd;
+
+            status = xiaFindEntryStart(fp, sectionInfo[i].section, &start);
+
+            if (status != XIA_SUCCESS) {
+                xiaLog(XIA_LOG_WARNING, "xiaReadIniFile",
+                       "Section missing from ini file: %s", sectionInfo[i].section);
+                continue;
+            }
+
+            status = sectionInfo[i].function_ptr(fp, &local, &unknownEnd);
+
+            if (status != XIA_SUCCESS) {
+                xia_file_close(fp);
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadIniFile",
+                       "Error loading \"%s\" section from ini file", sectionInfo[i].section);
+                return status;
+            }
+
+            continue;
+        }
+
         status = xiaFindEntryLimits(fp, sectionInfo[i].section, &start, &end);
 
         if (status != XIA_SUCCESS)
@@ -677,7 +909,7 @@ HANDEL_SHARED int HANDEL_API xiaReadIniFile(const char *inifile)
         {
             status = fgetpos(fp, &local);
 
-            if (strncmp(line, "START", 5) == 0)
+            if (STRNEQ(line, "START"))
             {
                 int count = 0;
 
@@ -698,7 +930,7 @@ HANDEL_SHARED int HANDEL_API xiaReadIniFile(const char *inifile)
                         return status;
                     }
 
-                } while (strncmp(line, "END", 3) != 0);
+                } while (!STRNEQ(line, "END"));
 
                 status = sectionInfo[i].function_ptr(fp, &local, &local_end);
 
@@ -944,40 +1176,61 @@ HANDEL_STATIC int HANDEL_API xiaGetLineData(const char *line,
     return status;
 }
 
-/******************************************************************************
- *
- * Routine that gets the first line with text after the current file
- * position.
- *
- ******************************************************************************/
 HANDEL_STATIC int HANDEL_API xiaGetLine(FILE *fp, char *lline)
 {
-    int status = XIA_SUCCESS;
+    return xiaGetLine_N(fp, lline, XIA_LINE_LEN);
+}
+
+/*
+ * Gets the first line with text after the current file position.
+ *
+ * If the line is longer than llen, the file position is scanned to
+ * the start of the next line.
+ */
+HANDEL_STATIC int HANDEL_API xiaGetLine_N(FILE *fp, char *lline, int llen)
+{
     unsigned int j;
 
     char *cstatus;
 
-    /* Now fine the match to the section entry */
-    do
-    {
+    do {
         size_t len;
+        char extra[8193];
 
-        cstatus = handel_md_fgets(lline, XIA_LINE_LEN, fp);
+        cstatus = handel_md_fgets(lline, llen, fp);
 
         /* lline won't be overwritten in this case */
-        if (cstatus == NULL)
-        {
+        if (cstatus == NULL) {
             return XIA_EOF;
+        }
+
+        /* If a partial line was read, flush the rest of that line so the next read
+         * gets a new line.
+         */
+        while ((len = strlen(cstatus)) > 0 &&
+               cstatus[len - 1] != '\r' && cstatus[len - 1] != '\n') {
+            cstatus = handel_md_fgets(extra, sizeof(extra) - 1, fp);
+
+            if (!cstatus) {
+                break;
+            }
         }
 
         len = strlen(lline);
 
+        /*
+         * Remove the new line character to keep the log file output from
+         * containing the extra white space.
+         */
+        if (len > 1 && lline[len - 2] == '\n')
+            lline[len - 2] = '\0';
+        if (len > 0 && lline[len - 1] == '\n')
+            lline[len - 1] = '\0';
+
         /* Check for any alphanumeric character in the line */
-        for (j = 0; j < (unsigned int)len; j++)
-        {
-            if (isgraph(CTYPE_CHAR(lline[j])))
-            {
-                return status;
+        for (j = 0; j < (unsigned int)len; j++) {
+            if (isgraph(CTYPE_CHAR(lline[j]))) {
+                return XIA_SUCCESS;
             }
         }
     } while (cstatus != NULL);
@@ -985,15 +1238,12 @@ HANDEL_STATIC int HANDEL_API xiaGetLine(FILE *fp, char *lline)
     return XIA_EOF;
 }
 
-/******************************************************************************
- *
- * Routine that searches thru the .ini file and finds the start and end of a
- * specific section of the .ini file starting at [section] and ending at the
- * next [].
- *
- ******************************************************************************/
-HANDEL_STATIC int HANDEL_API xiaFindEntryLimits(FILE *fp, const char *section,
-                                                fpos_t *start, fpos_t *end)
+/*
+ * Searches thru the .ini file and finds the start of a specific
+ * section starting at [section]. The fp is left on the first line
+ * after the section tag.
+ */
+HANDEL_STATIC int HANDEL_API xiaFindEntryStart(FILE *fp, const char *section, fpos_t *start)
 {
     int status = XIA_SUCCESS;
     unsigned int j;
@@ -1004,13 +1254,10 @@ HANDEL_STATIC int HANDEL_API xiaFindEntryLimits(FILE *fp, const char *section,
 
     char line[XIA_LINE_LEN];
 
-    /* Zero the start and end variables */
-    /*    *start=*end=0; */
-
     /* First rewind the file to the beginning */
     rewind(fp);
 
-    /* Now fine the match to the section entry */
+    /* Now find the match to the section entry */
     do {
         do {
             cstatus = handel_md_fgets(line, XIA_LINE_LEN, fp);
@@ -1056,6 +1303,30 @@ HANDEL_STATIC int HANDEL_API xiaFindEntryLimits(FILE *fp, const char *section,
         }
         /* Else look for the next section entry */
     } while (!isStartFound);
+
+    return XIA_SUCCESS;
+}
+
+/*
+ * Searches thru the .ini file and finds the start and end of a
+ * specific section starting at [section] and ending at the
+ * next [].
+ */
+HANDEL_STATIC int HANDEL_API xiaFindEntryLimits(FILE *fp, const char *section,
+                                                fpos_t *start, fpos_t *end)
+{
+    int status = XIA_SUCCESS;
+
+    char *cstatus;
+
+    char line[XIA_LINE_LEN];
+
+    status = xiaFindEntryStart(fp, section, start);
+    if (status != XIA_SUCCESS) {
+        xiaLog(XIA_LOG_ERROR, status, "xiaFindEntryLimits",
+               "Finding \"%s\" section start.", section);
+        return status;
+    }
 
     do
     {
@@ -1285,7 +1556,6 @@ HANDEL_STATIC int xiaLoadModule(FILE *fp, fpos_t *start, fpos_t *end)
     char firmAlias[MAXALIAS_LEN];
     char defAlias[MAXALIAS_LEN];
 
-
     ASSERT(fp);
     ASSERT(start);
     ASSERT(end);
@@ -1454,47 +1724,7 @@ HANDEL_STATIC int xiaLoadModule(FILE *fp, fpos_t *start, fpos_t *end)
             return status;
         }
     }
-    else  if (STREQ(iface, "sitoro")) {
-        int id;
-
-        long rawId;
-
-        status = xiaAddModuleItem(alias, "interface", iface);
-
-        if (status != XIA_SUCCESS) {
-            xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
-                   "Error adding '%s' interface to module '%s'.", iface, alias);
-            return status;
-        }
-
-        status = xiaFileRA(fp, start, end, "id", value);
-
-        if (status != XIA_SUCCESS) {
-            xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
-                   "Unable to locate sitoro 'id' for module '%s'.", alias);
-            return status;
-        }
-
-        errno = 0;
-        rawId = strtol(value, NULL, 0);
-
-        if (errno == ERANGE || rawId < INT_MIN || rawId > INT_MAX) {
-            xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
-                   "Requested sitoro id ('%s') is out-of-range for module '%s'.", value, alias);
-            return XIA_BAD_VALUE;
-        }
-
-        id = (int)rawId;
-
-        status = xiaAddModuleItem(alias, "id", &id);
-
-        if (status != XIA_SUCCESS) {
-            xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
-                   "Unable to add sitoro id = %d for module '%s'.", id, alias);
-            return status;
-        }
-
-    } else {
+    else {
         xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
                "Unknown interface '%s' for module '%s'.", iface, alias);
         return XIA_BAD_INTERFACE;
@@ -1657,7 +1887,7 @@ HANDEL_STATIC int xiaLoadModule(FILE *fp, fpos_t *start, fpos_t *end)
         if (status != XIA_SUCCESS)
         {
             xiaLog(XIA_LOG_ERROR, status, "xiaLoadModule",
-                   "Error adding firmware_set_all to module %s", alias);
+                   "Error adding default_all to module %s", alias);
             return status;
         }
     }
@@ -1665,6 +1895,231 @@ HANDEL_STATIC int xiaLoadModule(FILE *fp, fpos_t *start, fpos_t *end)
     return XIA_SUCCESS;
 }
 
+
+HANDEL_STATIC int xiaLoadModChanData(FILE *fp, fpos_t *start, fpos_t *end)
+{
+    int status;
+
+    UNUSED(start);
+    UNUSED(end);
+
+    do {
+        status = xiaReadChanData(fp);
+    } while (status == XIA_SUCCESS);
+
+    if (status == XIA_EOF) {
+        return XIA_SUCCESS;
+    }
+
+    return status;
+}
+
+
+/*
+ * Search the section for module channel data starting with prefix,
+ * e.g. "data_all" or "data_chan0". If both the length and data are
+ * found, the data is parsed and added to the module. Otherwise
+ * XIA_FILE_RA is returned.
+ */
+HANDEL_STATIC int xiaReadChanData(FILE *fp)
+{
+    char line[XIA_LINE_LEN];
+
+    char name[MAXITEM_LEN];
+    char value[MAXITEM_LEN];
+    char prefix[MAXITEM_LEN];
+    char dataKey[MAXITEM_LEN];
+
+    int match;
+    char alias[MAXALIAS_LEN];
+    unsigned int ch;
+    int status;
+
+    size_t dataEncLen;
+    char *dataEnc;
+
+    int decStatus;
+    size_t dataDecLen;
+    byte_t *dataDec;
+
+    int uncmpStatus;
+    uLong uncmpLen;
+    GenBuffer buf;
+
+    /* Loop over the module sections: START module1. */
+    do {
+        /* Get the next module alias. */
+        status = xiaGetLine(fp, line);
+        if (status != XIA_SUCCESS) {
+            if (status != XIA_EOF) {
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "Finding channel data.");
+            }
+            return status;
+        }
+
+        /*
+         * If we hit another section, treat it like EOF for the
+         * purposes of this section parser.
+         */
+        if (line[0] == '[') {
+            return XIA_EOF;
+        }
+
+        if (!STRNEQ(line, "START ")) {
+            status = XIA_FILE_RA;
+            xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                   "Expected module name: %.40s", line);
+            return status;
+        }
+
+        strncpy(alias, line + strlen("START "), MAXALIAS_LEN);
+
+        xiaLog(XIA_LOG_DEBUG, "xiaReadChanData",
+               "Channel data for %s.", alias);
+
+        do {
+            /* Get the next channel's data length. */
+            status = xiaGetLine(fp, line);
+            if (status != XIA_SUCCESS) {
+                if (status != XIA_EOF) {
+                    xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                           "Finding channel data.");
+                }
+                return status;
+            }
+
+            /*
+             * If we hit the end of the section, we're done with one module.
+             */
+            if (STRNEQ(line, "END ")) {
+                break;
+            }
+
+            /* Read the channel and length. */
+            status = xiaGetLineData(line, name, value);
+            if (status != XIA_SUCCESS) {
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "Finding channel data length: %.40s", line);
+                return status;
+            }
+
+            /* Handle data_all or data_chanN. */
+            if (STRNEQ(line, "data_all_len")) {
+                sprintf(prefix, "data_all");
+            }
+            else {
+                /* Parse the channel from the name. */
+                match = sscanf(name, "data_chan%u_len", &ch);
+
+                if (match != 1) {
+                    status = XIA_FILE_RA;
+                    xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                           "Finding channel number in %s, %d matches", name, match);
+                    return status;
+                }
+
+                sprintf(prefix, "data_chan%u", ch);
+            }
+
+            xiaLog(XIA_LOG_DEBUG, "xiaLoadModule",
+                   "%s = %s", name, value);
+
+            /* Parse the length from the value. */
+            sscanf(value, "%zu", &dataEncLen);
+
+            /*
+             * The next line should be the data for the same key. Scan the key, leaving
+             * the fp at the data.
+             */
+            match = fscanf(fp, "%200[^= ]%*10[= ]", name);
+            if (match != 1 || !STREQ(prefix, name)) {
+                status = XIA_FILE_RA;
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "Expected %s, got %s, %d matches", dataKey, name, match);
+                return status;
+            }
+
+            /* Now use the length to allocate and slurp the data. */
+            dataEnc = handel_md_alloc((dataEncLen + 1) * sizeof(char));
+            if (dataEnc == NULL) {
+                status = XIA_NOMEM;
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "No memory for %s %s", alias, prefix);
+                return status;
+            }
+
+            status = xiaGetLine_N(fp, dataEnc, (int)dataEncLen + 1);
+            if (status != XIA_SUCCESS) {
+                handel_md_free(dataEnc);
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "Unable to load %s %s", alias, prefix);
+                return status;
+            }
+
+            /* Decode. Base64 deflates by 3/4. Add one for the null terminator. */
+            dataDecLen = dataEncLen * 3 / 4 + 1;
+            dataDec = handel_md_alloc(dataDecLen);
+            if (dataDec == NULL) {
+                handel_md_free(dataEnc);
+                status = XIA_NOMEM;
+                xiaLog(XIA_LOG_ERROR, status, "_addData",
+                       "Unable to allocate memory to decode chosen->data[i]");
+                return status;
+            }
+
+            decStatus = Base64Decode(dataEnc, dataEncLen, dataDec, &dataDecLen);
+            if (decStatus) {
+                handel_md_free(dataEnc);
+                handel_md_free(dataDec);
+                status = XIA_DECODE;
+                xiaLog(XIA_LOG_ERROR, status, "_addData",
+                       "Unable to decode %s %s. Decode status=%d.", alias, name, decStatus);
+                return status;
+            }
+
+            handel_md_free(dataEnc);
+
+            uncmpLen = (uLong)dataDecLen * 32; /* Conservative estimate 32x deflate */
+            buf.data = handel_md_alloc(uncmpLen);
+            if (buf.data == NULL) {
+                handel_md_free(dataDec);
+                status = XIA_NOMEM;
+                xiaLog(XIA_LOG_ERROR, status, "_addData",
+                       "Unable to allocate memory for chosen->data[i]");
+                return status;
+            }
+
+            memset(buf.data, 0, uncmpLen);
+
+            uncmpStatus = uncompress(buf.data, &uncmpLen, dataDec, (uLong)dataDecLen);
+            if (uncmpStatus != Z_OK) {
+                handel_md_free(dataDec);
+                handel_md_free(buf.data);
+                status = XIA_DECODE;
+                xiaLog(XIA_LOG_ERROR, status, "_addData",
+                       "Unable to uncompress %s %s. Uncompress status=%d.", alias, name, uncmpStatus);
+                return status;
+            }
+
+            handel_md_free(dataDec);
+
+            buf.length = uncmpLen + 1;
+
+            status = xiaAddModuleItem(alias, prefix, &buf);
+
+            handel_md_free(buf.data);
+
+            if (status != XIA_SUCCESS) {
+                xiaLog(XIA_LOG_ERROR, status, "xiaReadChanData",
+                       "Error adding module %s %s", alias, prefix);
+                return status;
+            }
+        } while (status == XIA_SUCCESS); /* Channels in a module */
+    } while (status == XIA_SUCCESS); /* Module sections */
+
+    return XIA_SUCCESS;
+}
 
 /*****************************************************************************
  *
@@ -2312,26 +2767,6 @@ static int writeINET(FILE *fp, Module *module)
           module->interface_->info.inet->port);
   fprintf(fp, "inet_timeout = %u\n",
           module->interface_->info.inet->timeout);
-
-  return XIA_SUCCESS;
-}
-#endif /* EXCLUDE_INET */
-
-#ifndef EXCLUDE_SITORO
-/** @brief Writes the SiToro interface info to the passed in file pointer.
- *
- * Assumes that the file has been advanced to the proper location. Also assumes
- * that the module is using the INET communication interface.
- *
- */
-static int writeSITORO(FILE *fp, Module *module)
-{
-  ASSERT(fp != NULL);
-  ASSERT(module != NULL);
-
-  fprintf(fp, "interface = sitoro\n");
-  fprintf(fp, "id = %u\n",
-          module->interface_->info.sitoro->id);
 
   return XIA_SUCCESS;
 }

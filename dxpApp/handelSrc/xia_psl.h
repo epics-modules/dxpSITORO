@@ -32,9 +32,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 
@@ -81,8 +78,8 @@ PSL_STATIC int PSL_API pslGainCalibrate(int detChan, Detector *det, int modChan,
                                         Module *m, XiaDefaults *defs,
                                         double deltaGain);
 PSL_STATIC int PSL_API pslGainOperation(int detChan, char *name, void *value,
-                                        Detector *det, int modChan, Module *m, 
-                                        XiaDefaults *defs)                      
+                                        Detector *det, int modChan, Module *m,
+                                        XiaDefaults *defs)
 PSL_STATIC int pslStartRun(int detChan, unsigned short resume,
                            XiaDefaults *defs, Module *m);
 PSL_STATIC int pslStopRun(int detChan, Module *m);

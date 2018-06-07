@@ -32,9 +32,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 
@@ -69,8 +66,7 @@ typedef struct _AddChanType {
 /** Interface Transports **/
 enum {
   NO_INTERFACE = 0,
-  INET,
-  SITORO,
+  INET
 };
 
 /* Module-Name Tokens */

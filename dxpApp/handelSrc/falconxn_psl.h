@@ -65,6 +65,11 @@
 #define FALCONXN_CHANNEL_STATE_TIMEOUT (5)
 
 /*
+ * Timeout to wait for a response.
+ */
+#define FALCONXN_RESPONSE_TIMEOUT (2)
+
+/*
  * Sinc response handle. This allows us to map the response back to
  * the type and so the call to free a response.
  */
@@ -87,6 +92,12 @@ typedef enum {
     ChannelListMode,
     ChannelCharacterizing
 } ChannelState;
+
+typedef enum {
+    CalibrationNone,
+    CalibrationNeedRefresh,
+    CalibrationReady
+} CalibrationState;
 
 #define DAC_OFFSET_MIN        -2048
 #define DAC_OFFSET_MAX         2047
@@ -129,8 +140,7 @@ typedef int (*AcqValue_FP)(Module*           module,
                            int               channel,
                            FalconXNDetector* fDetector,
                            XiaDefaults*      defaults,
-                           AcquisitionValue* acq,
-						   const char	     *name,
+                           const char        *name,
                            double*           value,
                            boolean_t         read);
 typedef int (*SynchAcqValue_FP)(int          detChan,
@@ -141,6 +151,9 @@ typedef int (*SynchAcqValue_FP)(int          detChan,
 typedef int (*DoBoardOperation_FP)(int detChan,
                                    Detector* detector, Module* module,
                                    const char *name, void *value);
+typedef int (*DoRunData_FP)(int detChan,
+                            int modChan, Module* module,
+                            const char *name, void *value);
 
 /** STRUCTURES **/
 
@@ -152,7 +165,7 @@ typedef enum acqValueTypes {
     acqString
 } acqValueTypes;
 
-typedef struct acqValye {
+typedef struct acqValue {
     acqValueTypes type;
     union {
         double       f;
@@ -174,7 +187,7 @@ typedef struct acqValye {
 struct _AcquisitionValue {
     const char*      name;
     double           defaultValue;
-    acqValue         value;
+    acqValueTypes    type;
     uint32_t         flags;
     AcqValue_FP      handler;
     SynchAcqValue_FP sync;
@@ -212,8 +225,7 @@ typedef struct _BoardOperation {
  */
 struct _FalconXNModule {
 
-    /* Initial SINC protocol is TCP per detector so there is nothing to do at
-     * the board level. We just have to know the number of detectots.
+    /* SINC protocol is TCP per card.
      */
     char hostAddress[32];
     int  portBase;
@@ -222,8 +234,14 @@ struct _FalconXNModule {
     /* The card's serial number.*/
     uint32_t serialNum;
 
-    /* The number of channels in the card. Currently only 1. */
+    /* The number of channels in the card. */
     int detChannels;
+
+    /* Number of runs made by the module. This is saved in mm1 buffer
+     * headers to allow correlating data across a module by run
+     * number.
+     */
+    uint32_t runNumber;
 
     /* Table of active channels. */
     boolean_t channelActive[FALCONXN_MAX_CHANNELS];
@@ -277,10 +295,6 @@ struct _FalconXNDetector {
     /* Set to true once all ACQ values have been set. */
     boolean_t valid_acq_values;
 
-    /* The number of acquisition values. */
-    int               numOfAcqValues;
-    AcquisitionValue* acqValues;
-
     /* Lock for shared data in this structure. */
     handel_md_Mutex lock;
 
@@ -297,6 +311,15 @@ struct _FalconXNDetector {
      */
     ChannelState channelState;
 
+    /* Track state of calibration data */
+    CalibrationState calibrationState;
+
+    struct FirmwareFeatures {
+        boolean_t mcaGateVeto;
+        boolean_t termination50ohm;
+        boolean_t attenuationGround;
+    } features;
+
     /* Characterization data returned when valid. */
     double calibPercentage;
     char calibStage[256];
@@ -308,14 +331,14 @@ struct _FalconXNDetector {
     /* The buffer size used when reading OSC data. */
     SincOscPlot adcTrace;
 
-    /* Detector stats */
+    /* Detector real-time stats */
     double stats[FALCONXN_STATS_NUMOF];
+
+    /* MM0 stats, per histogram */
+    double mm0_stats[FALCONXN_STATS_NUMOF];
 
     /* The time until the next update.*/
     uint32_t timeToNextMsec;
-
-    /* Number of runs made by the detector. */
-    uint32_t runNumber;
 
     /* Mapping Mode control. */
     MM_Control mmc;

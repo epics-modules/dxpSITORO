@@ -32,9 +32,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 #ifndef XIA_SYSTEM_H
@@ -141,6 +138,9 @@ typedef int (*iniRead_FP)(FILE* fp, fpos_t *start, fpos_t *end,
 typedef int (*iniWrite_FP)(FILE* fp, const char* section, const char* path,
                            void* value, const int index, Module *module);
 
+typedef int (*loadChanData_FP)(const byte_t *data, const size_t len, const int modChan, Module *module);
+typedef int (*saveChanData_FP)(const int modChan, Module *module, byte_t **data, size_t *len);
+
 /*
  * Set up the module. A module contains detectors. Allocate any resources
  * specific to the module and reference it by the pslData field in the Module
@@ -233,6 +233,8 @@ typedef int (*set_FP)(int, const char *, void *, XiaDefaults *);
 struct PSLHandlers
 {
     iniRead_FP              iniRead;
+    loadChanData_FP         loadChanData;
+    saveChanData_FP         saveChanData;
     iniWrite_FP             iniWrite;
     setupModule_FP          setupModule;
     endModule_FP            endModule;

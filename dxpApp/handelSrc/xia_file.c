@@ -31,9 +31,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id$
- *
  */
 
 #include <stdio.h>
@@ -127,7 +124,7 @@ XIA_SHARED void xia_print_open_handles(FILE *stream)
 
 
     for (fh = FILE_HANDLES; fh != NULL; fh = fh->next) {
-        fprintf(stream, "<%p> %s, line %d\n", fh->fp, fh->file, fh->line);
+        fprintf(stream, "<%p> %s, line %d\n", (void *)fh->fp, fh->file, fh->line);
     }
 }
 
@@ -152,6 +149,37 @@ XIA_SHARED int xia_fclose(FILE *fp)
 
     xia__remove_handle(fp);
     return fclose(fp);
+}
+
+
+/*
+ * Like fgets except streaming from a string instead of a file stream.
+ *
+ * Reads characters from a string and stores them into dest until
+ * (max-1) characters have been read or either a newline or the end of
+ * the string is reached, whichever happens first. The newline is skipped
+ * but not copied to the stream, for consistency with dxp_md_fgets.
+ *
+ * stream is advanced by the length of the copied characters.
+ */
+XIA_SHARED char *xia_sgets(char *dest, int max, const char **stream)
+{
+    if (*stream[0] == '\0')
+        return NULL;
+
+    size_t end = strcspn(*stream, "\n\r");
+
+    if (end >= (size_t) max)
+        end = (size_t) max - 1;
+
+    strncpy(dest, *stream, end);
+    dest[end] = '\0';
+
+    *stream += end;
+    if (*stream[0] != '\0')
+        *stream += strspn(*stream, "\n\r");
+
+    return dest;
 }
 
 

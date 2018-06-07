@@ -3,36 +3,36 @@
  *               2005-2011 XIA LLC
  * All rights reserved
  *
- * Redistribution and use in source and binary forms, 
- * with or without modification, are permitted provided 
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided
  * that the following conditions are met:
  *
- *   * Redistributions of source code must retain the above 
- *     copyright notice, this list of conditions and the 
+ *   * Redistributions of source code must retain the above
+ *     copyright notice, this list of conditions and the
  *     following disclaimer.
- *   * Redistributions in binary form must reproduce the 
- *     above copyright notice, this list of conditions and the 
- *     following disclaimer in the documentation and/or other 
+ *   * Redistributions in binary form must reproduce the
+ *     above copyright notice, this list of conditions and the
+ *     following disclaimer in the documentation and/or other
  *     materials provided with the distribution.
- *   * Neither the name of XIA LLC 
- *     nor the names of its contributors may be used to endorse 
- *     or promote products derived from this software without 
+ *   * Neither the name of XIA LLC
+ *     nor the names of its contributors may be used to endorse
+ *     or promote products derived from this software without
  *     specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON 
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
- * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
- * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *  
+ *
  * $Id$
  *
  */
@@ -74,7 +74,7 @@ typedef unsigned long*  PULONG;
 #define ROUND(x)    ((x) < 0.0 ? ceil((x) - 0.5) : floor((x) + 0.5))
 #define PRINT_NON_NULL(x) ((x) == NULL ? "NULL" : (x))
 #define BYTE_TO_WORD(lo, hi) (unsigned short)(((unsigned short)(hi) << 8) | (lo))
-#define WORD_TO_LONG(lo, hi) (unsigned long)(((unsigned long)(hi) << 16) | (lo)) 
+#define WORD_TO_LONG(lo, hi) (unsigned long)(((unsigned long)(hi) << 16) | (lo))
 #define LO_BYTE(word) (byte_t)((word) & 0xFF)
 #define HI_BYTE(word) (byte_t)(((word) >> 8) & 0xFF)
 #define LO_WORD(dword) ((dword) & 0xFFFF)
@@ -120,5 +120,51 @@ typedef unsigned long*  PULONG;
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
 #endif
+
+/*
+ * Handle compiler pragma settings.
+ */
+#ifdef __clang__
+#define PRAGMA_clang_0(_p)              #_p
+#define PRAGMA_clang_1(_p)              PRAGMA_clang_0(clang _p)
+#define PRAGMA_clang_2(_p)              PRAGMA_clang_1(_p)
+#define PRAGMA_clang(_p)                _Pragma(PRAGMA_clang_2(_p))
+#define PRAGMA_PUSH                     PRAGMA_clang(diagnostic push)
+#define PRAGMA_POP                      PRAGMA_clang(diagnostic push)
+#define PRAGMA_IGNORE_CAST_QUALIFIER    PRAGMA_clang(diagnostic ignored "-Wcast-qual")
+#define PRAGMA_IGNORE_STRICT_PROTOTYPES PRAGMA_clang(diagnostic ignored "-Wstrict-prototypes")
+#else
+#define PRAGMA_clang(_p)
+#endif
+
+#ifdef _MSC_VER
+#define PRAGMA_msvc(_p)   __pragma(_p)
+#define PRAGMA_PUSH       PRAGMA_msvc(warning(push))
+#define PRAGMA_POP        PRAGMA_msvc(warning(pop))
+#else
+#define PRAGMA_msvc(_p)
+#endif
+
+#define PRAGMA_0(_cc) PRAGMA_ ## _cc
+#define PRAGMA(_cc, _p) PRAGMA_0(_cc)(_p)
+
+#if !defined(PRAGMA_PUSH)
+#define PRAGMA_PUSH
+#endif
+#if !defined(PRAGMA_POP)
+#define PRAGMA_POP
+#endif
+#if !defined(PRAGMA_IGNORE_CAST_QUALIFIER)
+#define PRAGMA_IGNORE_CAST_QUALIFIER
+#endif
+#if !defined(PRAGMA_IGNORE_STRICT_PROTOTYPES)
+#define PRAGMA_IGNORE_STRICT_PROTOTYPES
+#endif
+
+/* A generic buffer to facilitate passing data with length in one argument. */
+typedef struct {
+    void *data;
+    size_t length;
+} GenBuffer;
 
 #endif /* XIA_COMMON_H */
