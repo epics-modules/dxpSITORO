@@ -50,49 +50,6 @@ typedef struct {
     double b;
 } AcqNameValues;
 
-static const AcqNameValues falconx_values[] =
-    {
-        { "analog_offset", 1, 31000 },
-        { "analog_gain", 1, 31000 },
-        { "analog_gain_boost", 0, 1 },
-        { "invert_input", 1, 0 },
-        { "disable_input", 1, 0 },
-        { "detector_polarity", 0, 1 },
-        { "analog_discharge", 0, 1 },
-        { "analog_discharge_threshold", 0, 1 },
-        { "dc_offset", -0.001, 0.5 },
-        { "dc_tracking_mode", 0, 1 },
-        { "operating_mode", 0, 1 },
-        { "operating_mode_target", 0, 1 },
-        { "reset_blanking_enable", 0, 1 },
-        { "reset_blanking_threshold", 0, 1 },
-        { "reset_blanking_presamples", 0, 1 },
-        { "reset_blanking_postsamples", 0, 1 },
-        { "min_pulse_pair_separation", 0, 1 },
-        { "detection_threshold", 0, 1 },
-        { "validator_threshold_fixed", 0, 1 },
-        { "validator_threshold_proport", 0, 1 },
-        { "pulse_scale_factor", 0.01, 0.1 },
-        { "cal_noise_floor", 0, 1 },
-        { "cal_min_pulse_amp", 0, 1 },
-        { "cal_max_pulse_amp", 0, 1 },
-        { "cal_source_type", 0, 1 },
-        { "cal_pulses_needed", 10, 10000 },
-        { "cal_filter_cutoff", 0.1, 0.5 },
-        { "mapping_mode", 0, 1 },
-        { "preset_type", 0, 4 },
-        { "preset_value", 0, 1 },
-        { "preset_baseline", 0, 1 },
-        { "hist_bin_count", 1024, 8192 },
-        { "number_mca_channels", 1024, 8192 },
-        { "preamp_gain", 1, 10 },
-        { "dynamic_range", 30, 50 },
-        { "adc_percent_rule", 10, 30 },
-        { "calibration_energy", 3, 8 },
-        { "mca_bin_width", 5, 20 },
-        { NULL, 0, 0 }
-    };
-
 static const AcqNameValues falconxn_values[] =
     {
         { "analog_gain", 15.887, 1 },
@@ -108,10 +65,11 @@ static const AcqNameValues falconxn_values[] =
         { "detection_threshold", 0.999, 0.0 },
         { "min_pulse_pair_separation", 1023, 0 },
         { "detection_filter", XIA_FILTER_LOW_ENERGY, XIA_FILTER_HIGH_RATE },
+        { "decay_time", XIA_DECAY_LONG, XIA_DECAY_SHORT },
         { "preset_type", 1, 0 },
         { "preset_value", 50, 0 },
         { "scale_factor", 1, 200 },
-        { "num_map_pixels", 0, 2048 },
+        { "num_map_pixels", 0, 1ull << 32 },
         { "num_map_pixels_per_buffer", 0, 1024 },
         { "pixel_advance_mode", 0, 1 },
         { NULL, 0, 0 }
@@ -187,11 +145,13 @@ int main(int argc, char *argv[])
     status = xiaGetModuleItem("module1", "number_of_channels", &channels);
     CHECK_ERROR(status);
 
-    if (strcmp(module_type, "falconx") == 0) {
-        values = falconx_values;
-    }
-    else if (strcmp(module_type, "falconxn") == 0) {
+    if (strcmp(module_type, "falconxn") == 0) {
         values = falconxn_values;
+    }
+    else {
+        printf("Unrecognized module type: %s\n", module_type);
+        xiaExit();
+        exit(2);
     }
 
     for (channel = 0; channel < channels; ++channel) {
@@ -252,7 +212,7 @@ int acq_set_check(int detChan, const char* name, double value)
         return FALSE_;
     }
 
-    printf("  %-30s:= %13.3f\n", name, value);
+    printf("  %-30s:= %14.3f\n", name, value);
 
     status = xiaGetAcquisitionValues(detChan, name, &get);
     if (status != XIA_SUCCESS) {

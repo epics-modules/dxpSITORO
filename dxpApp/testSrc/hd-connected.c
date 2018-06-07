@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     printf("ok\n");
 
     sleepS = 5.0;
-    printf("Sleeping %.1f seconds. Please turn off the device.\n", sleepS);
+    printf("Sleeping %.1f seconds. Please turn off the device.\n", (double) sleepS);
     SEC_SLEEP(&sleepS);
 
     printf("Checking disconnected status... ");
@@ -148,7 +148,7 @@ static int SEC_SLEEP(float *time)
 #else
     struct timespec req = {
       .tv_sec = (time_t) (unsigned long) *time,
-      .tv_nsec = (time_t) ((*time) * 1000000000.0)
+      .tv_nsec = (time_t) ((*time) * 1000000000.0f)
     };
     struct timespec rem = {
       .tv_sec = 0,

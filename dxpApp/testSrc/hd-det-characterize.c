@@ -153,7 +153,7 @@ int main(int argc, char** argv)
     status = xiaDoSpecialRun(-1, "detc-start", NULL);
     CHECK_ERROR(status);
 
-#define TIMEOUT (60.0 * 3)
+#define TIMEOUT (60.0f * 3)
 
     while (interval < TIMEOUT)
     {
@@ -263,7 +263,7 @@ static int SEC_SLEEP(float *time)
     unsigned long secs = (unsigned long) *time;
     struct timespec req = {
         .tv_sec = (time_t) secs,
-        .tv_nsec = (time_t) ((*time - secs) * 1000000000.0)
+        .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
     };
     struct timespec rem = {
         .tv_sec = 0,

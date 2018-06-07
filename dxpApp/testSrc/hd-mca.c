@@ -299,7 +299,7 @@ static int SEC_SLEEP(float *time)
     unsigned long secs = (unsigned long) *time;
     struct timespec req = {
       .tv_sec = (time_t) secs,
-      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0)
+      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
     };
     struct timespec rem = {
       .tv_sec = 0,

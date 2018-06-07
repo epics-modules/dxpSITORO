@@ -47,58 +47,6 @@
 static void CHECK_ERROR(int status);
 static void ACQ_GET(int detChan, const char* name);
 
-static const char* falconx_labels[] =
-{
-    "analog_offset",
-    "analog_gain",
-    "analog_gain_boost",
-    "invert_input",
-    "detector_polarity",
-    "analog_discharge",
-    "analog_discharge_threshold",
-    "disable_input",
-    "sample_rate",
-    "dc_offset",
-    "dc_tracking_mode",
-    "operating_mode",
-    "operating_mode_target",
-    "reset_blanking_enable",
-    "reset_blanking_threshold",
-    "reset_blanking_presamples",
-    "reset_blanking_postsamples",
-    "min_pulse_pair_separation",
-    "detection_threshold",
-    "validator_threshold_fixed",
-    "validator_threshold_proport",
-    "cal_noise_floor",
-    "cal_min_pulse_amp",
-    "cal_max_pulse_amp",
-    "cal_source_type",
-    "cal_pulses_needed",
-    "cal_filter_cutoff",
-    "cal_est_count_rate",
-    "hist_bin_count",
-    "hist_samples_detected",
-    "hist_samples_erased",
-    "hist_pulses_detected",
-    "hist_pulses_accepted",
-    "hist_pulses_rejected",
-    "hist_input_count_rate",
-    "hist_output_count_rate",
-    "hist_dead_time",
-    "mapping_mode",
-    "preset_type",
-    "preset_value",
-    "preset_baseline",
-    "number_mca_channels",
-    "preamp_gain",
-    "dynamic_range",
-    "adc_percent_rule",
-    "calibration_energy",
-    "mca_bin_width",
-    NULL
-};
-
 static const char* falconxn_labels[] =
 {
     "analog_gain",
@@ -106,6 +54,7 @@ static const char* falconxn_labels[] =
     "detector_polarity",
     "termination",
     "attenuation",
+    "attenuation2",
     "coupling",
     "decay_time",
     "dc_offset",
@@ -116,6 +65,7 @@ static const char* falconxn_labels[] =
     "detection_threshold",
     "min_pulse_pair_separation",
     "detection_filter",
+    "decay_time",
     "clock_speed",
     "number_mca_channels",
     "preset_type",
@@ -194,12 +144,13 @@ int main(int argc, char** argv)
     status = xiaGetModuleItem("module1", "number_of_channels", &channels);
     CHECK_ERROR(status);
 
-    if (strcmp(module_type, "falconx") == 0) {
-        labels = falconx_labels;
-        channels = 1;
-    } else if (strcmp(module_type, "falconxn") == 0) {
+    if (strcmp(module_type, "falconxn") == 0) {
         labels = falconxn_labels;
-
+    }
+    else {
+        printf("Unrecognized module type: %s\n", module_type);
+        xiaExit();
+        exit(2);
     }
 
     /* Get acquisition values */

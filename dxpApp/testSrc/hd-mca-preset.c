@@ -152,13 +152,13 @@ int main(int argc, char** argv)
 
 static void do_run(unsigned short resume)
 {
-    int       status;
-    uint32_t* accepted = NULL;
-    uint32_t* rejected = NULL;
-    int       size = 0;
-    int       wait = 2;
-    int       s;
-    int       run_active = 0;
+    int           status;
+    uint32_t*     accepted   = NULL;
+    uint32_t*     rejected   = NULL;
+    int           size       = 0;
+    int           wait       = 2;
+    int           s;
+    unsigned long run_active = 0;
 
     /* Start MCA mode */
     printf("Start an MCA run.\n");
@@ -326,7 +326,7 @@ static int SEC_SLEEP(float *time)
     unsigned long secs = (unsigned long) *time;
     struct timespec req = {
       .tv_sec = (time_t) secs,
-      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0)
+      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
     };
     struct timespec rem = {
       .tv_sec = 0,

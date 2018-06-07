@@ -51,7 +51,7 @@
 #include "md_generic.h"
 
 
-static void do_tests();
+static void do_tests(void);
 static void SEC_SLEEP(float *time);
 static void CHECK_ERROR(int status);
 
@@ -119,19 +119,23 @@ int main(int argc, char** argv)
     return 0;
 }
 
-static void do_tests()
+static void do_tests(void)
 {
     int       status;
 
     double    size;
-    unsigned short maxsize, rundata_size;
+    unsigned short maxsize;
     char limit[9];
 
     int       durationS = 5;
     int       wait = 1;
     int       s;
 
-    double    sca_lo = 0, sca_hi = 0;
+    double sca_lo, sca_hi;
+    double number_mca_channels;
+    int    scaWidth;
+
+    double *sca;
 
     /* Can we handle non-existent acq vaules which matches sca pattern? */
     status = xiaGetAcquisitionValues(0, "sca_time_off", &size);
@@ -179,24 +183,28 @@ static void do_tests()
     status = xiaGetAcquisitionValues(0, "number_of_scas", &size);
     CHECK_ERROR(status);
 
-    status = xiaGetRunData(0, "sca_length", &rundata_size);
+    printf("max_sca_length = %hu number_of_scas = %0.0f\n",
+          maxsize, size);
+
+    status = xiaGetAcquisitionValues(0, "number_mca_channels", &number_mca_channels);
     CHECK_ERROR(status);
 
-    printf("max_sca_length = %hu sca_length = %hu number_of_scas = %0.0f\n",
-          maxsize, rundata_size, size);
+    scaWidth = (int)(number_mca_channels / size);
 
-
+    sca_hi = -1;
     for (int i = 0; i < size; i++) {
       sca_lo = sca_hi + 1.0;
       sprintf(limit, "sca%i_lo", i);
       status = xiaSetAcquisitionValues(0, limit, &sca_lo);
       CHECK_ERROR(status);
 
-      sca_hi = sca_lo + i;
+      sca_hi += scaWidth;
       sprintf(limit, "sca%i_hi", i);
       status = xiaSetAcquisitionValues(0, limit, &sca_hi);
       CHECK_ERROR(status);
     }
+
+    printf("Limits:\n");
 
     for (int i = 0; i < size; i++) {
       sprintf(limit, "sca%i_lo", i);
@@ -207,11 +215,11 @@ static void do_tests()
       status = xiaGetAcquisitionValues(0, limit, &sca_hi);
       CHECK_ERROR(status);
 
-      printf("%0.2f, %0.2f.\n", sca_lo, sca_hi);
+      printf("SCA%d: [%0.0f, %0.0f]\n", i, sca_lo, sca_hi);
     }
 
     /* Start MCA mode */
-    printf("Start an MCA run of %d seconds.\n", durationS);
+    printf("\nStart an MCA run of %d seconds.\n", durationS);
     status = xiaStartRun(0, 0);
     CHECK_ERROR(status);
 
@@ -227,6 +235,26 @@ static void do_tests()
     status = xiaStopRun(0);
     CHECK_ERROR(status);
 
+    sca = malloc((size_t)size * sizeof(double));
+    if (!sca) {
+        printf("No memory for SCA data\n");
+        CHECK_ERROR(XIA_NOMEM);
+    }
+
+    /* Read out the SCAs */
+    printf("SCA counters:\n");
+
+    status = xiaGetRunData(0, "sca", (void *)sca);
+    if (status != XIA_SUCCESS) {
+        free(sca);
+        CHECK_ERROR(status);
+    }
+
+    for (int i = 0; i < size; i++) {
+        printf(" SCA%d = %0.0f\n", i, sca[i]);
+    }
+
+    free(sca);
 }
 
 
@@ -239,7 +267,7 @@ static void SEC_SLEEP(float *time)
     unsigned long secs = (unsigned long) *time;
     struct timespec req = {
       .tv_sec = (time_t) secs,
-      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0)
+      .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
     };
     struct timespec rem = {
       .tv_sec = 0,

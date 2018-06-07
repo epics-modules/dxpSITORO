@@ -47,6 +47,8 @@
 
 #define MAX_CHANNELS 8
 
+#define XMAP_MAPPING_TICKS 0.00000032
+
 static void plot_graph(uint32_t* accepted, uint32_t* rejected, int size);
 
 static void usage(const char* prog)
@@ -253,7 +255,7 @@ int main(int argc, char** argv)
             px_mode = header[3];
             px_number = header_read32(&header[4]);
             px_block_size = header_read32(&header[6]);
-            px_ch_size = header_read32(&header[8]);
+            px_ch_size = header[8];
             px_realtime = header_read32(&header[32]);
             px_livetime = header_read32(&header[34]);
             px_triggers = header_read32(&header[36]);
@@ -282,12 +284,12 @@ int main(int argc, char** argv)
 
             ++pixel[det_chan];
 
-            printf(" PIXEL: [0x%08x:0x%08x] num:%4d size:%6d chsize:%6d realtime:%10.2f " \
-                   "livetime:%10.2f triggers:%10d output-events:%10d\n",
+            printf(" PIXEL: [0x%08x:0x%08x] num:%4d size:%6d chsize:%6d realtime:%10.3f " \
+                   "livetime:%10.3f triggers:%10d output-events:%10d\n",
                    (int) (index * sizeof(uint32_t)),
                    (int) ((index + (size_t)px_block_size / 2) * sizeof(uint32_t)) - 1,
                    px_number, px_block_size, px_ch_size,
-                   px_realtime / 1000.0, px_livetime / 1000.0,
+                   px_realtime * XMAP_MAPPING_TICKS, px_livetime * XMAP_MAPPING_TICKS,
                    px_triggers, px_output_events);
 
             if (plot) {

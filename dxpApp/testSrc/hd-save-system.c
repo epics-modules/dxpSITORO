@@ -54,23 +54,11 @@ typedef struct {
   const char* name;
 } acq_setting;
 
-static const acq_setting falconx_acq_settings[] = {
-    {    1.0,    "invert_input" },
-    {    0.05,   "cal_noise_floor" },
-    {   41.2345, "dynamic_range" },
-    {    5.678,  "preamp_gain" },
-    {   -0.2,    "dc_offset" },
-    { 1234.0,    "analog_offset" },
-    {    0.25,   "cal_max_pulse_amp" },
-    {    0.0,    NULL }
-};
-
 static const acq_setting falconxn_acq_settings[] = {
     {    3.0,    "analog_gain" },
     {   12.3,    "analog_offset" },
     {    1.0,    "detector_polarity" },
     {    0.0,    "termination" },
-    {    0.0,    "attenuation" },
     {    0.0,    "coupling" },
     {    0.0,    "decay_time" },
     { 2048.0,    "number_mca_channels" },
@@ -143,10 +131,13 @@ int main(int argc, char** argv)
     status = xiaGetModuleItem("module1", "number_of_channels", &channels);
     CHECK_ERROR(status);
 
-    if (strcmp(module_type, "falconx") == 0) {
-        settings = falconx_acq_settings;
-    } else if (strcmp(argv[1], "falconxn") == 0) {
+    if (strcmp(module_type, "falconxn") == 0) {
         settings = falconxn_acq_settings;
+    }
+    else {
+        printf("Unrecognized module type: %s\n", module_type);
+        xiaExit();
+        exit(2);
     }
 
     printf("Channel count: %d.\n", channels);

@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
     /* Number of plots to make. */
     for (p = 0; p < iters; ++p) {
         unsigned int* adc_trace;
+        unsigned long adc_trace_length;
 
         status = xiaDoSpecialRun(0, "adc_trace", &size);
         if (status != XIA_SUCCESS) {
@@ -179,6 +180,16 @@ int main(int argc, char *argv[])
         if (!adc_trace) {
             printf("No memory for ADC trace data\n");
             status = XIA_NOMEM;
+            CHECK_ERROR(status);
+        }
+
+        /* Verify run data matches the info. */
+        status = xiaGetSpecialRunData(0, "adc_trace_length", &adc_trace_length);
+        if (status != XIA_SUCCESS ||
+            adc_trace_length != (unsigned long)size) {
+            printf("adc_trace_length %lu should match trace info %f.\n",
+                   adc_trace_length, size);
+            free(adc_trace);
             CHECK_ERROR(status);
         }
 

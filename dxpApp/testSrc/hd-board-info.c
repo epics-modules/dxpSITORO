@@ -1,7 +1,7 @@
 /*
  * This code accompanies the XIA Code and tests Handel via C.
  *
- * Copyright (c) 2005-2015 XIA LLC
+ * Copyright (c) 2005-2016 XIA LLC
  * All rights reserved
  *
  * Redistribution and use in source and binary forms,
@@ -41,11 +41,11 @@
 
 #include "handel.h"
 #include "handel_errors.h"
+#include "handel_generic.h"
 #include "md_generic.h"
 
 static void CHECK_ERROR(int status);
-
-#define MAXITEM_LEN 256
+static void free_modules(char **modules, int len);
 
 static void usage(const char* prog)
 {
@@ -58,10 +58,12 @@ int main(int argc, char** argv)
 {
     int status;
 
-    char info[160];
-    int channelCount;
+    unsigned int numModulesU;
+    int numModules;
+    char **modules;
+    int i;
 
-    char ini[MAXITEM_LEN] = "t_api/sandbox/xia_test_helper.ini";
+    char ini[MAX_PATH_LEN] = "t_api/sandbox/xia_test_helper.ini";
     int a;
 
     for (a = 1; a < argc; ++a) {
@@ -103,34 +105,102 @@ int main(int argc, char** argv)
     status = xiaStartSystem();
     CHECK_ERROR(status);
 
-    /* Get info */
-    printf("Get the board values.\n");
-    status = xiaBoardOperation(0, "get_board_info", info);
+    printf("Querying the modules... ");
+    status = xiaGetNumModules(&numModulesU);
     CHECK_ERROR(status);
 
-    /*
-     * The board info is an array of characters with the following fields:
-     *
-     *   0(32): Product name.
-     *  32(8) : Reserved.
-     *  40(8) : Protocol version.
-     *  48(32): Firmware version.
-     *  80(32): Digital board serial number.
-     * 112(32): Analog board serial number.
-     *
-     * Length is 144 bytes.
-     */
-    #define GET_INT(_a) (((_a)[0] << 24) | ((_a)[1] << 16) | ((_a)[2] << 8) | (_a)[3])
+    numModules = (int) numModulesU;
 
-    printf("  Product name:       %s\n", &info[0]);
-    printf("  Protocol version:   %d\n", GET_INT(&info[40]));
-    printf("  Firmware version:   %s\n", &info[48]);
-    printf("  Digital board SN:   %s\n", &info[80]);
-    printf("  Analog board SN:    %s\n", &info[112]);
+    modules = malloc(sizeof(char *) * numModulesU);
+    if (!modules) {
+        printf("No memory for module names\n");
+        status = XIA_NOMEM;
+        CHECK_ERROR(status);
+    }
 
-    status = xiaBoardOperation(0, "get_channel_count", &channelCount);
-    CHECK_ERROR(status);
-    printf("  Channel count:      %d\n", channelCount);
+    for (i = 0; i < numModules; i++) {
+        modules[i] = malloc(sizeof(char) * MAXALIAS_LEN);
+        if (!modules[i]) {
+            free_modules(modules, numModules);
+            printf("No memory for module names\n");
+            status = XIA_NOMEM;
+            CHECK_ERROR(status);
+        }
+    }
+
+    status = xiaGetModules(modules);
+    if (status != XIA_SUCCESS) {
+        free_modules(modules, numModules);
+        CHECK_ERROR(status);
+    }
+
+    printf("%u configured.\n", numModules);
+
+    /* Get info for each module */
+    for (i = 0; i < numModules; i++) {
+        int detChan;
+        int boardChannelCount;
+        unsigned int number_of_channels;
+        char info[160];
+
+        /* Get the detChan of the first channel in the module. */
+        status = xiaGetModuleItem(modules[i], "channel0_alias", &detChan);
+        if (status != XIA_SUCCESS) {
+            free_modules(modules, numModules);
+            CHECK_ERROR(status);
+        }
+
+        /* Get info */
+        printf("Info for module %s, detChan %d.\n",
+               modules[i], detChan);
+        status = xiaBoardOperation(detChan, "get_board_info", info);
+        if (status != XIA_SUCCESS) {
+            free_modules(modules, numModules);
+            CHECK_ERROR(status);
+        }
+
+        /*
+         * The board info is an array of characters with the following fields:
+         *
+         *   0(32): Product name.
+         *  32(8) : Reserved.
+         *  40(8) : Protocol version.
+         *  48(32): Firmware version.
+         *  80(32): Digital board serial number.
+         * 112(32): Analog board serial number.
+         *
+         * Length is 144 bytes.
+         */
+        #define GET_INT(_a) (((_a)[0] << 24) | ((_a)[1] << 16) | ((_a)[2] << 8) | (_a)[3])
+
+        printf("  Product name:       %s\n", &info[0]);
+        printf("  Protocol version:   %d\n", GET_INT(&info[40]));
+        printf("  Firmware version:   %s\n", &info[48]);
+        printf("  Digital board SN:   %s\n", &info[80]);
+        printf("  Analog board SN:    %s\n", &info[112]);
+
+        /* Check the channel count on the board. */
+        status = xiaBoardOperation(detChan, "get_channel_count", &boardChannelCount);
+        if (status != XIA_SUCCESS) {
+            free_modules(modules, numModules);
+            CHECK_ERROR(status);
+        }
+
+        /* And compare to the number defined in the Handel module,
+         * which may be less.
+         */
+        status = xiaGetModuleItem(modules[i], "number_of_channels", &number_of_channels);
+        if (status != XIA_SUCCESS) {
+            free_modules(modules, numModules);
+            CHECK_ERROR(status);
+        }
+
+        printf("  Channel count:      Board = %d, INI = %u\n",
+               boardChannelCount, number_of_channels);
+    }
+
+    /* Clean up */
+    free_modules(modules, numModules);
 
     printf("Cleaning up Handel.\n");
     status = xiaExit();
@@ -155,5 +225,24 @@ static void CHECK_ERROR(int status)
         if (status2 != XIA_SUCCESS)
             printf("Handel exit failed, Status = %d\n", status2);
         exit(status);
+    }
+}
+
+/*
+ * Clean up the allocated module aliases.
+ */
+static void free_modules(char **modules, int len)
+{
+    if (modules) {
+        int i;
+
+        for (i = 0; i < len; i++) {
+            if (modules[i]) {
+                free(modules[i]);
+                modules[i] = NULL;
+            }
+        }
+
+        free(modules);
     }
 }
