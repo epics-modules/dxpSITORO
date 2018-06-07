@@ -1727,6 +1727,264 @@ void   si_toro__sinc__check_param_consistency_response__free_unpacked
   assert(message->base.descriptor == &si_toro__sinc__check_param_consistency_response__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+void   si_toro__sinc__trigger_histogram_command__init
+                     (SiToro__Sinc__TriggerHistogramCommand         *message)
+{
+  static SiToro__Sinc__TriggerHistogramCommand init_value = SI_TORO__SINC__TRIGGER_HISTOGRAM_COMMAND__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__trigger_histogram_command__get_packed_size
+                     (const SiToro__Sinc__TriggerHistogramCommand *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__trigger_histogram_command__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__trigger_histogram_command__pack
+                     (const SiToro__Sinc__TriggerHistogramCommand *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__trigger_histogram_command__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__trigger_histogram_command__pack_to_buffer
+                     (const SiToro__Sinc__TriggerHistogramCommand *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__trigger_histogram_command__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__TriggerHistogramCommand *
+       si_toro__sinc__trigger_histogram_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__TriggerHistogramCommand *)
+     protobuf_c_message_unpack (&si_toro__sinc__trigger_histogram_command__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__trigger_histogram_command__free_unpacked
+                     (SiToro__Sinc__TriggerHistogramCommand *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__trigger_histogram_command__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   si_toro__sinc__timestamp__init
+                     (SiToro__Sinc__Timestamp         *message)
+{
+  static SiToro__Sinc__Timestamp init_value = SI_TORO__SINC__TIMESTAMP__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__timestamp__get_packed_size
+                     (const SiToro__Sinc__Timestamp *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__timestamp__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__timestamp__pack
+                     (const SiToro__Sinc__Timestamp *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__timestamp__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__timestamp__pack_to_buffer
+                     (const SiToro__Sinc__Timestamp *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__timestamp__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__Timestamp *
+       si_toro__sinc__timestamp__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__Timestamp *)
+     protobuf_c_message_unpack (&si_toro__sinc__timestamp__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__timestamp__free_unpacked
+                     (SiToro__Sinc__Timestamp *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__timestamp__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   si_toro__sinc__synchronize_log_command__init
+                     (SiToro__Sinc__SynchronizeLogCommand         *message)
+{
+  static SiToro__Sinc__SynchronizeLogCommand init_value = SI_TORO__SINC__SYNCHRONIZE_LOG_COMMAND__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__synchronize_log_command__get_packed_size
+                     (const SiToro__Sinc__SynchronizeLogCommand *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_command__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__synchronize_log_command__pack
+                     (const SiToro__Sinc__SynchronizeLogCommand *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_command__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__synchronize_log_command__pack_to_buffer
+                     (const SiToro__Sinc__SynchronizeLogCommand *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_command__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__SynchronizeLogCommand *
+       si_toro__sinc__synchronize_log_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__SynchronizeLogCommand *)
+     protobuf_c_message_unpack (&si_toro__sinc__synchronize_log_command__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__synchronize_log_command__free_unpacked
+                     (SiToro__Sinc__SynchronizeLogCommand *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_command__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   si_toro__sinc__log_entry__init
+                     (SiToro__Sinc__LogEntry         *message)
+{
+  static SiToro__Sinc__LogEntry init_value = SI_TORO__SINC__LOG_ENTRY__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__log_entry__get_packed_size
+                     (const SiToro__Sinc__LogEntry *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__log_entry__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__log_entry__pack
+                     (const SiToro__Sinc__LogEntry *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__log_entry__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__log_entry__pack_to_buffer
+                     (const SiToro__Sinc__LogEntry *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__log_entry__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__LogEntry *
+       si_toro__sinc__log_entry__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__LogEntry *)
+     protobuf_c_message_unpack (&si_toro__sinc__log_entry__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__log_entry__free_unpacked
+                     (SiToro__Sinc__LogEntry *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__log_entry__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   si_toro__sinc__synchronize_log_response__init
+                     (SiToro__Sinc__SynchronizeLogResponse         *message)
+{
+  static SiToro__Sinc__SynchronizeLogResponse init_value = SI_TORO__SINC__SYNCHRONIZE_LOG_RESPONSE__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__synchronize_log_response__get_packed_size
+                     (const SiToro__Sinc__SynchronizeLogResponse *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_response__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__synchronize_log_response__pack
+                     (const SiToro__Sinc__SynchronizeLogResponse *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_response__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__synchronize_log_response__pack_to_buffer
+                     (const SiToro__Sinc__SynchronizeLogResponse *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_response__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__SynchronizeLogResponse *
+       si_toro__sinc__synchronize_log_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__SynchronizeLogResponse *)
+     protobuf_c_message_unpack (&si_toro__sinc__synchronize_log_response__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__synchronize_log_response__free_unpacked
+                     (SiToro__Sinc__SynchronizeLogResponse *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__synchronize_log_response__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   si_toro__sinc__set_time_command__init
+                     (SiToro__Sinc__SetTimeCommand         *message)
+{
+  static SiToro__Sinc__SetTimeCommand init_value = SI_TORO__SINC__SET_TIME_COMMAND__INIT;
+  *message = init_value;
+}
+size_t si_toro__sinc__set_time_command__get_packed_size
+                     (const SiToro__Sinc__SetTimeCommand *message)
+{
+  assert(message->base.descriptor == &si_toro__sinc__set_time_command__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t si_toro__sinc__set_time_command__pack
+                     (const SiToro__Sinc__SetTimeCommand *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &si_toro__sinc__set_time_command__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t si_toro__sinc__set_time_command__pack_to_buffer
+                     (const SiToro__Sinc__SetTimeCommand *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &si_toro__sinc__set_time_command__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+SiToro__Sinc__SetTimeCommand *
+       si_toro__sinc__set_time_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (SiToro__Sinc__SetTimeCommand *)
+     protobuf_c_message_unpack (&si_toro__sinc__set_time_command__descriptor,
+                                allocator, len, data);
+}
+void   si_toro__sinc__set_time_command__free_unpacked
+                     (SiToro__Sinc__SetTimeCommand *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &si_toro__sinc__set_time_command__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 static const ProtobufCFieldDescriptor si_toro__sinc__success_response__field_descriptors[3] =
 {
   {
@@ -2173,7 +2431,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__param_updated_response__descript
   (ProtobufCMessageInit) si_toro__sinc__param_updated_response__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor si_toro__sinc__set_param_command__field_descriptors[3] =
+static const ProtobufCFieldDescriptor si_toro__sinc__set_param_command__field_descriptors[5] =
 {
   {
     "param",
@@ -2211,16 +2469,42 @@ static const ProtobufCFieldDescriptor si_toro__sinc__set_param_command__field_de
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "settingAllParams",
+    4,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    offsetof(SiToro__Sinc__SetParamCommand, has_settingallparams),
+    offsetof(SiToro__Sinc__SetParamCommand, settingallparams),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "fromFirmwareVersion",
+    5,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_STRING,
+    0,   /* quantifier_offset */
+    offsetof(SiToro__Sinc__SetParamCommand, fromfirmwareversion),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned si_toro__sinc__set_param_command__field_indices_by_name[] = {
   1,   /* field[1] = channelId */
+  4,   /* field[4] = fromFirmwareVersion */
   0,   /* field[0] = param */
   2,   /* field[2] = params */
+  3,   /* field[3] = settingAllParams */
 };
 static const ProtobufCIntRange si_toro__sinc__set_param_command__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 3 }
+  { 0, 5 }
 };
 const ProtobufCMessageDescriptor si_toro__sinc__set_param_command__descriptor =
 {
@@ -2230,7 +2514,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__set_param_command__descriptor =
   "SiToro__Sinc__SetParamCommand",
   "SiToro.Sinc",
   sizeof(SiToro__Sinc__SetParamCommand),
-  3,
+  5,
   si_toro__sinc__set_param_command__field_descriptors,
   si_toro__sinc__set_param_command__field_indices_by_name,
   1,  si_toro__sinc__set_param_command__number_ranges,
@@ -2547,7 +2831,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__start_oscilloscope_command__desc
   (ProtobufCMessageInit) si_toro__sinc__start_oscilloscope_command__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor si_toro__sinc__histogram_data_response__field_descriptors[19] =
+static const ProtobufCFieldDescriptor si_toro__sinc__histogram_data_response__field_descriptors[20] =
 {
   {
     "dataSetId",
@@ -2777,6 +3061,18 @@ static const ProtobufCFieldDescriptor si_toro__sinc__histogram_data_response__fi
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "intensity",
+    21,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_UINT32,
+    offsetof(SiToro__Sinc__HistogramDataResponse, n_intensity),
+    offsetof(SiToro__Sinc__HistogramDataResponse, intensity),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned si_toro__sinc__histogram_data_response__field_indices_by_name[] = {
   15,   /* field[15] = channelId */
@@ -2784,6 +3080,7 @@ static const unsigned si_toro__sinc__histogram_data_response__field_indices_by_n
   8,   /* field[8] = deadTimePercent */
   9,   /* field[9] = gateState */
   6,   /* field[6] = inputCountRate */
+  19,   /* field[19] = intensity */
   17,   /* field[17] = negativeRailHitCount */
   7,   /* field[7] = outputCountRate */
   14,   /* field[14] = plotLen */
@@ -2802,7 +3099,7 @@ static const unsigned si_toro__sinc__histogram_data_response__field_indices_by_n
 static const ProtobufCIntRange si_toro__sinc__histogram_data_response__number_ranges[1 + 1] =
 {
   { 2, 0 },
-  { 0, 19 }
+  { 0, 20 }
 };
 const ProtobufCMessageDescriptor si_toro__sinc__histogram_data_response__descriptor =
 {
@@ -2812,7 +3109,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__histogram_data_response__descrip
   "SiToro__Sinc__HistogramDataResponse",
   "SiToro.Sinc",
   sizeof(SiToro__Sinc__HistogramDataResponse),
-  19,
+  20,
   si_toro__sinc__histogram_data_response__field_descriptors,
   si_toro__sinc__histogram_data_response__field_indices_by_name,
   1,  si_toro__sinc__histogram_data_response__number_ranges,
@@ -4088,9 +4385,29 @@ const ProtobufCMessageDescriptor si_toro__sinc__start_fftcommand__descriptor =
   (ProtobufCMessageInit) si_toro__sinc__start_fftcommand__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-#define si_toro__sinc__restart_command__field_descriptors NULL
-#define si_toro__sinc__restart_command__field_indices_by_name NULL
-#define si_toro__sinc__restart_command__number_ranges NULL
+static const ProtobufCFieldDescriptor si_toro__sinc__restart_command__field_descriptors[1] =
+{
+  {
+    "factoryMode",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    offsetof(SiToro__Sinc__RestartCommand, has_factorymode),
+    offsetof(SiToro__Sinc__RestartCommand, factorymode),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__restart_command__field_indices_by_name[] = {
+  0,   /* field[0] = factoryMode */
+};
+static const ProtobufCIntRange si_toro__sinc__restart_command__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
 const ProtobufCMessageDescriptor si_toro__sinc__restart_command__descriptor =
 {
   PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
@@ -4099,10 +4416,10 @@ const ProtobufCMessageDescriptor si_toro__sinc__restart_command__descriptor =
   "SiToro__Sinc__RestartCommand",
   "SiToro.Sinc",
   sizeof(SiToro__Sinc__RestartCommand),
-  0,
+  1,
   si_toro__sinc__restart_command__field_descriptors,
   si_toro__sinc__restart_command__field_indices_by_name,
-  0,  si_toro__sinc__restart_command__number_ranges,
+  1,  si_toro__sinc__restart_command__number_ranges,
   (ProtobufCMessageInit) si_toro__sinc__restart_command__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
@@ -4299,7 +4616,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__software_update_complete_respons
   (ProtobufCMessageInit) si_toro__sinc__software_update_complete_response__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor si_toro__sinc__save_configuration_command__field_descriptors[1] =
+static const ProtobufCFieldDescriptor si_toro__sinc__save_configuration_command__field_descriptors[2] =
 {
   {
     "channelId",
@@ -4313,14 +4630,27 @@ static const ProtobufCFieldDescriptor si_toro__sinc__save_configuration_command_
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "deleteConfig",
+    2,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    offsetof(SiToro__Sinc__SaveConfigurationCommand, has_deleteconfig),
+    offsetof(SiToro__Sinc__SaveConfigurationCommand, deleteconfig),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned si_toro__sinc__save_configuration_command__field_indices_by_name[] = {
   0,   /* field[0] = channelId */
+  1,   /* field[1] = deleteConfig */
 };
 static const ProtobufCIntRange si_toro__sinc__save_configuration_command__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 1 }
+  { 0, 2 }
 };
 const ProtobufCMessageDescriptor si_toro__sinc__save_configuration_command__descriptor =
 {
@@ -4330,7 +4660,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__save_configuration_command__desc
   "SiToro__Sinc__SaveConfigurationCommand",
   "SiToro.Sinc",
   sizeof(SiToro__Sinc__SaveConfigurationCommand),
-  1,
+  2,
   si_toro__sinc__save_configuration_command__field_descriptors,
   si_toro__sinc__save_configuration_command__field_indices_by_name,
   1,  si_toro__sinc__save_configuration_command__number_ranges,
@@ -4469,7 +4799,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__download_crash_dump_command__des
   (ProtobufCMessageInit) si_toro__sinc__download_crash_dump_command__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor si_toro__sinc__download_crash_dump_response__field_descriptors[3] =
+static const ProtobufCFieldDescriptor si_toro__sinc__download_crash_dump_response__field_descriptors[4] =
 {
   {
     "success",
@@ -4507,16 +4837,29 @@ static const ProtobufCFieldDescriptor si_toro__sinc__download_crash_dump_respons
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "new",
+    4,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    offsetof(SiToro__Sinc__DownloadCrashDumpResponse, has_new_),
+    offsetof(SiToro__Sinc__DownloadCrashDumpResponse, new_),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned si_toro__sinc__download_crash_dump_response__field_indices_by_name[] = {
   1,   /* field[1] = content */
+  3,   /* field[3] = new */
   0,   /* field[0] = success */
   2,   /* field[2] = timestamp */
 };
 static const ProtobufCIntRange si_toro__sinc__download_crash_dump_response__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 3 }
+  { 0, 4 }
 };
 const ProtobufCMessageDescriptor si_toro__sinc__download_crash_dump_response__descriptor =
 {
@@ -4526,7 +4869,7 @@ const ProtobufCMessageDescriptor si_toro__sinc__download_crash_dump_response__de
   "SiToro__Sinc__DownloadCrashDumpResponse",
   "SiToro.Sinc",
   sizeof(SiToro__Sinc__DownloadCrashDumpResponse),
-  3,
+  4,
   si_toro__sinc__download_crash_dump_response__field_descriptors,
   si_toro__sinc__download_crash_dump_response__field_indices_by_name,
   1,  si_toro__sinc__download_crash_dump_response__number_ranges,
@@ -4648,7 +4991,306 @@ const ProtobufCMessageDescriptor si_toro__sinc__check_param_consistency_response
   (ProtobufCMessageInit) si_toro__sinc__check_param_consistency_response__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-const ProtobufCEnumValue si_toro__sinc__error_code__enum_values_by_number[18] =
+#define si_toro__sinc__trigger_histogram_command__field_descriptors NULL
+#define si_toro__sinc__trigger_histogram_command__field_indices_by_name NULL
+#define si_toro__sinc__trigger_histogram_command__number_ranges NULL
+const ProtobufCMessageDescriptor si_toro__sinc__trigger_histogram_command__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.TriggerHistogramCommand",
+  "TriggerHistogramCommand",
+  "SiToro__Sinc__TriggerHistogramCommand",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__TriggerHistogramCommand),
+  0,
+  si_toro__sinc__trigger_histogram_command__field_descriptors,
+  si_toro__sinc__trigger_histogram_command__field_indices_by_name,
+  0,  si_toro__sinc__trigger_histogram_command__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__trigger_histogram_command__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor si_toro__sinc__timestamp__field_descriptors[2] =
+{
+  {
+    "seconds",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_INT64,
+    offsetof(SiToro__Sinc__Timestamp, has_seconds),
+    offsetof(SiToro__Sinc__Timestamp, seconds),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "microseconds",
+    2,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_INT32,
+    offsetof(SiToro__Sinc__Timestamp, has_microseconds),
+    offsetof(SiToro__Sinc__Timestamp, microseconds),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__timestamp__field_indices_by_name[] = {
+  1,   /* field[1] = microseconds */
+  0,   /* field[0] = seconds */
+};
+static const ProtobufCIntRange si_toro__sinc__timestamp__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor si_toro__sinc__timestamp__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.Timestamp",
+  "Timestamp",
+  "SiToro__Sinc__Timestamp",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__Timestamp),
+  2,
+  si_toro__sinc__timestamp__field_descriptors,
+  si_toro__sinc__timestamp__field_indices_by_name,
+  1,  si_toro__sinc__timestamp__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__timestamp__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor si_toro__sinc__synchronize_log_command__field_descriptors[1] =
+{
+  {
+    "lastSequenceNo",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT64,
+    offsetof(SiToro__Sinc__SynchronizeLogCommand, has_lastsequenceno),
+    offsetof(SiToro__Sinc__SynchronizeLogCommand, lastsequenceno),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__synchronize_log_command__field_indices_by_name[] = {
+  0,   /* field[0] = lastSequenceNo */
+};
+static const ProtobufCIntRange si_toro__sinc__synchronize_log_command__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor si_toro__sinc__synchronize_log_command__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.SynchronizeLogCommand",
+  "SynchronizeLogCommand",
+  "SiToro__Sinc__SynchronizeLogCommand",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__SynchronizeLogCommand),
+  1,
+  si_toro__sinc__synchronize_log_command__field_descriptors,
+  si_toro__sinc__synchronize_log_command__field_indices_by_name,
+  1,  si_toro__sinc__synchronize_log_command__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__synchronize_log_command__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor si_toro__sinc__log_entry__field_descriptors[6] =
+{
+  {
+    "sequenceNo",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT64,
+    offsetof(SiToro__Sinc__LogEntry, has_sequenceno),
+    offsetof(SiToro__Sinc__LogEntry, sequenceno),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "level",
+    2,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_ENUM,
+    offsetof(SiToro__Sinc__LogEntry, has_level),
+    offsetof(SiToro__Sinc__LogEntry, level),
+    &si_toro__sinc__log_level__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "errorCode",
+    3,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_ENUM,
+    offsetof(SiToro__Sinc__LogEntry, has_errorcode),
+    offsetof(SiToro__Sinc__LogEntry, errorcode),
+    &si_toro__sinc__error_code__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "message",
+    4,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_STRING,
+    0,   /* quantifier_offset */
+    offsetof(SiToro__Sinc__LogEntry, message),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "channelId",
+    5,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_INT32,
+    offsetof(SiToro__Sinc__LogEntry, has_channelid),
+    offsetof(SiToro__Sinc__LogEntry, channelid),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "hostTime",
+    6,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    offsetof(SiToro__Sinc__LogEntry, hosttime),
+    &si_toro__sinc__timestamp__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__log_entry__field_indices_by_name[] = {
+  4,   /* field[4] = channelId */
+  2,   /* field[2] = errorCode */
+  5,   /* field[5] = hostTime */
+  1,   /* field[1] = level */
+  3,   /* field[3] = message */
+  0,   /* field[0] = sequenceNo */
+};
+static const ProtobufCIntRange si_toro__sinc__log_entry__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 6 }
+};
+const ProtobufCMessageDescriptor si_toro__sinc__log_entry__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.LogEntry",
+  "LogEntry",
+  "SiToro__Sinc__LogEntry",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__LogEntry),
+  6,
+  si_toro__sinc__log_entry__field_descriptors,
+  si_toro__sinc__log_entry__field_indices_by_name,
+  1,  si_toro__sinc__log_entry__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__log_entry__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor si_toro__sinc__synchronize_log_response__field_descriptors[2] =
+{
+  {
+    "success",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    offsetof(SiToro__Sinc__SynchronizeLogResponse, success),
+    &si_toro__sinc__success_response__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "log",
+    2,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(SiToro__Sinc__SynchronizeLogResponse, n_log),
+    offsetof(SiToro__Sinc__SynchronizeLogResponse, log),
+    &si_toro__sinc__log_entry__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__synchronize_log_response__field_indices_by_name[] = {
+  1,   /* field[1] = log */
+  0,   /* field[0] = success */
+};
+static const ProtobufCIntRange si_toro__sinc__synchronize_log_response__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor si_toro__sinc__synchronize_log_response__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.SynchronizeLogResponse",
+  "SynchronizeLogResponse",
+  "SiToro__Sinc__SynchronizeLogResponse",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__SynchronizeLogResponse),
+  2,
+  si_toro__sinc__synchronize_log_response__field_descriptors,
+  si_toro__sinc__synchronize_log_response__field_indices_by_name,
+  1,  si_toro__sinc__synchronize_log_response__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__synchronize_log_response__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor si_toro__sinc__set_time_command__field_descriptors[1] =
+{
+  {
+    "hostTime",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    offsetof(SiToro__Sinc__SetTimeCommand, hosttime),
+    &si_toro__sinc__timestamp__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned si_toro__sinc__set_time_command__field_indices_by_name[] = {
+  0,   /* field[0] = hostTime */
+};
+static const ProtobufCIntRange si_toro__sinc__set_time_command__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor si_toro__sinc__set_time_command__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.SetTimeCommand",
+  "SetTimeCommand",
+  "SiToro__Sinc__SetTimeCommand",
+  "SiToro.Sinc",
+  sizeof(SiToro__Sinc__SetTimeCommand),
+  1,
+  si_toro__sinc__set_time_command__field_descriptors,
+  si_toro__sinc__set_time_command__field_indices_by_name,
+  1,  si_toro__sinc__set_time_command__number_ranges,
+  (ProtobufCMessageInit) si_toro__sinc__set_time_command__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+const ProtobufCEnumValue si_toro__sinc__error_code__enum_values_by_number[20] =
 {
   { "NO_ERROR", "SI_TORO__SINC__ERROR_CODE__NO_ERROR", 0 },
   { "OUT_OF_MEMORY", "SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY", 10000 },
@@ -4668,11 +5310,13 @@ const ProtobufCEnumValue si_toro__sinc__error_code__enum_values_by_number[18] =
   { "DEVICE_ERROR", "SI_TORO__SINC__ERROR_CODE__DEVICE_ERROR", 10014 },
   { "INVALID_REQUEST", "SI_TORO__SINC__ERROR_CODE__INVALID_REQUEST", 10015 },
   { "NON_GATED_HISTOGRAM_DISABLED", "SI_TORO__SINC__ERROR_CODE__NON_GATED_HISTOGRAM_DISABLED", 10016 },
+  { "NOT_CONNECTED", "SI_TORO__SINC__ERROR_CODE__NOT_CONNECTED", 10017 },
+  { "MULTIPLE_THREAD_WAIT", "SI_TORO__SINC__ERROR_CODE__MULTIPLE_THREAD_WAIT", 10018 },
 };
 static const ProtobufCIntRange si_toro__sinc__error_code__value_ranges[] = {
-{0, 0},{10000, 1},{0, 18}
+{0, 0},{10000, 1},{0, 20}
 };
-const ProtobufCEnumValueIndex si_toro__sinc__error_code__enum_values_by_name[18] =
+const ProtobufCEnumValueIndex si_toro__sinc__error_code__enum_values_by_name[20] =
 {
   { "AUTHORIZATION_FAILED", 14 },
   { "BAD_PARAMETERS", 4 },
@@ -4682,7 +5326,9 @@ const ProtobufCEnumValueIndex si_toro__sinc__error_code__enum_values_by_name[18]
   { "HOST_NOT_FOUND", 5 },
   { "HOST_UNREACHABLE", 13 },
   { "INVALID_REQUEST", 16 },
+  { "MULTIPLE_THREAD_WAIT", 19 },
   { "NON_GATED_HISTOGRAM_DISABLED", 17 },
+  { "NOT_CONNECTED", 18 },
   { "NOT_FOUND", 3 },
   { "NO_ERROR", 0 },
   { "OUT_OF_MEMORY", 1 },
@@ -4700,15 +5346,15 @@ const ProtobufCEnumDescriptor si_toro__sinc__error_code__descriptor =
   "ErrorCode",
   "SiToro__Sinc__ErrorCode",
   "SiToro.Sinc",
-  18,
+  20,
   si_toro__sinc__error_code__enum_values_by_number,
-  18,
+  20,
   si_toro__sinc__error_code__enum_values_by_name,
   2,
   si_toro__sinc__error_code__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
-const ProtobufCEnumValue si_toro__sinc__message_type__enum_values_by_number[39] =
+const ProtobufCEnumValue si_toro__sinc__message_type__enum_values_by_number[43] =
 {
   { "NO_MESSAGE_TYPE", "SI_TORO__SINC__MESSAGE_TYPE__NO_MESSAGE_TYPE", 0 },
   { "SUCCESS_RESPONSE", "SI_TORO__SINC__MESSAGE_TYPE__SUCCESS_RESPONSE", 1 },
@@ -4749,11 +5395,15 @@ const ProtobufCEnumValue si_toro__sinc__message_type__enum_values_by_number[39] 
   { "DOWNLOAD_CRASH_DUMP_RESPONSE", "SI_TORO__SINC__MESSAGE_TYPE__DOWNLOAD_CRASH_DUMP_RESPONSE", 40 },
   { "CHECK_PARAM_CONSISTENCY_COMMAND", "SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_COMMAND", 41 },
   { "CHECK_PARAM_CONSISTENCY_RESPONSE", "SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_RESPONSE", 42 },
+  { "TRIGGER_HISTOGRAM_COMMAND", "SI_TORO__SINC__MESSAGE_TYPE__TRIGGER_HISTOGRAM_COMMAND", 43 },
+  { "SYNCHRONIZE_LOG_COMMAND", "SI_TORO__SINC__MESSAGE_TYPE__SYNCHRONIZE_LOG_COMMAND", 44 },
+  { "SYNCHRONIZE_LOG_RESPONSE", "SI_TORO__SINC__MESSAGE_TYPE__SYNCHRONIZE_LOG_RESPONSE", 45 },
+  { "SET_TIME_COMMAND", "SI_TORO__SINC__MESSAGE_TYPE__SET_TIME_COMMAND", 46 },
 };
 static const ProtobufCIntRange si_toro__sinc__message_type__value_ranges[] = {
-{0, 0},{8, 6},{36, 32},{0, 39}
+{0, 0},{8, 6},{36, 32},{0, 43}
 };
-const ProtobufCEnumValueIndex si_toro__sinc__message_type__enum_values_by_name[39] =
+const ProtobufCEnumValueIndex si_toro__sinc__message_type__enum_values_by_name[43] =
 {
   { "ASYNCHRONOUS_ERROR_RESPONSE", 30 },
   { "CALCULATE_DC_OFFSET_COMMAND", 19 },
@@ -4785,6 +5435,7 @@ const ProtobufCEnumValueIndex si_toro__sinc__message_type__enum_values_by_name[3
   { "SAVE_CONFIGURATION_COMMAND", 29 },
   { "SET_CALIBRATION_COMMAND", 18 },
   { "SET_PARAM_COMMAND", 5 },
+  { "SET_TIME_COMMAND", 42 },
   { "SOFTWARE_UPDATE_COMMAND", 27 },
   { "SOFTWARE_UPDATE_COMPLETE_RESPONSE", 28 },
   { "START_CALIBRATION_COMMAND", 14 },
@@ -4794,6 +5445,9 @@ const ProtobufCEnumValueIndex si_toro__sinc__message_type__enum_values_by_name[3
   { "START_OSCILLOSCOPE_COMMAND", 8 },
   { "STOP_DATA_ACQUISITION_COMMAND", 12 },
   { "SUCCESS_RESPONSE", 1 },
+  { "SYNCHRONIZE_LOG_COMMAND", 40 },
+  { "SYNCHRONIZE_LOG_RESPONSE", 41 },
+  { "TRIGGER_HISTOGRAM_COMMAND", 39 },
 };
 const ProtobufCEnumDescriptor si_toro__sinc__message_type__descriptor =
 {
@@ -4802,9 +5456,9 @@ const ProtobufCEnumDescriptor si_toro__sinc__message_type__descriptor =
   "MessageType",
   "SiToro__Sinc__MessageType",
   "SiToro.Sinc",
-  39,
+  43,
   si_toro__sinc__message_type__enum_values_by_number,
-  39,
+  43,
   si_toro__sinc__message_type__enum_values_by_name,
   3,
   si_toro__sinc__message_type__value_ranges,
@@ -4870,6 +5524,40 @@ const ProtobufCEnumDescriptor si_toro__sinc__histogram_trigger__descriptor =
   si_toro__sinc__histogram_trigger__enum_values_by_name,
   1,
   si_toro__sinc__histogram_trigger__value_ranges,
+  NULL,NULL,NULL,NULL   /* reserved[1234] */
+};
+const ProtobufCEnumValue si_toro__sinc__log_level__enum_values_by_number[5] =
+{
+  { "FATAL", "SI_TORO__SINC__LOG_LEVEL__FATAL", 1 },
+  { "ALARM", "SI_TORO__SINC__LOG_LEVEL__ALARM", 2 },
+  { "ERROR", "SI_TORO__SINC__LOG_LEVEL__ERROR", 3 },
+  { "WARNING", "SI_TORO__SINC__LOG_LEVEL__WARNING", 4 },
+  { "INFO", "SI_TORO__SINC__LOG_LEVEL__INFO", 5 },
+};
+static const ProtobufCIntRange si_toro__sinc__log_level__value_ranges[] = {
+{1, 0},{0, 5}
+};
+const ProtobufCEnumValueIndex si_toro__sinc__log_level__enum_values_by_name[5] =
+{
+  { "ALARM", 1 },
+  { "ERROR", 2 },
+  { "FATAL", 0 },
+  { "INFO", 4 },
+  { "WARNING", 3 },
+};
+const ProtobufCEnumDescriptor si_toro__sinc__log_level__descriptor =
+{
+  PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
+  "SiToro.Sinc.LogLevel",
+  "LogLevel",
+  "SiToro__Sinc__LogLevel",
+  "SiToro.Sinc",
+  5,
+  si_toro__sinc__log_level__enum_values_by_number,
+  5,
+  si_toro__sinc__log_level__enum_values_by_name,
+  1,
+  si_toro__sinc__log_level__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
 const ProtobufCEnumValue si_toro__sinc__si_toro__histogram_mode__enum_values_by_number[7] =

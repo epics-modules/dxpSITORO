@@ -37,13 +37,20 @@ static bool SincWaitForData(Sinc *sc, int timeout, bool *readOk)
     int errCode;
     int fds[2];
     bool readAvailable[2];
-    
+
+    if (sc->inSocketWait)
+    {
+        SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__MULTIPLE_THREAD_WAIT);
+        return false;
+    }
+
+    sc->inSocketWait = true;
     if (sc->datagramFd >= 0)
     {
         // We're interested in either stream data or datagrams.
         fds[0] = sc->fd;
         fds[1] = sc->datagramFd;
-        
+
         errCode = SincSocketWaitMulti(fds, 2, timeout, readAvailable);
         readOk[0] = readAvailable[0];
         readOk[1] = readAvailable[1];
@@ -54,13 +61,15 @@ static bool SincWaitForData(Sinc *sc, int timeout, bool *readOk)
         errCode = SincSocketWait(sc->fd, timeout, &readAvailable[0]);
         readOk[0] = readAvailable[0];
     }
-    
+
+    sc->inSocketWait = false;
+
     if (errCode != SI_TORO__SINC__ERROR_CODE__NO_ERROR)
     {
         SincReadErrorSetCode(sc, (SiToro__Sinc__ErrorCode)errCode);
         return false;
     }
-    
+
     return true;
 }
 
@@ -88,6 +97,13 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
     if (packetFound)
         return true;
 
+    // Check that we're connected to something.
+    if (!sc->connected)
+    {
+        SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__NOT_CONNECTED);
+        return false;
+    }
+
     // We'll have to read some more data.
     while (true)
     {
@@ -96,12 +112,12 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
         bool readAvailable[2];
         readAvailable[0] = false;
         readAvailable[1] = false;
-        
+
         do
         {
             int errCode;
             int readBufAvailable;
-            
+
             // Check for data being available.
             if (!SincWaitForData(sc, 0, readAvailable))
                 return false;
@@ -112,7 +128,7 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
                 int readBufBytesAvailable;
                 int bytesRead = 0;
 
-                if (sc->readBuf.len == sc->readBuf.alloced)
+                if (sc->readBuf.cbuf.len == sc->readBuf.cbuf.alloced)
                 {
                     // Out of buffer space - read and expand the buffer.
                     uint8_t tempReadBuf[65536];
@@ -120,14 +136,14 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
                     if (errCode == 0 && bytesRead > 0)
                     {
                         // Append to the buffer.
-                        sc->readBuf.base.append(&sc->readBuf.base, (size_t)bytesRead, tempReadBuf);
+                        sc->readBuf.cbuf.base.append(&sc->readBuf.cbuf.base, (size_t)bytesRead, tempReadBuf);
                     }
                 }
                 else
                 {
                     // Read some data into our existing buffer.
-                    readBufBytesAvailable = (int)(sc->readBuf.alloced - sc->readBuf.len);
-                    errCode = SincSocketRead(sc->fd, &sc->readBuf.data[sc->readBuf.len], readBufBytesAvailable, &bytesRead);
+                    readBufBytesAvailable = (int)(sc->readBuf.cbuf.alloced - sc->readBuf.cbuf.len);
+                    errCode = SincSocketRead(sc->fd, &sc->readBuf.cbuf.data[sc->readBuf.cbuf.len], readBufBytesAvailable, &bytesRead);
                     if (errCode == 0 && bytesRead > 0)
                     {
 #ifdef PROTOCOL_VERBOSE_DEBUG
@@ -136,12 +152,12 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
 
                         int i;
                         for (i = 0; i < bytesRead; i++)
-                            printf("%02x ", sc->readBuf.data[sc->readBuf.len + i]);
+                            printf("%02x ", sc->readBuf.buf.data[sc->readBuf.buf.len + i]);
 
                         printf("\n");
 #endif
 
-                        sc->readBuf.len += (size_t)bytesRead;
+                        sc->readBuf.cbuf.len += (size_t)bytesRead;
                     }
                 }
 
@@ -164,25 +180,32 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
 
                 readSomeData = true;
             }
-            
+
             // Is there datagram data available?
             if (readAvailable[1])
             {
                 uint8_t *bufPos;
                 size_t bytesRead;
-                
+
                 // Make sure we have at least 64k available in the buffer for reading (datagrams can't be bigger than this).
-                if (sc->readBuf.len + SINC_MAX_DATAGRAM_BYTES + SINC_HEADER_LENGTH > sc->readBuf.alloced)
+                if (sc->readBuf.cbuf.len + SINC_MAX_DATAGRAM_BYTES + SINC_HEADER_LENGTH > sc->readBuf.cbuf.alloced)
                 {
                     // Expand the buffer.
-                    size_t newSize = sc->readBuf.len + SINC_MAX_DATAGRAM_BYTES + SINC_HEADER_LENGTH;
-                    sc->readBuf.data = realloc(sc->readBuf.data, newSize);
-                    sc->readBuf.alloced = newSize;
+                    size_t newSize = sc->readBuf.cbuf.len + SINC_MAX_DATAGRAM_BYTES + SINC_HEADER_LENGTH;
+                    uint8_t *mem = realloc(sc->readBuf.cbuf.data, newSize);
+                    if (!mem)
+                    {
+                        SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+                        return false;
+                    }
+
+                    sc->readBuf.cbuf.data = mem;
+                    sc->readBuf.cbuf.alloced = newSize;
                 }
-                
+
                 // Read the datagram.
-                readBufAvailable = (int)(sc->readBuf.alloced - sc->readBuf.len);
-                bufPos = &sc->readBuf.data[sc->readBuf.len];
+                readBufAvailable = (int)(sc->readBuf.cbuf.alloced - sc->readBuf.cbuf.len);
+                bufPos = &sc->readBuf.cbuf.data[sc->readBuf.cbuf.len];
                 bytesRead = (size_t)readBufAvailable - SINC_HEADER_LENGTH;
                 errCode = SincSocketReadDatagram(sc->datagramFd, bufPos + SINC_HEADER_LENGTH, &bytesRead, true);
                 if (errCode != SI_TORO__SINC__ERROR_CODE__NO_ERROR)
@@ -200,18 +223,18 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
 
                     SincProtocolEncodeHeaderGeneric(bufPos, (int)bytesRead, fakeMsgType, SINC_RESPONSE_MARKER);
 
-                    sc->readBuf.len += bytesRead + SINC_HEADER_LENGTH;
+                    sc->readBuf.cbuf.len += bytesRead + SINC_HEADER_LENGTH;
                     readSomeData = true;
                 }
             }
-            
+
         } while (readAvailable[0] || readAvailable[1]);
 
         // Try to get a message from the read buffer.
         if (readSomeData)
         {
 #ifdef PROTOCOL_VERBOSE_DEBUG
-            printf("read some data: %ld bytes in buffer\n", sc->readBuf.len);
+            printf("read some data: %ld bytes in buffer\n", sc->readBuf.buf.len);
 #endif
             SincGetNextPacketFromBuffer(&sc->readBuf, msgType, buf, &packetFound);
             if (packetFound)
@@ -223,7 +246,10 @@ bool SincReadMessage(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__Messa
             return false;
 
         if (timeout == 0)
+        {
+            SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__TIMEOUT);
             break;
+        }
     }
 
     return false;
@@ -409,6 +435,12 @@ bool SincWaitReady(Sinc *sc, int channelId, int timeout)
                 return false;
             }
         }
+    }
+
+    // If we haven't get received a GetParamResponse wait for it or it'll throw everything else out of sync.
+    if (!gotGetParamResponse)
+    {
+        SincReadGetParamResponse(sc, timeout, NULL, NULL);
     }
 
     // Clean up the buffer.

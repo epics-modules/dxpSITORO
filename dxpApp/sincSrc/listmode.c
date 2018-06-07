@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <inttypes.h>
 
 #include "sinc_internal.h"
 #include "lmbuf.h"
@@ -91,7 +92,7 @@ bool SincListModeEncodeHeader(Sinc *sc, int channelId, uint8_t **headerData, siz
         /* Output the value. */
         if (kv->has_intval)
         {
-            linePos += snprintf(linePos, (size_t)(lineEnd - linePos), "%ld", kv->intval);
+            linePos += snprintf(linePos, (size_t)(lineEnd - linePos), "%" PRId64, kv->intval);
         }
         else if (kv->has_floatval)
         {

@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 package SiToro.Sinc;
 
 // Lightweight runtime for the embedded system.
@@ -24,6 +26,8 @@ enum ErrorCode {
     DEVICE_ERROR = 10014;                  // A generic unexpected device error.
     INVALID_REQUEST = 10015;               // Used for corrupted request packets.
     NON_GATED_HISTOGRAM_DISABLED = 10016;  // Operation halted because instrument has switched to histogram gated mode.
+    NOT_CONNECTED = 10017;
+    MULTIPLE_THREAD_WAIT = 10018;          // Multiple threads are waiting on the same connection. This is a protocol violation.
 }
 
 // Message types.
@@ -68,6 +72,10 @@ enum MessageType {
     DOWNLOAD_CRASH_DUMP_RESPONSE = 40;
     CHECK_PARAM_CONSISTENCY_COMMAND = 41;
     CHECK_PARAM_CONSISTENCY_RESPONSE = 42;
+    TRIGGER_HISTOGRAM_COMMAND = 43;
+    SYNCHRONIZE_LOG_COMMAND = 44;
+    SYNCHRONIZE_LOG_RESPONSE = 45;
+    SET_TIME_COMMAND = 46;
 }
 
 
@@ -89,6 +97,16 @@ enum HistogramTrigger
     CONDITION_COMPLETE = 3;
 }
 
+
+// LogLevel indicates the severity level of a log message.
+enum LogLevel
+{
+    FATAL = 1;
+    ALARM = 2;
+    ERROR = 3;
+    WARNING = 4;
+    INFO = 5;
+}
 
 // All responses include this section which indicates success or failure.
 // errorCode and message are only set if the command failed.
@@ -198,13 +216,23 @@ message ParamUpdatedResponse {
 
 // SetParamCommand sets the value of a user parameter. It results in a SuccessResponse.
 //
-// param:  A single Key value for parameter to be set.
-// params: Multiple Key values to be set if multiple are needed.
+// param:               A single Key value for parameter to be set.
+// params:              Multiple Key values to be set if multiple are needed.
+// settingAllParams:    Use this if you're setting all the parameters in a single
+//                      command and want any unset parameters to return to defaults.
+//                      This is useful when loading a old project file to ensure that
+//                      all the newly added parameters are set to sensible values.
+// fromFirmwareVersion: When using settingAllParams you can include the firmware version
+//                      of the parameters being set. This version is obtained from
+//                      instrument.firmwareVersion. This will allow any parameter
+//                      upgrades to be applied automatically.
 
 message SetParamCommand {
     optional KeyValue        param = 1;      // deprecated.
     optional int32           channelId = 2;
     repeated KeyValue        params = 3;
+    optional bool            settingAllParams = 4;
+    optional string          fromFirmwareVersion = 5;
 }
 
 
@@ -324,9 +352,10 @@ message StartOscilloscopeCommand {
 //                           The first plot is accepted data, the second is rejected data.
 // channelId:                If specified, indicates which channel it's for,
 //                           otherwise defaults to channel 0.
-// positiveRailHitCount:     [reserved for future function] The number of times the signal has hit the positive rail. 
+// positiveRailHitCount:     [reserved for future function] The number of times the signal has hit the positive rail.
 // negativeRailHitCount:     [reserved for future function] The number of times the signal has hit the negative rail.
 // trigger:                  What type of event caused this histogram to be produced.
+// intensity:                If provided this is a series of intensity sub-pixels. This is a diagnostic feature which is not usually available.
 
 message HistogramDataResponse {
     optional uint64           dataSetId = 2;
@@ -348,6 +377,7 @@ message HistogramDataResponse {
     optional uint32           positiveRailHitCount = 18;
     optional uint32           negativeRailHitCount = 19;
     optional HistogramTrigger trigger = 20;
+    repeated uint32           intensity = 21;
 }
 
 
@@ -399,7 +429,7 @@ message OscilloscopeDataResponse {
 // a SuccessResponse.
 // channelId:       If specified, indicates which channel to use,
 //                  otherwise defaults to channel 0.
-// skip:            If this flag is set when stopping calibration during the optional 
+// skip:            If this flag is set when stopping calibration during the optional
 //                  optimisation phase, the calibration will skip optimization but
 //                  still return a valid result.
 
@@ -597,8 +627,11 @@ message StartFFTCommand {
 
 // Restart reboots the card.
 // This results in a SuccessResponse.
+// factoryMode: Set true to reboot to factory recovery mode. Otherwise
+//              the system will reboot to normal operational mode.
 
 message RestartCommand {
+    optional bool                factoryMode = 1;
 }
 
 
@@ -640,12 +673,14 @@ message SoftwareUpdateCompleteResponse {
 
 // SaveConfigurationCommand saves the current configuration as the
 // default configuration to load when the card starts.
-// channelId: If specified, indicates which channel it's for,
-//            otherwise defaults to channel 0.
+// channelId:    Not used.
+// deleteConfig: If true this causes the user configuration to
+//               be deleted rather than being saved.
 // This results in a SuccessResponse.
 
 message SaveConfigurationCommand {
     optional int32           channelId = 1;
+    optional bool            deleteConfig = 2;
 }
 
 
@@ -671,7 +706,7 @@ message MonitorChannelsCommand {
 }
 
 
-// ProbeDatagramCommand sends a probe datagram to the connection's 
+// ProbeDatagramCommand sends a probe datagram to the connection's
 // configured histogram.datagram.ip / histogram.datagram.port.
 // This occurs whether or not the histogram.datagram.enable is set.
 // This is used to sense whether datagram transmission is working.
@@ -697,13 +732,13 @@ message DownloadCrashDumpResponse {
     optional SuccessResponse    success = 1;
     optional bytes              content = 2;
     optional string             timestamp = 3;
+    optional bool               new = 4;
 }
 
 
 // CheckParamConsistencyCommand requests that the parameters be checked
 // for any range incompatibilities or other problems.
 // Results in a CheckParamConsistencyResponse.
-// NOTE: forthcoming feature, not implemented yet.
 
 message CheckParamConsistencyCommand {
     optional int32           channelId = 1;
@@ -714,7 +749,6 @@ message CheckParamConsistencyCommand {
 // parameters were found to be consistent with their allowed ranges and
 // each other.
 // Requested by a CheckParamConsistencyCommand.
-// NOTE: forthcoming feature, not implemented yet.
 
 message CheckParamConsistencyResponse {
     optional SuccessResponse success = 1;
@@ -723,3 +757,72 @@ message CheckParamConsistencyResponse {
     optional string          message = 4;
 }
 
+
+// TriggerHistogramCommand provides a means of software triggering
+// histogram data collection. When the histogram.mode parameter is
+// set to "gated" and gate.statsCollectionMode is set to
+// "software" histograms will be triggered via this command.
+// This results in a SuccessResponse.
+
+message TriggerHistogramCommand {
+}
+
+
+// Timestamp is used to set the device time or to indicate the time
+// a log event occurred.
+
+message Timestamp {
+    optional int64           seconds = 1;
+    optional int32           microseconds = 2;
+}
+
+
+// SynchronizeLogCommand requests that logs since the provided
+// sequence number are sent. A zero sequence number will cause all
+// logs to be sent.
+// This results in a SynchronizeLogResponse.
+
+message SynchronizeLogCommand {
+    optional uint64          lastSequenceNo = 1;
+}
+
+
+// LogEntry is a single log entry sent back as part of a
+// SynchronizeLogResponse.
+// sequenceNo:     The sequence number of this log entry. Sequence
+//                 numbers are monotonically increasing.
+// level:          The log level of this error.
+//                 INFO, WARNING, ERROR or FATAL.
+// errorCode:      A numeric error code for machine readable errors.
+// message:        A descriptive error message.
+// channelId:      For errors which have an associated channel id.
+// Timestamp:      When the log event occurred.
+
+message LogEntry {
+    optional uint64          sequenceNo = 1;
+    optional LogLevel        level = 2;
+    optional ErrorCode       errorCode = 3;
+    optional string          message = 4;
+    optional int32           channelId = 5;
+    optional Timestamp       hostTime = 6;
+}
+
+
+// SynchronizeLogResponse is the response to a SynchronizeLogCommand.
+// It contains a set of log entries.
+
+message SynchronizeLogResponse {
+    optional SuccessResponse success = 1;
+    repeated LogEntry        log = 2;
+}
+
+
+// SetTimeCommand sets the system time on the device. It also
+// adjusts any log entries by the difference between the device time
+// and the host time. This should result in logs which are
+// approximately in sync with the host.
+// This results in a SuccessResponse.
+
+message SetTimeCommand {
+    optional Timestamp       hostTime = 1;
+}

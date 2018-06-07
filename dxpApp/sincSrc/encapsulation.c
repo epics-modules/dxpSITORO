@@ -134,8 +134,8 @@ bool SincDecodePacketEncapsulation(const SincBuffer *fromBuf, int *bytesConsumed
     size_t       bytesSkipped;
     unsigned int sincShortHeaderLength = SINC_HEADER_LENGTH - 2;
     size_t       contentLen;
-    uint8_t     *buf = fromBuf->data;
-    unsigned int bufLen = (unsigned int)fromBuf->len;
+    uint8_t     *buf = fromBuf->cbuf.data;
+    unsigned int bufLen = (unsigned int)fromBuf->cbuf.len;
     uint32_t     val_u32;
 
     // By default assume we won't find a packet. We can change our mind later.
@@ -144,7 +144,7 @@ bool SincDecodePacketEncapsulation(const SincBuffer *fromBuf, int *bytesConsumed
 
     // Empty the buffer.
     if (msg != NULL)
-        msg->len = 0;
+        msg->cbuf.len = 0;
 
     // Create the magic response marker pattern.
     SINC_PROTOCOL_WRITE_UINT32(commandMarker, marker);
@@ -218,7 +218,7 @@ bool SincDecodePacketEncapsulation(const SincBuffer *fromBuf, int *bytesConsumed
                 contentLen = payloadLen - 2;
                 if (msg != NULL)
                 {
-                    ProtobufCBuffer *cBuf = &msg->base;
+                    ProtobufCBuffer *cBuf = &msg->cbuf.base;
                     cBuf->append(cBuf, contentLen, payloadBuf);
                 }
 

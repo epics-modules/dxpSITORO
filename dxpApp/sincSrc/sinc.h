@@ -18,7 +18,16 @@ extern "C"
 #endif
 
 #include <stdbool.h>
+#include <time.h>
 #include "sinc.pb-c.h"
+
+#ifndef _WIN32
+#include <sys/time.h>
+#else
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#endif
+
 
 // Connection defaults.
 #define SINC_PORT 8756
@@ -26,7 +35,30 @@ extern "C"
 
 typedef SiToro__Sinc__ListParamDetailsResponse SincListParamDetailsResponse;
 typedef SiToro__Sinc__ParamDetails SincParamDetails;
-typedef ProtobufCBufferSimple SincBuffer;
+
+
+// The maximum length of an error message, or the message is truncated.
+#define SINC_ERROR_SIZE_MAX 255
+
+// The maximum number of intensity values.
+#define MAX_INTENSITY 255
+
+
+// Error information structure.
+typedef struct
+{
+    SiToro__Sinc__ErrorCode code;                           // The most recent error code from SiToro__Sinc__ErrorCode.
+    char                    msg[SINC_ERROR_SIZE_MAX+1];     // The most recent error message string.
+} SincError;
+
+
+// A buffer for an incoming packet from the array.
+typedef struct
+{
+    ProtobufCBufferSimple cbuf;             // The packet buffer.
+    int                   deviceId;         // Which array device this came from. Used only in SINC arrays.
+    int                   channelIdOffset;  // What channel id offset to apply to the decoded data. Used only in SINC arrays.
+} SincBuffer;
 
 
 /*
@@ -39,20 +71,9 @@ typedef ProtobufCBufferSimple SincBuffer;
  *   int success = SincSend(sinc, &buf);
  */
 
-#define SINC_BUFFER_INIT(x)  PROTOBUF_C_BUFFER_SIMPLE_INIT(x)
-#define SINC_BUFFER_CLEAR(x) PROTOBUF_C_BUFFER_SIMPLE_CLEAR(x)
+#define SINC_BUFFER_INIT(x)  { PROTOBUF_C_BUFFER_SIMPLE_INIT(x), 0, 0 }
+#define SINC_BUFFER_CLEAR(x) PROTOBUF_C_BUFFER_SIMPLE_CLEAR(&(x)->cbuf)
 
-
-// The maximum length of an error message, or the message is truncated.
-#define SINC_ERROR_SIZE_MAX 255
-
-
-// Error information structure.
-typedef struct
-{
-    SiToro__Sinc__ErrorCode code;                           // The most recent error code from SiToro__Sinc__ErrorCode.
-    char                    msg[SINC_ERROR_SIZE_MAX+1];     // The most recent error message string.
-} SincError;
 
 
 // A channel of communication to a device.
@@ -65,6 +86,7 @@ typedef struct
     int        datagramFd;       // The socket used for datagram reception.
     int        datagramPort;     // The socket port used for datagram reception.
     bool       datagramIsOpen;   // Datagram communications are open and working.
+    bool       inSocketWait;     // Connection is currently waiting on the socket.
     SincBuffer readBuf;          // The read data buffer.
     SincError *err;              // The most recent error.
     SincError  readErr;          // The most recent read error.
@@ -90,11 +112,12 @@ typedef struct
 
 
 // Oscilloscope data.
+// Note that the oscilloscope data is decimated by a factor of two by default.
 typedef struct
 {
     int          len;
-    double      *data;      // Normalised FP version of the data.
-    int32_t     *intData;   // int version of the data.
+    double      *data;      // Normalised FP version of the data. This data may be decimated.
+    int32_t     *intData;   // int version of the data. This data may be decimated.
     int32_t      minRange;  // Range of the integer values.
     int32_t      maxRange;
 } SincOscPlot;
@@ -128,6 +151,8 @@ typedef struct
     uint32_t                       positiveRailHitCount;
     uint32_t                       negativeRailHitCount;
     SiToro__Sinc__HistogramTrigger trigger;
+    uint32_t                       numIntensity;
+    uint32_t                       *intensityData;
 } SincHistogramCountStats;
 
 
@@ -247,8 +272,10 @@ bool SincReadGetCalibrationResponse(Sinc *sc, int timeout, SiToro__Sinc__GetCali
 bool SincReadCalculateDCOffsetResponse(Sinc *sc, int timeout, SiToro__Sinc__CalculateDcOffsetResponse **resp, double *dcOffset, int *fromChannelId);
 bool SincReadListParamDetailsResponse(Sinc *sc, int timeout, SiToro__Sinc__ListParamDetailsResponse **resp, int *fromChannelId);
 bool SincReadCheckParamConsistencyResponse(Sinc *sc, int timeout, SiToro__Sinc__CheckParamConsistencyResponse **resp, int *fromChannelId);
+bool SincReadDownloadCrashDumpResponse(Sinc *sc, int timeout, bool *newDump, uint8_t **dumpData, size_t *dumpSize);
 bool SincReadAsynchronousErrorResponse(Sinc *sc, int timeout, SiToro__Sinc__AsynchronousErrorResponse **resp, int *fromChannelId);
 bool SincReadAndDiscardPacket(Sinc *sc, int timeout);
+bool SincReadSynchronizeLogResponse(Sinc *sc, int timeout, SiToro__Sinc__SynchronizeLogResponse **resp);
 
 
 /*
@@ -270,9 +297,8 @@ bool SincRequestPing(Sinc *sc, int showOnConsole);
  * ACTION:      Gets a named parameter from the device.
  *              Note that the channel ids of parameters are included with each returned parameter.
  * PARAMETERS:  Sinc *sc                        - the channel to request from.
- *              int channelId                   - which channel to use. -1 to use the default channel for this port.
- *              char *name                      - the name of the parameter to get. "channel.allSettings" provides
- *                  a JSON list of all the available parameters and their values.
+ *              int channelId                   - which channel to use.
+ *              char *name                      - the name of the parameter to get.
  *              SiToro__Sinc__GetParamResponse **resp - where to put the response received.
  *
  *                  (*resp)->results[0] will contain the result as a SiToro__Sinc__KeyValue.
@@ -293,7 +319,7 @@ bool SincGetParams(Sinc *sc, int *channelIds, const char **names, int numNames, 
  * NAME:        SincSetParam
  * ACTION:      Sets a named parameter on the device.
  * PARAMETERS:  Sinc *sc                            - the channel to request from.
- *              int channelId                       - which channel to use. -1 to use the default channel for this port.
+ *              int channelId                       - which channel to use.
  *              SiToro__Sinc__KeyValue *param       - the key and value to set.
  *                  Set the key in param->key.
  *                  Set the value type in param->valueCase and the value in one of intval,
@@ -308,10 +334,43 @@ bool SincSetParams(Sinc *sc, int channelId, SiToro__Sinc__KeyValue *params, int 
 
 
 /*
+ * NAME:        SincSetAllParams
+ * ACTION:      Sets all of the parameters on the device. If any parameters on the
+ *              device aren't set by this command they'll automatically be set to
+ *              sensible defaults. This is useful when loading a project file which
+ *              is intended to set all the values in a single lot. It ensures that
+ *              the device's parameters are upgraded automatically along with any
+ *              firmware upgrades.
+ *
+ *              If a set of saved device parameters are loaded after a firmware
+ *              update using SincSetParams() there may be faulty behavior. This
+ *              Is due to new parameters not being set as they're not defined in
+ *              the set of saved parameters. Using this call instead of
+ *              SincSetParams() when loading a complete device state ensures that
+ *              the device's parameters are upgraded automatically along with any
+ *              firmware upgrades.
+ * PARAMETERS:  Sinc *sc                            - the channel to request from.
+ *              int channelId                       - which channel to use.
+ *              SiToro__Sinc__KeyValue *param       - the key and value to set.
+ *                  Set the key in param->key.
+ *                  Set the value type in param->valueCase and the value in one of intval,
+ *                  floatval, boolval, strval or optionval.
+ *              const char *fromFirmwareVersion     - the instrument.firmwareVersion
+ *                                                    of the saved parameters being
+ *                                                    restored.
+ *
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincSetAllParams(Sinc *sc, int channelId, SiToro__Sinc__KeyValue *params, int numParams, const char *fromFirmwareVersion);
+
+
+/*
  * NAME:        SincCalibrate
  * ACTION:      Performs a calibration and returns calibration data. May take several seconds.
  * PARAMETERS:  Sinc *sc                            - the channel to request from.
- *              int channelId                       - which channel to use. -1 to use the default channel for this port.
+ *              int channelId                       - which channel to use.
  *              SincCalibrationData *calibData      - the calibration data.
  *              SincPlot *example, model, final     - the pulse shapes.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
@@ -322,10 +381,24 @@ bool SincCalibrate(Sinc *sc, int channelId, SincCalibrationData *calibData, Sinc
 
 
 /*
+ * NAME:        SincStartCalibration
+ * ACTION:      Requests a calibration but doesn't wait for it to complete. Use SincCalibrate()
+ *              instead to wait for calibration to complete or use SincWaitCalibrationComplete()
+ *              with this call.
+ * PARAMETERS:  Sinc *sc                        - the channel to request from.
+ *              int channelId                   - which channel to use. -1 to use the default channel for this port.
+ * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
+ *                  SincStrError() to get the error status.
+ */
+
+bool SincStartCalibration(Sinc *sc, int channelId);
+
+
+/*
  * NAME:        SincWaitCalibrationComplete
  * ACTION:      Waits for calibration to be complete. Use with SincRequestCalibration().
  * PARAMETERS:  Sinc *sc                            - the channel to request from.
- *              int channelId                       - which channel to use. -1 to use the default channel for this port.
+ *              int channelId                       - which channel to use.
  *              SincCalibrationData *calibData      - the calibration data.
  *              SincPlot *example, model, final     - the pulse shapes.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
@@ -339,7 +412,7 @@ bool SincWaitCalibrationComplete(Sinc *sc, int channelId, SincCalibrationData *c
  * NAME:        SincGetCalibration
  * ACTION:      Gets the calibration data from a previous calibration.
  * PARAMETERS:  Sinc *sc                        - the channel to request from.
- *              int channelId                   - which channel to use. -1 to use the default channel for this port.
+ *              int channelId                   - which channel to use.
  *              SincCalibrationData *calibData  - the calibration data is stored here.
  *              calibData must be free()d after use.
  *              SincPlot *example, model, final - the pulse shapes are set here.
@@ -355,7 +428,7 @@ bool SincGetCalibration(Sinc *sc, int channelId, SincCalibrationData *calibData,
  * NAME:        SincSetCalibration
  * ACTION:      Sets the calibration data on the device from a previously acquired data set.
  * PARAMETERS:  Sinc *sc                            - the channel to request from.
- *              int channelId                       - which channel to use. -1 to use the default channel for this port.
+ *              int channelId                       - which channel to use.
  *              SincCalibrationData *calibData      - the calibration data to set.
  *              SincPlot *example, model, final     - the pulse shapes.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
@@ -379,7 +452,7 @@ void SincSFreeCalibration(SincCalibrationData *calibData, SincCalibrationPlot *e
  * NAME:        SincCalculateDcOffset
  * ACTION:      Calculates the DC offset on the device. May take a couple of seconds.
  * PARAMETERS:  Sinc *sc         - the sinc connection to request from.
- *              int channelId    - which channel to use. -1 to use the default channel for this port.
+ *              int channelId    - which channel to use.
  *              double *dcOffset - the calculated DC offset is placed here.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
@@ -392,7 +465,7 @@ bool SincCalculateDcOffset(Sinc *sc, int channelId, double *dcOffset);
  * NAME:        SincStartOscilloscope
  * ACTION:      Starts the oscilloscope.
  * PARAMETERS:  Sinc *sc            - the sinc connection.
- *              int channelId       - which channel to use. -1 to use the default channel for this port.
+ *              int channelId       - which channel to use.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */
@@ -422,7 +495,7 @@ bool SincReadOscilloscope(Sinc *sc, int timeout, int *fromChannelId, uint64_t *d
  * ACTION:      Starts the histogram. Note that if you want to use TCP only you should set
  *              sc->datagramXfer to false. Otherwise UDP will be used.
  * PARAMETERS:  Sinc *sc               - the sinc connection.
- *              int channelId          - which channel to use. -1 to use the default channel for this port.
+ *              int channelId          - which channel to use.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */
@@ -439,6 +512,8 @@ bool SincStartHistogram(Sinc *sc, int channelId);
  *              int *fromChannelId      - if non-NULL this is set to the channel the histogram was received from.
  *              SincHistogram *accepted - the accepted histogram plot. Will allocate accepted->data so you must free it.
  *              SincHistogram *rejected - the rejected histogram plot. Will allocate rejected->data so you must free it.
+ *              SincHistogramCountStats *stats - various statistics about the histogram. Can be NULL if not needed.
+ *                                        May allocate stats->intensity so you should free it if non-NULL.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status. There's no need to free
  *                  accepted or rejected data on failure.
@@ -453,7 +528,7 @@ bool SincReadHistogramDatagram(Sinc *sc, int timeout, int *fromChannelId, SincHi
  * ACTION:      Waits for a packet indicating that the channel has returned to a
  *              ready state. Do this after a single shot oscilloscope run.
  * PARAMETERS:  Sinc *sc      - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ *              int channelId - which channel to use.
  *              int timeout   - timeout in milliseconds. -1 for no timeout.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
@@ -466,7 +541,7 @@ bool SincWaitReady(Sinc *sc, int channelId, int timeout);
  * NAME:        SincClearHistogramData
  * ACTION:      Clears the histogram counts.
  * PARAMETERS:  Sinc *sc       - the sinc connection.
- *              int channelId  - which channel to use. -1 to use the default channel for this port.
+ *              int channelId  - which channel to use.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */
@@ -478,7 +553,7 @@ bool SincClearHistogramData(Sinc *sc, int channelId);
  * NAME:        SincStartListMode
  * ACTION:      Starts list mode.
  * PARAMETERS:  Sinc *sc      - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ *              int channelId - which channel to use.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */
@@ -523,7 +598,7 @@ bool SincReadCheckParamConsistencyResponse(Sinc *sc, int timeout, SiToro__Sinc__
  * ACTION:      Stops oscilloscope / histogram / list mode / calibration. Deprecated in favor of
  *              SincStop().
  * PARAMETERS:  Sinc *sc      - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ *              int channelId - which channel to use.
  *              int timeout   - timeout in milliseconds. -1 for no timeout.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
@@ -537,7 +612,7 @@ bool SincStopDataAcquisition(Sinc *sc, int channelId, int timeout);
  * ACTION:      Stops oscilloscope / histogram / list mode / calibration. Allows skipping of the
  *              optional optimisation phase of calibration.
  * PARAMETERS:  Sinc *sc      - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ *              int channelId - which channel to use.
  *              int timeout   - timeout in milliseconds. -1 for no timeout.
  *              bool skip     - true to skip the optimisation phase of calibration but still keep
  *                              the calibration.
@@ -551,8 +626,8 @@ bool SincStop(Sinc *sc, int channelId, int timeout, bool skip);
 /*
  * NAME:        SincListParamDetails
  * ACTION:      Returns a list of matching device parameters and their details.
- * PARAMETERS:  Sinc *sc                  - the channel.
- *              int channelId             - which channel to use. -1 to use the default channel for this port.
+ * PARAMETERS:  Sinc *sc                  - the connection to use.
+ *              int channelId             - which channel to use.
  *              char *matchPrefix         - a key prefix to match. Only matching keys are returned. Empty string for all keys.
  *              SiToro__Sinc__ListParamDetailsResponse **resp - where to put the response received.
  *                  This message should be freed with si_toro__sinc__list_param_details_response__free_unpacked(resp, NULL) after use.
@@ -586,6 +661,21 @@ bool SincResetSpatialSystem(Sinc *sc);
 
 
 /*
+ * NAME:        SincTriggerHistogram
+ * ACTION:      Manually triggers a single histogram data collection if:
+ *                  * histogram.mode is "gated".
+ *                  * gate.source is "software".
+ *                  * gate.statsCollectionMode is "always".
+ *                  * histograms must be started first using SincStartHistogram().
+ * PARAMETERS:  Sinc *sc      - the sinc connection.
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincTriggerHistogram(Sinc *sc);
+
+
+/*
  * NAME:        SincSoftwareUpdate
  * ACTION:      Updates the software on the device.
  * PARAMETERS:  Sinc *sc  - the sinc connection.
@@ -609,14 +699,24 @@ bool SincSoftwareUpdate(Sinc *sc, uint8_t *appImage, int appImageLen, char *appC
 
 /*
  * NAME:        SincSaveConfiguration
- * ACTION:      Saves the channel's current configuration to use as default settings on startup.
- * PARAMETERS:  Sinc *sc      - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ * ACTION:      Saves the board's current configuration to use as default settings on startup.
+ * PARAMETERS:  Sinc *sc          - the sinc connection.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */
 
-bool SincSaveConfiguration(Sinc *sc, int channelId);
+bool SincSaveConfiguration(Sinc *sc);
+
+
+/*
+ * NAME:        SincDeleteSavedConfiguration
+ * ACTION:      Deletes any saved configuration to return to system defaults on the next startup.
+ * PARAMETERS:  Sinc *sc          - the sinc connection.
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincDeleteSavedConfiguration(Sinc *sc);
 
 
 /*
@@ -677,6 +777,48 @@ bool SincCheckParamConsistency(Sinc *sc, int channelId, SiToro__Sinc__CheckParam
 
 
 /*
+ * NAME:        SincDownloadCrashDump
+ * ACTION:      Downloads the most recent crash dump, if one exists.
+ * PARAMETERS:  Sinc *sc           - the sinc connection.
+ *              bool *newDump      - set true if this crash dump is new.
+ *              uint8_t **dumpData - where to put a pointer to the newly allocated crash dump data.
+ *                                   This should be free()d after use.
+ *              size_t *dumpSize   - where to put the size of the crash dump data.
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincDownloadCrashDump(Sinc *sc, bool *newDump, uint8_t **dumpData, size_t *dumpSize);
+
+
+/*
+ * NAME:        SincSynchronizeLog
+ * ACTION:      Get all the log entries since the specified log sequence number. 0 for all.
+ * PARAMETERS:  Sinc *sc            - the connection to use.
+ *              uint64_t sequenceNo - the log sequence number to start from. 0 for all log entries.
+ *              SiToro__Sinc__SynchronizeLogResponse **resp - where to put the response received.
+ *                  This message should be freed with si_toro__sinc__synchronize_log_response__free_unpacked(resp, NULL) after use.
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincSynchronizeLog(Sinc *sc, uint64_t sequenceNo, SiToro__Sinc__SynchronizeLogResponse **resp);
+
+
+/*
+ * NAME:        SincSetTime
+ * ACTION:      Set the time on the device's real time clock. This is useful
+ *              to get logs with correct timestamps.
+ * PARAMETERS:  Sinc *sc            - the connection to use.
+ *              struct timeval *tv  - the time to set. Includes seconds and milliseconds.
+ * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
+ *                  SincCurrentErrorMessage() to get the error status.
+ */
+
+bool SincSetTime(Sinc *sc, struct timeval *tv);
+
+
+/*
  * NAME:        SincSend
  * ACTION:      Send a send buffer. Automatically clears the buffer afterwards.
  * PARAMETERS:  Sinc *sc            - the sinc connection.
@@ -686,6 +828,7 @@ bool SincCheckParamConsistency(Sinc *sc, int channelId, SiToro__Sinc__CheckParam
  */
 
 bool SincSend(Sinc *sc, SincBuffer *buf);
+bool SincSendNoFree(Sinc *sc, SincBuffer *buf);
 
 
 /*
@@ -722,6 +865,7 @@ bool SincRequestGetParam(Sinc *sc, int channelId, char *name);
 bool SincRequestGetParams(Sinc *sc, int *channelIds, const char **names, int numNames);
 bool SincRequestSetParam(Sinc *sc, int channelId, SiToro__Sinc__KeyValue *param);
 bool SincRequestSetParams(Sinc *sc, int channelId, SiToro__Sinc__KeyValue *param, int numParams);
+bool SincRequestSetAllParams(Sinc *sc, int channelId, SiToro__Sinc__KeyValue *param, int numParams, const char *fromFirmwareVersion);
 bool SincRequestStartCalibration(Sinc *sc, int channelId);
 bool SincRequestGetCalibration(Sinc *sc, int channelId);
 bool SincRequestSetCalibration(Sinc *sc, int channelId, SincCalibrationData *calibData, SincCalibrationPlot *example, SincCalibrationPlot *model, SincCalibrationPlot *final);
@@ -736,11 +880,16 @@ bool SincRequestStop(Sinc *sc, int channelId, bool skip);
 bool SincRequestListParamDetails(Sinc *sc, int channelId, char *matchPrefix);
 bool SincRequestRestart(Sinc *sc);
 bool SincRequestResetSpatialSystem(Sinc *sc);
+bool SincRequestTriggerHistogram(Sinc *sc);
 bool SincRequestSoftwareUpdate(Sinc *sc, uint8_t *appImage, int appImageLen, char *appChecksum, uint8_t *fpgaImage, int fpgaImageLen, char *fpgaChecksum, SincSoftwareUpdateFile *updateFiles, int updateFilesLen, int autoRestart);
-bool SincRequestSaveConfiguration(Sinc *sc, int channelId);
+bool SincRequestSaveConfiguration(Sinc *sc);
+bool SincRequestDeleteSavedConfiguration(Sinc *sc);
 bool SincRequestMonitorChannels(Sinc *sc, int *channelSet, int numChannels);
 bool SincRequestProbeDatagram(Sinc *sc);
 bool SincRequestCheckParamConsistency(Sinc *sc, int channelId);
+bool SincRequestDownloadCrashDump(Sinc *sc);
+bool SincRequestSynchronizeLog(Sinc *sc, uint64_t sequenceNo);
+bool SincRequestSetTime(Sinc *sc, struct timeval *tv);
 
 
 /*
@@ -752,13 +901,17 @@ bool SincRequestCheckParamConsistency(Sinc *sc, int channelId);
  *   SincBuffer buf = SINC_BUFFER_INIT(pad);
  *   SincEncodeXXX(&buf, ...);
  *   int success = SincSend(sinc, &buf);
+ *
+ * Boolean variants of these functions may return false if memory
+ * allocation fails.
  */
 
 void SincEncodePing(SincBuffer *buf, int showOnConsole);
 void SincEncodeGetParam(SincBuffer *buf, int channelId, const char *name);
-void SincEncodeGetParams(SincBuffer *buf, int *channelIds, const char **names, int numNames);
+bool SincEncodeGetParams(SincBuffer *buf, int *channelIds, const char **names, int numNames);
 void SincEncodeSetParam(SincBuffer *buf, int channelId, SiToro__Sinc__KeyValue *param);
-void SincEncodeSetParams(SincBuffer *buf, int channelId, SiToro__Sinc__KeyValue *params, int numParams);
+bool SincEncodeSetParams(SincBuffer *buf, int channelId, SiToro__Sinc__KeyValue *params, int numParams);
+bool SincEncodeSetAllParams(SincBuffer *buf, int channelId, SiToro__Sinc__KeyValue *params, int numParams, const char *fromFirmwareVersion);
 void SincEncodeStartCalibration(SincBuffer *buf, int channelId);
 void SincEncodeGetCalibration(SincBuffer *buf, int channelId);
 void SincEncodeSetCalibration(SincBuffer *buf, int channelId, SincCalibrationData *calibData, SincCalibrationPlot *example, SincCalibrationPlot *model, SincCalibrationPlot *final);
@@ -773,12 +926,17 @@ void SincEncodeStop(SincBuffer *buf, int channelId, bool skip);
 void SincEncodeListParamDetails(SincBuffer *buf, int channelId, const char *matchPrefix);
 void SincEncodeRestart(SincBuffer *buf);
 void SincEncodeResetSpatialSystem(SincBuffer *buf);
-void SincEncodeSoftwareUpdate(SincBuffer *buf, const uint8_t *appImage, int appImageLen, const char *appChecksum, const uint8_t *fpgaImage, int fpgaImageLen, const char *fpgaChecksum, const SincSoftwareUpdateFile *updateFiles, int updateFilesLen, int autoRestart);
-void SincEncodeSaveConfiguration(SincBuffer *buf, int channelId);
-void SincEncodeMonitorChannels(SincBuffer *buf, const int *channelSet, int numChannels);
+void SincEncodeTriggerHistogram(SincBuffer *buf);
+bool SincEncodeSoftwareUpdate(SincBuffer *buf, const uint8_t *appImage, int appImageLen, const char *appChecksum, const uint8_t *fpgaImage, int fpgaImageLen, const char *fpgaChecksum, const SincSoftwareUpdateFile *updateFiles, int updateFilesLen, int autoRestart);
+void SincEncodeSaveConfiguration(SincBuffer *buf);
+void SincEncodeDeleteSavedConfiguration(SincBuffer *buf);
+bool SincEncodeMonitorChannels(SincBuffer *buf, const int *channelSet, int numChannels);
 void SincEncodeSuccessResponse(SincBuffer *buf, SiToro__Sinc__ErrorCode errorCode, char *message, int channelId);
 void SincEncodeProbeDatagram(SincBuffer *buf);
 void SincEncodeCheckParamConsistency(SincBuffer *buf, int channelId);
+void SincEncodeDownloadCrashDump(SincBuffer *buf);
+void SincEncodeSynchronizeLog(SincBuffer *buf, uint64_t sequenceNo);
+void SincEncodeSetTime(SincBuffer *buf, struct timeval *tv);
 
 
 /*
@@ -841,6 +999,7 @@ bool SincDecodeGetCalibrationResponse(SincError *err, SincBuffer *packet, SiToro
 bool SincDecodeCalculateDCOffsetResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__CalculateDcOffsetResponse **resp, double *dcOffset, int *fromChannelId);
 bool SincDecodeListParamDetailsResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__ListParamDetailsResponse **resp, int *fromChannelId);
 bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int *fromChannelId, uint64_t *dataSetId, SincOscPlot *resetBlanked, SincOscPlot *rawCurve);
+bool SincDecodeOscilloscopeDataResponseAsPlotArray(SincError *err, SincBuffer *packet, int *fromChannelId, uint64_t *dataSetId, SincOscPlot *plotArray, int maxPlotArray, int *plotArraySize);
 bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fromChannelId, SincHistogram *accepted, SincHistogram *rejected, SincHistogramCountStats *stats);
 bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int *fromChannelId, SincHistogram *accepted, SincHistogram *rejected, SincHistogramCountStats *stats);
 bool SincDecodeListModeDataResponse(SincError *err, SincBuffer *packet, int *fromChannelId, uint8_t **data, int *dataLen, uint64_t *dataSetId);
@@ -848,6 +1007,8 @@ bool SincDecodeMonitorChannelsCommand(SincError *err, SincBuffer *packet, uint64
 bool SincDecodeCheckParamConsistencyResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__CheckParamConsistencyResponse **resp, int *fromChannelId);
 bool SincDecodeAsynchronousErrorResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__AsynchronousErrorResponse **resp, int *fromChannelId);
 bool SincDecodeSoftwareUpdateCompleteResponse(SincError *err, SincBuffer *packet);
+bool SincDecodeDownloadCrashDumpResponse(SincError *err, SincBuffer *packet, bool *newDump, uint8_t **dumpData, size_t *dumpSize);
+bool SincDecodeSynchronizeLogResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__SynchronizeLogResponse **resp);
 
 
 /*
@@ -864,7 +1025,7 @@ int SincIsConnected(Sinc *sc);
  * NAME:        SincListModeEncodeHeader
  * ACTION:      Encodes a list mode header.
  * PARAMETERS:  Sinc *sc - the sinc connection.
- *              int channelId - which channel to use. -1 to use the default channel for this port.
+ *              int channelId - which channel to use.
  *              uint8_t **headerData - memory will be allocated for the result and returned here.
  *                  You must free() this data.
  *              size_t *headerLen - the length of the result data will be returned here.

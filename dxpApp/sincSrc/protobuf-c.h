@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2014, Dave Benson and the protobuf-c authors.
+ * Copyright (c) 2008-2016, Dave Benson and the protobuf-c authors.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -781,13 +781,13 @@ protobuf_c_version_number(void);
  * The version of the protobuf-c headers, represented as a string using the same
  * format as protobuf_c_version().
  */
-#define PROTOBUF_C_VERSION		"1.1.0"
+#define PROTOBUF_C_VERSION		"1.2.1"
 
 /**
  * The version of the protobuf-c headers, represented as an integer using the
  * same format as protobuf_c_version_number().
  */
-#define PROTOBUF_C_VERSION_NUMBER	1001000
+#define PROTOBUF_C_VERSION_NUMBER	1002001
 
 /**
  * The minimum protoc-c version which works with the current version of the
@@ -806,7 +806,7 @@ protobuf_c_version_number(void);
  * \return
  *      A `ProtobufCEnumValue` object.
  * \retval NULL
- *      If not found.
+ *      If not found or if the optimize_for = CODE_SIZE option was set.
  */
 PROTOBUF_C__API
 const ProtobufCEnumValue *
@@ -846,7 +846,7 @@ protobuf_c_enum_descriptor_get_value(
  * \return
  *      A `ProtobufCFieldDescriptor` object.
  * \retval NULL
- *      If not found.
+ *      If not found or if the optimize_for = CODE_SIZE option was set.
  */
 PROTOBUF_C__API
 const ProtobufCFieldDescriptor *
@@ -1020,7 +1020,7 @@ protobuf_c_service_destroy(ProtobufCService *service);
  * \return
  *      A `ProtobufCMethodDescriptor` object.
  * \retval NULL
- *      If not found.
+ *      If not found or if the optimize_for = CODE_SIZE option was set.
  */
 PROTOBUF_C__API
 const ProtobufCMethodDescriptor *

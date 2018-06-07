@@ -18,6 +18,8 @@
 
 #define SINC_UDP_HISTOGRAM_HEADER_SIZE_PROTOCOL_0 110
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
 
 /*
  * NAME:        SincDecodeSuccessResponse
@@ -35,7 +37,7 @@
 bool SincDecodeSuccessResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__SuccessResponse **resp, int *fromChannelId)
 {
     int ok;
-    SiToro__Sinc__SuccessResponse *r = si_toro__sinc__success_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__SuccessResponse *r = si_toro__sinc__success_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -46,7 +48,7 @@ bool SincDecodeSuccessResponse(SincError *err, SincBuffer *packet, SiToro__Sinc_
     }
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     ok = SincInterpretSuccessError(err, r);
 
@@ -71,7 +73,7 @@ bool SincDecodeSuccessResponse(SincError *err, SincBuffer *packet, SiToro__Sinc_
 bool SincDecodeGetParamResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__GetParamResponse **resp, int *fromChannelId)
 {
     int ok;
-    SiToro__Sinc__GetParamResponse *r = si_toro__sinc__get_param_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__GetParamResponse *r = si_toro__sinc__get_param_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -82,7 +84,7 @@ bool SincDecodeGetParamResponse(SincError *err, SincBuffer *packet, SiToro__Sinc
     }
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     ok = SincInterpretSuccessError(err, r->success);
 
@@ -106,7 +108,7 @@ bool SincDecodeGetParamResponse(SincError *err, SincBuffer *packet, SiToro__Sinc
 
 bool SincDecodeParamUpdatedResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__ParamUpdatedResponse **resp, int *fromChannelId)
 {
-    SiToro__Sinc__ParamUpdatedResponse *r = si_toro__sinc__param_updated_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__ParamUpdatedResponse *r = si_toro__sinc__param_updated_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -117,7 +119,7 @@ bool SincDecodeParamUpdatedResponse(SincError *err, SincBuffer *packet, SiToro__
     }
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     if (resp == NULL)
         si_toro__sinc__param_updated_response__free_unpacked(r, NULL);
@@ -140,7 +142,7 @@ bool SincDecodeParamUpdatedResponse(SincError *err, SincBuffer *packet, SiToro__
 bool SincDecodeCalibrationProgressResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__CalibrationProgressResponse **resp, double *progress, int *complete, char **stage, int *fromChannelId)
 {
     int ok;
-    SiToro__Sinc__CalibrationProgressResponse *r = si_toro__sinc__calibration_progress_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__CalibrationProgressResponse *r = si_toro__sinc__calibration_progress_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -160,7 +162,7 @@ bool SincDecodeCalibrationProgressResponse(SincError *err, SincBuffer *packet, S
         *stage = strdup(r->stage);
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     ok = SincInterpretSuccessError(err, r->success);
 
@@ -202,7 +204,7 @@ bool SincDecodeGetCalibrationResponse(SincError *err, SincBuffer *packet, SiToro
         memset(final, 0, sizeof(*final));
 
     // Unpack the packet.
-    SiToro__Sinc__GetCalibrationResponse *r = si_toro__sinc__get_calibration_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__GetCalibrationResponse *r = si_toro__sinc__get_calibration_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -216,11 +218,16 @@ bool SincDecodeGetCalibrationResponse(SincError *err, SincBuffer *packet, SiToro
     if (!SincInterpretSuccessError(err, r->success))
     {
         si_toro__sinc__get_calibration_response__free_unpacked(r, NULL);
+        if (resp)
+        {
+            *resp = NULL;
+        }
+
         return false;
     }
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     // Convert the data.
     if (calibData != NULL)
@@ -272,7 +279,7 @@ bool SincDecodeGetCalibrationResponse(SincError *err, SincBuffer *packet, SiToro
 bool SincDecodeCalculateDCOffsetResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__CalculateDcOffsetResponse **resp, double *dcOffset, int *fromChannelId)
 {
     int ok;
-    SiToro__Sinc__CalculateDcOffsetResponse *r = si_toro__sinc__calculate_dc_offset_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__CalculateDcOffsetResponse *r = si_toro__sinc__calculate_dc_offset_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -286,7 +293,7 @@ bool SincDecodeCalculateDCOffsetResponse(SincError *err, SincBuffer *packet, SiT
         *dcOffset = r->dcoffset;
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     ok = SincInterpretSuccessError(err, r->success);
 
@@ -312,23 +319,56 @@ bool SincDecodeCalculateDCOffsetResponse(SincError *err, SincBuffer *packet, SiT
 bool SincDecodeListParamDetailsResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__ListParamDetailsResponse **resp, int *fromChannelId)
 {
     int ok;
-    SiToro__Sinc__ListParamDetailsResponse *r = si_toro__sinc__list_param_details_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__ListParamDetailsResponse *r = si_toro__sinc__list_param_details_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
-    if (*resp == NULL)
+    if (r == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted parameter details packet");
         return false;
     }
 
     if (fromChannelId != NULL && r->has_channelid)
-        *fromChannelId = r->channelid;
+        *fromChannelId = r->channelid + packet->channelIdOffset;
 
     ok = SincInterpretSuccessError(err, r->success);
 
     if (resp == NULL)
         si_toro__sinc__list_param_details_response__free_unpacked(r, NULL);
+
+    return ok;
+}
+
+
+/*
+ * NAME:        SincDecodeSynchronizeLogResponse
+ * ACTION:      Decodes a synchronize log response from the device.
+ * PARAMETERS:  Sinc *sc                                    - the channel to listen to.
+ *              SincBuffer *packet                          - the de-encapsulated packet to decode.
+ *              SiToro__Sinc__SynchronizeLogResponse **resp - where to put the response received. NULL to not use.
+ *                  This message should be freed with si_toro__sinc__synchronize_log_response__free_unpacked(resp, NULL) after use.
+ * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
+ *                  SincStrError() to get the error status.
+ */
+
+bool SincDecodeSynchronizeLogResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__SynchronizeLogResponse **resp)
+{
+    int ok;
+    SiToro__Sinc__SynchronizeLogResponse *r = si_toro__sinc__synchronize_log_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
+    if (resp != NULL)
+        *resp = r;
+
+    if (r == NULL)
+    {
+        SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted synchronize log packet");
+        return false;
+    }
+
+    ok = SincInterpretSuccessError(err, r->success);
+
+    if (resp == NULL)
+        si_toro__sinc__synchronize_log_response__free_unpacked(r, NULL);
 
     return ok;
 }
@@ -348,7 +388,7 @@ bool SincDecodeListParamDetailsResponse(SincError *err, SincBuffer *packet, SiTo
 bool SincDecodeMonitorChannelsCommand(SincError *err, SincBuffer *packet, uint64_t *channelBitSet)
 {
     unsigned int i;
-    SiToro__Sinc__MonitorChannelsCommand *cmd = si_toro__sinc__monitor_channels_command__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__MonitorChannelsCommand *cmd = si_toro__sinc__monitor_channels_command__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
 
     if (cmd == NULL)
     {
@@ -358,7 +398,7 @@ bool SincDecodeMonitorChannelsCommand(SincError *err, SincBuffer *packet, uint64
 
     *channelBitSet = 0;
     for (i = 0; i < cmd->n_channelid; i++)
-        *channelBitSet |= (1 << cmd->channelid[i]);
+        *channelBitSet |= (((uint64_t)1) << cmd->channelid[i]);
 
     si_toro__sinc__monitor_channels_command__free_unpacked(cmd, NULL);
 
@@ -520,29 +560,29 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
         resetBlanked->intData = NULL;
     }
 
-    if (packet->len < 2)
+    if (packet->cbuf.len < 2)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
         goto errorExitDecodeOsc;
     }
 
-    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->data);
+    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->cbuf.data);
     unsigned int startPos = 2;
     if (protobufHeaderLen == 0xffff)
     {
         // Extended length protobuf data.
-        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->data[startPos]);
+        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->cbuf.data[startPos]);
         startPos += sizeof(uint32_t);
     }
 
-    if (protobufHeaderLen + startPos > packet->len)
+    if (protobufHeaderLen + startPos > packet->cbuf.len)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
         goto errorExitDecodeOsc;
     }
 
     // Unpack it.
-    SiToro__Sinc__OscilloscopeDataResponse *resp = si_toro__sinc__oscilloscope_data_response__unpack(NULL, protobufHeaderLen, &packet->data[startPos]);
+    SiToro__Sinc__OscilloscopeDataResponse *resp = si_toro__sinc__oscilloscope_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
     if (resp == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
@@ -630,7 +670,7 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
         uint32_t resetBlankedSamples = resp->plotlen[1];
         si_toro__sinc__oscilloscope_data_response__free_unpacked(resp, NULL);
 
-        uint8_t *rawData = &packet->data[protobufHeaderLen + startPos];  // Skip the initial protocol buffer info.
+        uint8_t *rawData = &packet->cbuf.data[protobufHeaderLen + startPos];  // Skip the initial protocol buffer info.
         uint8_t *dpos = rawData;
 
         // Copy the raw data.
@@ -697,6 +737,125 @@ errorExitDecodeOsc:
 
 
 /*
+ * NAME:        SincDecodeOscilloscopeDataResponseAsPlotArray
+ * ACTION:      Decodes a capture from the oscilloscope as an array of plots with different data in each plot.
+ * PARAMETERS:  Sinc *sc               - the sinc connection.
+ *              SincBuffer *packet     - the de-encapsulated packet to decode.
+ *              int *fromChannelId     - if non-NULL this is set to the channel the histogram was received from.
+ *              SincOscPlot *plotArray - points to an array of oscilloscope plots. Plot 0 is the raw data. Plot 1 is reset blanked.
+ *                                       Will allocate plotArray[i]->intData so you must free it.
+ *              int maxPlotArray       - the number of SincOscPlots in the array.
+ *              int *plotArraySize     - will be set to the number of oscilloscope plots received.
+ * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
+ *                  SincStrError() to get the error status. There's no need to free
+ *                  resetBlanked or rawCurve data on failure.
+ */
+
+bool SincDecodeOscilloscopeDataResponseAsPlotArray(SincError *err, SincBuffer *packet, int *fromChannelId, uint64_t *dataSetId, SincOscPlot *plotArray, int maxPlotArray, int *plotArraySize)
+{
+    uint16_t val_u16;
+    uint32_t val_u32;
+    size_t   i;
+    size_t   numIntPlots = 0;
+
+    // Clear the plots.
+    memset(plotArray, 0, sizeof(SincOscPlot) * maxPlotArray);
+
+    if (packet->cbuf.len < 2)
+    {
+        SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
+        goto errorExitDecodeOsc;
+    }
+
+    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->cbuf.data);
+    unsigned int startPos = 2;
+    if (protobufHeaderLen == 0xffff)
+    {
+        // Extended length protobuf data.
+        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->cbuf.data[startPos]);
+        startPos += sizeof(uint32_t);
+    }
+
+    if (protobufHeaderLen + startPos > packet->cbuf.len)
+    {
+        SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
+        goto errorExitDecodeOsc;
+    }
+
+    // Unpack it.
+    SiToro__Sinc__OscilloscopeDataResponse *resp = si_toro__sinc__oscilloscope_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
+    if (resp == NULL)
+    {
+        SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
+        goto errorExitDecodeOsc;
+    }
+
+    // Get some fields.
+    if (fromChannelId != NULL)
+    {
+        *fromChannelId = -1;
+        if (resp->has_channelid)
+            *fromChannelId = resp->channelid;
+    }
+
+    if (dataSetId != NULL)
+    {
+        *dataSetId = 0;
+        if (resp->has_datasetid)
+            *dataSetId = resp->datasetid;
+    }
+
+    // Get the int plots.
+    numIntPlots = MIN(resp->n_plots, (size_t)maxPlotArray);
+    for (i = 0; i < numIntPlots; i++)
+    {
+        if (resp->plots[i]->n_val > 0)
+        {
+            // Get the int plot.
+            plotArray[i].len = (int)resp->plots[i]->n_val;
+            plotArray[i].intData = malloc((size_t)plotArray[i].len * sizeof(int32_t));
+            if (plotArray[i].intData == NULL)
+            {
+                SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+                goto errorExitDecodeOsc;
+            }
+
+            memcpy(plotArray[i].intData, resp->plots[i]->val, (size_t)plotArray[i].len * sizeof(*plotArray[i].intData));
+
+            // Get the int value ranges.
+            if (resp->has_minvaluerange)
+                plotArray[i].minRange = resp->minvaluerange;
+
+            if (resp->has_maxvaluerange)
+                plotArray[i].maxRange = resp->maxvaluerange;
+        }
+    }
+
+    if (plotArraySize)
+    {
+        *plotArraySize = numIntPlots;
+    }
+
+    return true;
+
+    /* Using a linux kernel-style cleanup method to make sure resources are freed on any failure. */
+errorExitDecodeOsc:
+    for (i = 0; i < numIntPlots; i++)
+    {
+        if (plotArray[i].intData)
+        {
+            free(plotArray[i].intData);
+            plotArray[i].intData = NULL;
+        }
+
+        plotArray[i].len = 0;
+    }
+
+    return false;
+}
+
+
+/*
  * NAME:        SincDecodeHistogramDataResponse
  * ACTION:      Decodes an update from the histogram. Waits for the next histogram update to
  *              arrive if timeout is non-zero.
@@ -705,6 +864,8 @@ errorExitDecodeOsc:
  *              int *fromChannelId      - if non-NULL this is set to the channel the histogram was received from.
  *              SincHistogram *accepted - the accepted histogram plot. Will allocate accepted->data so you must free it.
  *              SincHistogram *rejected - the rejected histogram plot. Will allocate rejected->data so you must free it.
+ *              SincHistogramCountStats *stats - various statistics about the histogram. Can be NULL if not needed.
+ *                                        May allocate stats->intensity so you should free it if non-NULL.
  * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
  *                  SincStrError() to get the error status. There's no need to free
  *                  accepted or rejected data on failure.
@@ -715,29 +876,29 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
     uint16_t val_u16;
     uint32_t val_u32;
 
-    if (packet->len < 2)
+    if (packet->cbuf.len < 2)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram packet");
         return false;
     }
 
-    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->data);
+    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->cbuf.data);
     unsigned int startPos = 2;
 
     if (protobufHeaderLen == 0xffff)
     {
         // Extended length protobuf data.
-        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->data[startPos]);
+        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->cbuf.data[startPos]);
         startPos += sizeof(uint32_t);
     }
 
-    if (protobufHeaderLen > 200 || protobufHeaderLen + startPos > packet->len)
+    if (protobufHeaderLen > 200 || protobufHeaderLen + startPos > packet->cbuf.len)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram packet");
         return false;
     }
 
-    SiToro__Sinc__HistogramDataResponse *resp = si_toro__sinc__histogram_data_response__unpack(NULL, protobufHeaderLen, &packet->data[startPos]);
+    SiToro__Sinc__HistogramDataResponse *resp = si_toro__sinc__histogram_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
     if (resp == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram header");
@@ -820,13 +981,26 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
 
         if (resp->has_trigger)
             stats->trigger = resp->trigger;
+
+        if (resp->n_intensity > 0)
+        {
+            stats->numIntensity = resp->n_intensity;
+            stats->intensityData = calloc(resp->n_intensity, sizeof(uint32_t));
+            if (stats->intensityData == NULL)
+            {
+                SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+                goto errorExit;
+            }
+
+            memcpy(stats->intensityData, resp->intensity, resp->n_intensity * sizeof(uint32_t));
+        }
     }
 
     si_toro__sinc__histogram_data_response__free_unpacked(resp, NULL);
 
     // Copy the accepted data.
-    uint8_t *bPos = &packet->data[protobufHeaderLen + 2];  // Skip the initial protocol buffer info.
-    int bLeft = (int)(packet->len - protobufHeaderLen - 2);
+    uint8_t *bPos = &packet->cbuf.data[protobufHeaderLen + 2];  // Skip the initial protocol buffer info.
+    int bLeft = (int)(packet->cbuf.len - protobufHeaderLen - 2);
 
     if (accepted != NULL)
     {
@@ -838,7 +1012,7 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
             if (accepted->data == NULL)
             {
                 SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
-                return false;
+                goto errorExit;
             }
 
             memcpy(accepted->data, bPos, acceptedSamples * sizeof(uint32_t));
@@ -857,14 +1031,8 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
             rejected->data = calloc(rejectedSamples, sizeof(uint32_t));
             if (rejected->data == NULL)
             {
-                if (accepted->data != NULL)
-                {
-                    free(accepted->data);
-                    accepted->data = NULL;
-                }
-
                 SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
-                return false;
+                goto errorExit;
             }
 
             memcpy(rejected->data, bPos, rejectedSamples * sizeof(uint32_t));
@@ -874,6 +1042,28 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
     }
 
     return true;
+
+errorExit:
+    if (accepted && accepted->data != NULL)
+    {
+        free(accepted->data);
+        accepted->data = NULL;
+    }
+
+    if (rejected && rejected->data != NULL)
+    {
+        free(rejected->data);
+        rejected->data = NULL;
+    }
+
+    if (stats && stats->intensityData != NULL)
+    {
+        free(stats->intensityData);
+        stats->intensityData = NULL;
+        stats->numIntensity = 0;
+    }
+
+    return false;
 }
 
 
@@ -886,6 +1076,8 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
  *              int *fromChannelId      - if non-NULL this is set to the channel the histogram was received from.
  *              SincHistogram *accepted - the accepted histogram plot. Will allocate accepted->data so you must free it.
  *              SincHistogram *rejected - the rejected histogram plot. Will allocate rejected->data so you must free it.
+ *              SincHistogramCountStats *stats - various statistics about the histogram. Can be NULL if not needed.
+ *                                        May allocate stats->intensity so you should free it if non-NULL.
  * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
  *                  SincStrError() to get the error status. There's no need to free
  *                  accepted or rejected data on failure.
@@ -894,7 +1086,8 @@ bool SincDecodeHistogramDataResponse(SincError *err, SincBuffer *packet, int *fr
 bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int *fromChannelId, SincHistogram *accepted, SincHistogram *rejected, SincHistogramCountStats *stats)
 {
     uint8_t *bufPos;
-    uint32_t headerLen, samples, spectrumSelectionMask;
+    size_t headerLen;
+    uint32_t samples, spectrumSelectionMask;
     uint16_t msgType, protocolVersion;
     int bufLeft;
     uint16_t val_u16;
@@ -902,13 +1095,13 @@ bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int
     uint64_t val_u64;
     double   val_double;
 
-    if (packet->len < SINC_UDP_HISTOGRAM_HEADER_SIZE_PROTOCOL_0)
+    if (packet->cbuf.len < SINC_UDP_HISTOGRAM_HEADER_SIZE_PROTOCOL_0)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram datagram packet");
         return false;
     }
 
-    bufPos = packet->data;
+    bufPos = packet->cbuf.data;
     headerLen = SINC_PROTOCOL_READ_UINT32(bufPos);
     bufPos += sizeof(uint32_t);
 
@@ -978,35 +1171,64 @@ bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int
         sPos += sizeof(uint32_t);
 
         stats->trigger = SI_TORO__SINC__HISTOGRAM_TRIGGER__REFRESH_UPDATE;
-        if (headerLen > sPos - packet->data)
+        if (headerLen > (size_t)(sPos - packet->cbuf.data))
         {
+            // Get the trigger.
             stats->trigger = SINC_PROTOCOL_READ_UINT32(sPos);
             sPos += sizeof(uint32_t);
+        }
+
+        if (headerLen - 5 * sizeof(uint32_t) >= (size_t)(sPos - packet->cbuf.data))
+        {
+            // Get intensity data.
+            sPos += sizeof(uint32_t) * 4;
+            stats->numIntensity = SINC_PROTOCOL_READ_UINT32(sPos);
+            sPos += sizeof(uint32_t);
+
+            if (stats->numIntensity > 0)
+            {
+                if (headerLen < sPos - packet->cbuf.data - stats->numIntensity * sizeof(uint32_t))
+                {
+                    SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram intensity packet");
+                    goto errorExit;
+                }
+
+                stats->intensityData = calloc(stats->numIntensity, sizeof(uint32_t));
+                if (stats->intensityData == NULL)
+                {
+                    SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+                    goto errorExit;
+                }
+
+                memcpy(stats->intensityData, sPos, stats->numIntensity * sizeof(uint32_t));
+                sPos += stats->numIntensity * sizeof(uint32_t);
+            }
         }
     }
 
     //bufPos += 5 * sizeof(uint64_t) + 4 * sizeof(double) + 6 * sizeof(uint32_t);
 
-    if (headerLen > packet->len)
+    if (headerLen > packet->cbuf.len)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted histogram datagram packet");
         return false;
     }
 
-    bufPos = &packet->data[headerLen];
-    bufLeft = (int)(packet->len - headerLen);
+    bufPos = &packet->cbuf.data[headerLen];
+    bufLeft = (int)(packet->cbuf.len - headerLen);
 
     if (accepted != NULL)
     {
-        accepted->len = (int)samples;
+        accepted->len = 0;
         accepted->data = NULL;
         if (samples > 0 && (spectrumSelectionMask & SINC_SPECTRUMSELECT_ACCEPTED) != 0 && bufLeft >= (int)(samples * sizeof(uint32_t)))
         {
+            accepted->len = (int)samples;
             accepted->data = calloc(samples, sizeof(uint32_t));
             if (accepted->data == NULL)
             {
                 SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
-                return false;
+                goto errorExit;
             }
 
             memcpy(accepted->data, bufPos, samples * sizeof(uint32_t));
@@ -1018,21 +1240,16 @@ bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int
     // Copy the rejected data.
     if (rejected != NULL)
     {
-        rejected->len = (int)samples;
+        rejected->len = 0;
         rejected->data = NULL;
         if (samples > 0 && (spectrumSelectionMask & SINC_SPECTRUMSELECT_REJECTED) != 0 && bufLeft >= (int)(samples * sizeof(uint32_t)))
         {
+            rejected->len = (int)samples;
             rejected->data = calloc(samples, sizeof(uint32_t));
             if (rejected->data == NULL)
             {
-                if (accepted->data != NULL)
-                {
-                    free(accepted->data);
-                    accepted->data = NULL;
-                }
-
                 SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
-                return false;
+                goto errorExit;
             }
 
             memcpy(rejected->data, bufPos, samples * sizeof(uint32_t));
@@ -1042,6 +1259,29 @@ bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int
     }
 
     return true;
+
+errorExit:
+    // Clean up and exit.
+    if (accepted && accepted->data != NULL)
+    {
+        free(accepted->data);
+        accepted->data = NULL;
+    }
+
+    if (rejected && rejected->data != NULL)
+    {
+        free(accepted->data);
+        accepted->data = NULL;
+    }
+
+    if (stats && stats->intensityData != NULL)
+    {
+        free(stats->intensityData);
+        stats->intensityData = NULL;
+        stats->numIntensity = 0;
+    }
+
+    return false;
 }
 
 
@@ -1063,29 +1303,29 @@ bool SincDecodeListModeDataResponse(SincError *err, SincBuffer *packet, int *fro
     uint16_t val_u16;
     uint32_t val_u32;
 
-    if (packet->len < 2)
+    if (packet->cbuf.len < 2)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted list mode packet");
         return false;
     }
 
-    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->data);
+    uint32_t protobufHeaderLen = SINC_PROTOCOL_READ_UINT16(packet->cbuf.data);
     unsigned int startPos = 2;
 
     if (protobufHeaderLen == 0xffff)
     {
         // Extended length protobuf data.
-        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->data[startPos]);
+        protobufHeaderLen = SINC_PROTOCOL_READ_UINT32(&packet->cbuf.data[startPos]);
         startPos += sizeof(uint32_t);
     }
 
-    if (protobufHeaderLen > 200 || protobufHeaderLen + startPos > packet->len)
+    if (protobufHeaderLen > 200 || protobufHeaderLen + startPos > packet->cbuf.len)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted list mode packet");
         return false;
     }
 
-    SiToro__Sinc__ListModeDataResponse *resp = si_toro__sinc__list_mode_data_response__unpack(NULL, protobufHeaderLen, &packet->data[startPos]);
+    SiToro__Sinc__ListModeDataResponse *resp = si_toro__sinc__list_mode_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
     if (resp == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted list mode header");
@@ -1108,8 +1348,8 @@ bool SincDecodeListModeDataResponse(SincError *err, SincBuffer *packet, int *fro
     si_toro__sinc__list_mode_data_response__free_unpacked(resp, NULL);
 
     // Get the list mode data.
-    uint8_t *bPos = &packet->data[protobufHeaderLen + 2];  // Skip the initial protocol buffer info.
-    int bLen = (int)(packet->len - protobufHeaderLen - 2);
+    uint8_t *bPos = &packet->cbuf.data[protobufHeaderLen + 2];  // Skip the initial protocol buffer info.
+    int bLen = (int)(packet->cbuf.len - protobufHeaderLen - 2);
 
     if (data != NULL)
     {
@@ -1139,7 +1379,7 @@ bool SincDecodeListModeDataResponse(SincError *err, SincBuffer *packet, int *fro
  * PARAMETERS:  SincError *err                                 - the sinc error structure.
  *              SincBuffer *packet                             - the de-encapsulated packet to decode.
  *              SiToro__Sinc__AsynchronousErrorResponse **resp - where to put the response received. NULL to not use.
- *                  This message should be freed with si_toro__sinc__success_response__free_unpacked(resp, NULL) after use.
+ *                  This message should be freed with si_toro__sinc__asynchronous_error_response__free_unpacked(resp, NULL) after use.
  *              int *fromChannelId                        - set to the received channel id. NULL to not use.
  * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
  *                  SincStrError() to get the error status.
@@ -1147,7 +1387,7 @@ bool SincDecodeListModeDataResponse(SincError *err, SincBuffer *packet, int *fro
 
 bool SincDecodeAsynchronousErrorResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__AsynchronousErrorResponse **resp, int *fromChannelId)
 {
-    SiToro__Sinc__AsynchronousErrorResponse *r = si_toro__sinc__asynchronous_error_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__AsynchronousErrorResponse *r = si_toro__sinc__asynchronous_error_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -1184,7 +1424,7 @@ bool SincDecodeAsynchronousErrorResponse(SincError *err, SincBuffer *packet, SiT
 
 bool SincDecodeSoftwareUpdateCompleteResponse(SincError *err, SincBuffer *packet)
 {
-    SiToro__Sinc__SoftwareUpdateCompleteResponse *r = si_toro__sinc__software_update_complete_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__SoftwareUpdateCompleteResponse *r = si_toro__sinc__software_update_complete_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (r == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted software update complete packet");
@@ -1216,7 +1456,7 @@ bool SincDecodeSoftwareUpdateCompleteResponse(SincError *err, SincBuffer *packet
 
 bool SincDecodeCheckParamConsistencyResponse(SincError *err, SincBuffer *packet, SiToro__Sinc__CheckParamConsistencyResponse **resp, int *fromChannelId)
 {
-    SiToro__Sinc__CheckParamConsistencyResponse *r = si_toro__sinc__check_param_consistency_response__unpack(NULL, packet->len, packet->data);
+    SiToro__Sinc__CheckParamConsistencyResponse *r = si_toro__sinc__check_param_consistency_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
     if (resp != NULL)
         *resp = r;
 
@@ -1241,6 +1481,65 @@ bool SincDecodeCheckParamConsistencyResponse(SincError *err, SincBuffer *packet,
     return ok;
 }
 
+/*
+ * NAME:        SincDecodeDownloadCrashDumpResponse
+ * ACTION:      Reads a response to a check parameter consistency command.
+ * PARAMETERS:  SincError *err     - the sinc error structure.
+ *              SincBuffer *packet - the de-encapsulated packet to decode.
+ *              bool *newDump      - set true if this crash dump is new.
+ *              uint8_t **dumpData - where to put a pointer to the newly allocated crash dump data.
+ *                                   This should be free()d after use.
+ *              size_t *dumpSize   - where to put the size of the crash dump data.
+ * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
+ *                  SincStrError() to get the error status.
+ */
+
+bool SincDecodeDownloadCrashDumpResponse(SincError *err, SincBuffer *packet, bool *newDump, uint8_t **dumpData, size_t *dumpSize)
+{
+    SiToro__Sinc__DownloadCrashDumpResponse *r = si_toro__sinc__download_crash_dump_response__unpack(NULL, packet->cbuf.len, packet->cbuf.data);
+
+    if (r == NULL)
+    {
+        SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted download crash dump packet");
+        return false;
+    }
+
+    if (r->success)
+    {
+        if (!SincInterpretSuccessError(err, r->success))
+        {
+            si_toro__sinc__download_crash_dump_response__free_unpacked(r, NULL);
+            return false;
+        }
+    }
+
+    *newDump = true;
+    if (r->has_new_)
+    {
+        *newDump = r->new_;
+    }
+
+    *dumpData = NULL;
+    *dumpSize = 0;
+
+    if (r->has_content)
+    {
+        *dumpData = calloc(r->content.len, 1);
+        if (!*dumpData)
+        {
+            si_toro__sinc__download_crash_dump_response__free_unpacked(r, NULL);
+            SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+            return false;
+        }
+
+        memcpy(*dumpData, r->content.data, r->content.len);
+        *dumpSize = r->content.len;
+    }
+
+    si_toro__sinc__download_crash_dump_response__free_unpacked(r, NULL);
+
+    return true;
+}
 
 /*
  * NAME:        SincMessageTypeFromCodes
@@ -1312,12 +1611,12 @@ bool SincGetNextPacketFromBufferGeneric(SincBuffer *readBuf, uint32_t marker, Si
 
     *packetFound = false;
 
-    if (readBuf->len == 0)
+    if (readBuf->cbuf.len == 0)
         return true;
 
     // Clear the destination buffer.
     if (packetBuf != NULL)
-        packetBuf->len = 0;
+        packetBuf->cbuf.len = 0;
 
     // Try to get a message from the read buffer.
     do
@@ -1328,8 +1627,8 @@ bool SincGetNextPacketFromBufferGeneric(SincBuffer *readBuf, uint32_t marker, Si
         // Remove the consumed data from the buffer.
         if (bytesConsumed > 0 && (packetBuf != NULL || !gotMessage))
         {
-            memmove(readBuf->data, &readBuf->data[bytesConsumed], readBuf->len - (size_t)bytesConsumed);
-            readBuf->len -= (size_t)bytesConsumed;
+            memmove(readBuf->cbuf.data, &readBuf->cbuf.data[bytesConsumed], readBuf->cbuf.len - (size_t)bytesConsumed);
+            readBuf->cbuf.len -= (size_t)bytesConsumed;
         }
 
         // Is there a response?

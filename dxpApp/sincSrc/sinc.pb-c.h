@@ -55,6 +55,12 @@ typedef struct _SiToro__Sinc__DownloadCrashDumpCommand SiToro__Sinc__DownloadCra
 typedef struct _SiToro__Sinc__DownloadCrashDumpResponse SiToro__Sinc__DownloadCrashDumpResponse;
 typedef struct _SiToro__Sinc__CheckParamConsistencyCommand SiToro__Sinc__CheckParamConsistencyCommand;
 typedef struct _SiToro__Sinc__CheckParamConsistencyResponse SiToro__Sinc__CheckParamConsistencyResponse;
+typedef struct _SiToro__Sinc__TriggerHistogramCommand SiToro__Sinc__TriggerHistogramCommand;
+typedef struct _SiToro__Sinc__Timestamp SiToro__Sinc__Timestamp;
+typedef struct _SiToro__Sinc__SynchronizeLogCommand SiToro__Sinc__SynchronizeLogCommand;
+typedef struct _SiToro__Sinc__LogEntry SiToro__Sinc__LogEntry;
+typedef struct _SiToro__Sinc__SynchronizeLogResponse SiToro__Sinc__SynchronizeLogResponse;
+typedef struct _SiToro__Sinc__SetTimeCommand SiToro__Sinc__SetTimeCommand;
 
 
 /* --- enums --- */
@@ -98,7 +104,12 @@ typedef enum _SiToro__Sinc__ErrorCode {
   /*
    * Operation halted because instrument has switched to histogram gated mode.
    */
-  SI_TORO__SINC__ERROR_CODE__NON_GATED_HISTOGRAM_DISABLED = 10016
+  SI_TORO__SINC__ERROR_CODE__NON_GATED_HISTOGRAM_DISABLED = 10016,
+  SI_TORO__SINC__ERROR_CODE__NOT_CONNECTED = 10017,
+  /*
+   * Multiple threads are waiting on the same connection. This is a protocol violation.
+   */
+  SI_TORO__SINC__ERROR_CODE__MULTIPLE_THREAD_WAIT = 10018
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(SI_TORO__SINC__ERROR_CODE)
 } SiToro__Sinc__ErrorCode;
 /*
@@ -146,7 +157,11 @@ typedef enum _SiToro__Sinc__MessageType {
   SI_TORO__SINC__MESSAGE_TYPE__DOWNLOAD_CRASH_DUMP_COMMAND = 39,
   SI_TORO__SINC__MESSAGE_TYPE__DOWNLOAD_CRASH_DUMP_RESPONSE = 40,
   SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_COMMAND = 41,
-  SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_RESPONSE = 42
+  SI_TORO__SINC__MESSAGE_TYPE__CHECK_PARAM_CONSISTENCY_RESPONSE = 42,
+  SI_TORO__SINC__MESSAGE_TYPE__TRIGGER_HISTOGRAM_COMMAND = 43,
+  SI_TORO__SINC__MESSAGE_TYPE__SYNCHRONIZE_LOG_COMMAND = 44,
+  SI_TORO__SINC__MESSAGE_TYPE__SYNCHRONIZE_LOG_RESPONSE = 45,
+  SI_TORO__SINC__MESSAGE_TYPE__SET_TIME_COMMAND = 46
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(SI_TORO__SINC__MESSAGE_TYPE)
 } SiToro__Sinc__MessageType;
 /*
@@ -168,6 +183,17 @@ typedef enum _SiToro__Sinc__HistogramTrigger {
   SI_TORO__SINC__HISTOGRAM_TRIGGER__CONDITION_COMPLETE = 3
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(SI_TORO__SINC__HISTOGRAM_TRIGGER)
 } SiToro__Sinc__HistogramTrigger;
+/*
+ * LogLevel indicates the severity level of a log message.
+ */
+typedef enum _SiToro__Sinc__LogLevel {
+  SI_TORO__SINC__LOG_LEVEL__FATAL = 1,
+  SI_TORO__SINC__LOG_LEVEL__ALARM = 2,
+  SI_TORO__SINC__LOG_LEVEL__ERROR = 3,
+  SI_TORO__SINC__LOG_LEVEL__WARNING = 4,
+  SI_TORO__SINC__LOG_LEVEL__INFO = 5
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(SI_TORO__SINC__LOG_LEVEL)
+} SiToro__Sinc__LogLevel;
 typedef enum _SiToro__Sinc__SiToroHistogramMode {
   SI_TORO__SINC__SI_TORO__HISTOGRAM_MODE__SiToro_HistogramMode_Continuous = 0,
   SI_TORO__SINC__SI_TORO__HISTOGRAM_MODE__SiToro_HistogramMode_FixedTime = 1,
@@ -295,10 +321,13 @@ struct  _SiToro__Sinc__SetParamCommand
   int32_t channelid;
   size_t n_params;
   SiToro__Sinc__KeyValue **params;
+  protobuf_c_boolean has_settingallparams;
+  protobuf_c_boolean settingallparams;
+  char *fromfirmwareversion;
 };
 #define SI_TORO__SINC__SET_PARAM_COMMAND__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__set_param_command__descriptor) \
-    , NULL, 0,0, 0,NULL }
+    , NULL, 0,0, 0,NULL, 0,0, NULL }
 
 
 struct  _SiToro__Sinc__StartHistogramCommand
@@ -433,10 +462,12 @@ struct  _SiToro__Sinc__HistogramDataResponse
   uint32_t negativerailhitcount;
   protobuf_c_boolean has_trigger;
   SiToro__Sinc__HistogramTrigger trigger;
+  size_t n_intensity;
+  uint32_t *intensity;
 };
 #define SI_TORO__SINC__HISTOGRAM_DATA_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__histogram_data_response__descriptor) \
-    , 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,NULL, 0,0, 0,0, 0,0, 0,0 }
+    , 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,NULL, 0,0, 0,0, 0,0, 0,0, 0,NULL }
 
 
 struct  _SiToro__Sinc__ListModeDataResponse
@@ -766,10 +797,12 @@ struct  _SiToro__Sinc__StartFFTCommand
 struct  _SiToro__Sinc__RestartCommand
 {
   ProtobufCMessage base;
+  protobuf_c_boolean has_factorymode;
+  protobuf_c_boolean factorymode;
 };
 #define SI_TORO__SINC__RESTART_COMMAND__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__restart_command__descriptor) \
-     }
+    , 0,0 }
 
 
 struct  _SiToro__Sinc__SoftwareUpdateFile
@@ -818,10 +851,12 @@ struct  _SiToro__Sinc__SaveConfigurationCommand
   ProtobufCMessage base;
   protobuf_c_boolean has_channelid;
   int32_t channelid;
+  protobuf_c_boolean has_deleteconfig;
+  protobuf_c_boolean deleteconfig;
 };
 #define SI_TORO__SINC__SAVE_CONFIGURATION_COMMAND__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__save_configuration_command__descriptor) \
-    , 0,0 }
+    , 0,0, 0,0 }
 
 
 struct  _SiToro__Sinc__AsynchronousErrorResponse
@@ -871,10 +906,12 @@ struct  _SiToro__Sinc__DownloadCrashDumpResponse
   protobuf_c_boolean has_content;
   ProtobufCBinaryData content;
   char *timestamp;
+  protobuf_c_boolean has_new_;
+  protobuf_c_boolean new_;
 };
 #define SI_TORO__SINC__DOWNLOAD_CRASH_DUMP_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__download_crash_dump_response__descriptor) \
-    , NULL, 0,{0,NULL}, NULL }
+    , NULL, 0,{0,NULL}, NULL, 0,0 }
 
 
 struct  _SiToro__Sinc__CheckParamConsistencyCommand
@@ -900,6 +937,80 @@ struct  _SiToro__Sinc__CheckParamConsistencyResponse
 #define SI_TORO__SINC__CHECK_PARAM_CONSISTENCY_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__check_param_consistency_response__descriptor) \
     , NULL, 0,0, NULL, NULL }
+
+
+struct  _SiToro__Sinc__TriggerHistogramCommand
+{
+  ProtobufCMessage base;
+};
+#define SI_TORO__SINC__TRIGGER_HISTOGRAM_COMMAND__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__trigger_histogram_command__descriptor) \
+     }
+
+
+struct  _SiToro__Sinc__Timestamp
+{
+  ProtobufCMessage base;
+  protobuf_c_boolean has_seconds;
+  int64_t seconds;
+  protobuf_c_boolean has_microseconds;
+  int32_t microseconds;
+};
+#define SI_TORO__SINC__TIMESTAMP__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__timestamp__descriptor) \
+    , 0,0, 0,0 }
+
+
+struct  _SiToro__Sinc__SynchronizeLogCommand
+{
+  ProtobufCMessage base;
+  protobuf_c_boolean has_lastsequenceno;
+  uint64_t lastsequenceno;
+};
+#define SI_TORO__SINC__SYNCHRONIZE_LOG_COMMAND__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__synchronize_log_command__descriptor) \
+    , 0,0 }
+
+
+struct  _SiToro__Sinc__LogEntry
+{
+  ProtobufCMessage base;
+  protobuf_c_boolean has_sequenceno;
+  uint64_t sequenceno;
+  protobuf_c_boolean has_level;
+  SiToro__Sinc__LogLevel level;
+  protobuf_c_boolean has_errorcode;
+  SiToro__Sinc__ErrorCode errorcode;
+  char *message;
+  protobuf_c_boolean has_channelid;
+  int32_t channelid;
+  SiToro__Sinc__Timestamp *hosttime;
+};
+#define SI_TORO__SINC__LOG_ENTRY__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__log_entry__descriptor) \
+    , 0,0, 0,0, 0,0, NULL, 0,0, NULL }
+
+
+struct  _SiToro__Sinc__SynchronizeLogResponse
+{
+  ProtobufCMessage base;
+  SiToro__Sinc__SuccessResponse *success;
+  size_t n_log;
+  SiToro__Sinc__LogEntry **log;
+};
+#define SI_TORO__SINC__SYNCHRONIZE_LOG_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__synchronize_log_response__descriptor) \
+    , NULL, 0,NULL }
+
+
+struct  _SiToro__Sinc__SetTimeCommand
+{
+  ProtobufCMessage base;
+  SiToro__Sinc__Timestamp *hosttime;
+};
+#define SI_TORO__SINC__SET_TIME_COMMAND__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&si_toro__sinc__set_time_command__descriptor) \
+    , NULL }
 
 
 /* SiToro__Sinc__SuccessResponse methods */
@@ -1662,6 +1773,120 @@ SiToro__Sinc__CheckParamConsistencyResponse *
 void   si_toro__sinc__check_param_consistency_response__free_unpacked
                      (SiToro__Sinc__CheckParamConsistencyResponse *message,
                       ProtobufCAllocator *allocator);
+/* SiToro__Sinc__TriggerHistogramCommand methods */
+void   si_toro__sinc__trigger_histogram_command__init
+                     (SiToro__Sinc__TriggerHistogramCommand         *message);
+size_t si_toro__sinc__trigger_histogram_command__get_packed_size
+                     (const SiToro__Sinc__TriggerHistogramCommand   *message);
+size_t si_toro__sinc__trigger_histogram_command__pack
+                     (const SiToro__Sinc__TriggerHistogramCommand   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__trigger_histogram_command__pack_to_buffer
+                     (const SiToro__Sinc__TriggerHistogramCommand   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__TriggerHistogramCommand *
+       si_toro__sinc__trigger_histogram_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__trigger_histogram_command__free_unpacked
+                     (SiToro__Sinc__TriggerHistogramCommand *message,
+                      ProtobufCAllocator *allocator);
+/* SiToro__Sinc__Timestamp methods */
+void   si_toro__sinc__timestamp__init
+                     (SiToro__Sinc__Timestamp         *message);
+size_t si_toro__sinc__timestamp__get_packed_size
+                     (const SiToro__Sinc__Timestamp   *message);
+size_t si_toro__sinc__timestamp__pack
+                     (const SiToro__Sinc__Timestamp   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__timestamp__pack_to_buffer
+                     (const SiToro__Sinc__Timestamp   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__Timestamp *
+       si_toro__sinc__timestamp__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__timestamp__free_unpacked
+                     (SiToro__Sinc__Timestamp *message,
+                      ProtobufCAllocator *allocator);
+/* SiToro__Sinc__SynchronizeLogCommand methods */
+void   si_toro__sinc__synchronize_log_command__init
+                     (SiToro__Sinc__SynchronizeLogCommand         *message);
+size_t si_toro__sinc__synchronize_log_command__get_packed_size
+                     (const SiToro__Sinc__SynchronizeLogCommand   *message);
+size_t si_toro__sinc__synchronize_log_command__pack
+                     (const SiToro__Sinc__SynchronizeLogCommand   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__synchronize_log_command__pack_to_buffer
+                     (const SiToro__Sinc__SynchronizeLogCommand   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__SynchronizeLogCommand *
+       si_toro__sinc__synchronize_log_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__synchronize_log_command__free_unpacked
+                     (SiToro__Sinc__SynchronizeLogCommand *message,
+                      ProtobufCAllocator *allocator);
+/* SiToro__Sinc__LogEntry methods */
+void   si_toro__sinc__log_entry__init
+                     (SiToro__Sinc__LogEntry         *message);
+size_t si_toro__sinc__log_entry__get_packed_size
+                     (const SiToro__Sinc__LogEntry   *message);
+size_t si_toro__sinc__log_entry__pack
+                     (const SiToro__Sinc__LogEntry   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__log_entry__pack_to_buffer
+                     (const SiToro__Sinc__LogEntry   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__LogEntry *
+       si_toro__sinc__log_entry__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__log_entry__free_unpacked
+                     (SiToro__Sinc__LogEntry *message,
+                      ProtobufCAllocator *allocator);
+/* SiToro__Sinc__SynchronizeLogResponse methods */
+void   si_toro__sinc__synchronize_log_response__init
+                     (SiToro__Sinc__SynchronizeLogResponse         *message);
+size_t si_toro__sinc__synchronize_log_response__get_packed_size
+                     (const SiToro__Sinc__SynchronizeLogResponse   *message);
+size_t si_toro__sinc__synchronize_log_response__pack
+                     (const SiToro__Sinc__SynchronizeLogResponse   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__synchronize_log_response__pack_to_buffer
+                     (const SiToro__Sinc__SynchronizeLogResponse   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__SynchronizeLogResponse *
+       si_toro__sinc__synchronize_log_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__synchronize_log_response__free_unpacked
+                     (SiToro__Sinc__SynchronizeLogResponse *message,
+                      ProtobufCAllocator *allocator);
+/* SiToro__Sinc__SetTimeCommand methods */
+void   si_toro__sinc__set_time_command__init
+                     (SiToro__Sinc__SetTimeCommand         *message);
+size_t si_toro__sinc__set_time_command__get_packed_size
+                     (const SiToro__Sinc__SetTimeCommand   *message);
+size_t si_toro__sinc__set_time_command__pack
+                     (const SiToro__Sinc__SetTimeCommand   *message,
+                      uint8_t             *out);
+size_t si_toro__sinc__set_time_command__pack_to_buffer
+                     (const SiToro__Sinc__SetTimeCommand   *message,
+                      ProtobufCBuffer     *buffer);
+SiToro__Sinc__SetTimeCommand *
+       si_toro__sinc__set_time_command__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   si_toro__sinc__set_time_command__free_unpacked
+                     (SiToro__Sinc__SetTimeCommand *message,
+                      ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
 typedef void (*SiToro__Sinc__SuccessResponse_Closure)
@@ -1784,6 +2009,24 @@ typedef void (*SiToro__Sinc__CheckParamConsistencyCommand_Closure)
 typedef void (*SiToro__Sinc__CheckParamConsistencyResponse_Closure)
                  (const SiToro__Sinc__CheckParamConsistencyResponse *message,
                   void *closure_data);
+typedef void (*SiToro__Sinc__TriggerHistogramCommand_Closure)
+                 (const SiToro__Sinc__TriggerHistogramCommand *message,
+                  void *closure_data);
+typedef void (*SiToro__Sinc__Timestamp_Closure)
+                 (const SiToro__Sinc__Timestamp *message,
+                  void *closure_data);
+typedef void (*SiToro__Sinc__SynchronizeLogCommand_Closure)
+                 (const SiToro__Sinc__SynchronizeLogCommand *message,
+                  void *closure_data);
+typedef void (*SiToro__Sinc__LogEntry_Closure)
+                 (const SiToro__Sinc__LogEntry *message,
+                  void *closure_data);
+typedef void (*SiToro__Sinc__SynchronizeLogResponse_Closure)
+                 (const SiToro__Sinc__SynchronizeLogResponse *message,
+                  void *closure_data);
+typedef void (*SiToro__Sinc__SetTimeCommand_Closure)
+                 (const SiToro__Sinc__SetTimeCommand *message,
+                  void *closure_data);
 
 /* --- services --- */
 
@@ -1794,6 +2037,7 @@ extern const ProtobufCEnumDescriptor    si_toro__sinc__error_code__descriptor;
 extern const ProtobufCEnumDescriptor    si_toro__sinc__message_type__descriptor;
 extern const ProtobufCEnumDescriptor    si_toro__sinc__subsystem__descriptor;
 extern const ProtobufCEnumDescriptor    si_toro__sinc__histogram_trigger__descriptor;
+extern const ProtobufCEnumDescriptor    si_toro__sinc__log_level__descriptor;
 extern const ProtobufCEnumDescriptor    si_toro__sinc__si_toro__histogram_mode__descriptor;
 extern const ProtobufCMessageDescriptor si_toro__sinc__success_response__descriptor;
 extern const ProtobufCMessageDescriptor si_toro__sinc__ping_command__descriptor;
@@ -1836,6 +2080,12 @@ extern const ProtobufCMessageDescriptor si_toro__sinc__download_crash_dump_comma
 extern const ProtobufCMessageDescriptor si_toro__sinc__download_crash_dump_response__descriptor;
 extern const ProtobufCMessageDescriptor si_toro__sinc__check_param_consistency_command__descriptor;
 extern const ProtobufCMessageDescriptor si_toro__sinc__check_param_consistency_response__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__trigger_histogram_command__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__timestamp__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__synchronize_log_command__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__log_entry__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__synchronize_log_response__descriptor;
+extern const ProtobufCMessageDescriptor si_toro__sinc__set_time_command__descriptor;
 
 PROTOBUF_C__END_DECLS
 

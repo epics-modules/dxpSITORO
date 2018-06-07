@@ -33,11 +33,11 @@ bool SincInit(Sinc *sc)
 
     // Force the buffer to use dynamically allocated memory.
     sc->readBuf = tmpBuffer;
-    sc->readBuf.alloced = SINC_READBUF_DEFAULT_SIZE;
-    sc->readBuf.must_free_data = true;
-    sc->readBuf.data = malloc(SINC_READBUF_DEFAULT_SIZE);
+    sc->readBuf.cbuf.alloced = SINC_READBUF_DEFAULT_SIZE;
+    sc->readBuf.cbuf.must_free_data = true;
+    sc->readBuf.cbuf.data = malloc(SINC_READBUF_DEFAULT_SIZE);
 
-    if (sc->readBuf.data == NULL)
+    if (sc->readBuf.cbuf.data == NULL)
     {
         SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
         return false;
@@ -45,12 +45,14 @@ bool SincInit(Sinc *sc)
 
     SincErrorInit(&sc->readErr);
     SincErrorInit(&sc->writeErr);
+    sc->fd = -1;
     sc->err = &sc->readErr;
     sc->timeout = -1;
     sc->datagramXfer = false;
     sc->datagramPort = 0;
     sc->datagramFd = -1;
     sc->datagramIsOpen = false;
+    sc->inSocketWait = false;
 
     return true;
 }
@@ -70,10 +72,10 @@ void SincCleanup(Sinc *sc)
         sc->connected = false;
     }
 
-    if (sc->readBuf.data != NULL)
+    if (sc->readBuf.cbuf.data != NULL)
     {
         SINC_BUFFER_CLEAR(&sc->readBuf);
-        sc->readBuf.data = NULL;
+        sc->readBuf.cbuf.data = NULL;
     }
 }
 
@@ -130,6 +132,10 @@ bool SincDisconnect(Sinc *sc)
     {
         sc->fd = -1;
         sc->connected = false;
+    }
+    else
+    {
+        SincReadErrorSetCode(sc, SI_TORO__SINC__ERROR_CODE__COMMAND_FAILED);
     }
 
     return success;
@@ -281,6 +287,8 @@ void SincErrorSetCode(SincError *err, SiToro__Sinc__ErrorCode code)
     case SI_TORO__SINC__ERROR_CODE__DEVICE_ERROR:                 SincErrorSetMessage(err, code, "device error"); break;
     case SI_TORO__SINC__ERROR_CODE__INVALID_REQUEST:              SincErrorSetMessage(err, code, "invalid request"); break;
     case SI_TORO__SINC__ERROR_CODE__NON_GATED_HISTOGRAM_DISABLED: SincErrorSetMessage(err, code, "non-gated histogram disabled"); break;
+    case SI_TORO__SINC__ERROR_CODE__NOT_CONNECTED:                SincErrorSetMessage(err, code, "not connected"); break;
+    case SI_TORO__SINC__ERROR_CODE__MULTIPLE_THREAD_WAIT:         SincErrorSetMessage(err, code, "multiple threads waiting"); break;
     case _SI_TORO__SINC__ERROR_CODE_IS_INT_SIZE:                  SincErrorSetMessage(err, code, "unknown error"); break;
     }
 }

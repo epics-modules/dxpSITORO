@@ -12,6 +12,8 @@
 #ifndef SINC_DISCOVER_H
 #define SINC_DISCOVER_H
 
+#ifndef _WIN32
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -89,5 +91,7 @@ void DiscoverSetErrStr(Discover *d, int errNo, const char *str);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* !_WIN32 */
 
 #endif /* SINC_DISCOVER_H */

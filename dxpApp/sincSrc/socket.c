@@ -475,14 +475,14 @@ int SincSocketBindDatagram(int *datagramFd, int *port)
 {
     struct sockaddr_in addr;
     socklen_t addrLen;
-    
+
     // Create the socket.
     int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (fd < 0)
     {
         return SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES;
     }
-    
+
     // Bind to a port.
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -490,22 +490,30 @@ int SincSocketBindDatagram(int *datagramFd, int *port)
     addr.sin_addr.s_addr = INADDR_ANY; // Bind on the local host.
     if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
-        close(fd);
+#ifndef _WIN32
+		close(fd);
+#else
+		closesocket(fd);
+#endif
         return SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES;
     }
-    
+
     // Find out what port we got.
     addrLen = sizeof(addr);
     if (getsockname(fd, (struct sockaddr *)&addr, &addrLen) < 0)
     {
-        close(fd);
-        return SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES;
+#ifndef _WIN32
+		close(fd);
+#else
+		closesocket(fd);
+#endif
+		return SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES;
     }
-    
+
     // Return results.
     *datagramFd = fd;
     *port = ntohs(addr.sin_port);
-    
+
     return SI_TORO__SINC__ERROR_CODE__NO_ERROR;
 }
 
@@ -523,12 +531,12 @@ int SincSocketBindDatagram(int *datagramFd, int *port)
 int SincSocketReadDatagram(int fd, uint8_t *buf, size_t *bufLen, bool nonBlocking)
 {
     int flags = 0;
-    
+
 #ifndef _WIN32
     if (nonBlocking)
         flags = MSG_DONTWAIT;
 #endif
-    
+
     int packetSize = (int)recv(fd, buf, *bufLen, flags);
     if (packetSize < 0)
     {

@@ -27,7 +27,6 @@ typedef struct
     size_t   bufHead;      /* Placed just beyond the highest used value in the buffer. */
     size_t   bufTail;      /* The lowest used value in the buffer. */
     size_t   srcTailPos;   /* Where we're up reading in the entire source data, not just the buffer. */
-    bool     scanStreamAlign;   /* Currently scanning for a "resync" flag of 0x70717273. */
 } LmBuf;
 
 
@@ -59,6 +58,9 @@ typedef struct
 } LmStreamAlignPattern;
 
 
+#define ListModeStreamAlignmentPattern (0x70717273)
+
+
 typedef struct
 {
     uint32_t timestamp;
@@ -72,7 +74,6 @@ typedef struct
     bool     hasTimeOfArrival;      /* If true, this packet has valid timeOfArrival and subSampleTimeOfArrival data. */
     uint32_t timeOfArrival;
     uint32_t subSampleTimeOfArrival;
-    bool     inMarkedRange;
 } LmPulse;
 
 
@@ -116,7 +117,7 @@ typedef struct
     union LmPacket_
     {
         LmError           error;
-        LmStreamAlignPattern    streamAlign;
+        LmStreamAlignPattern    streamAlignWord;
         LmTimestamp       sync;
         LmPulse           pulse;
         LmGateState       gateState;
