@@ -79,6 +79,50 @@ record(waveform, "$(P)SaveSystemFile")
     field(NELM, "256")
 }
 
+record(mbbo, "$(P)SCATriggerMode") {
+    field(PINI, "YES")
+    field(DESC, "SCA trigger mode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "$(IO)DxpSCATriggerMode")
+    field(ZRVL, "0")
+    field(ZRST, "Off")
+    field(ONVL, "1")
+    field(ONST, "Gate high")
+    field(TWVL, "2")
+    field(TWST, "Gate low")
+    field(THVL, "3")
+    field(THST, "Always")
+}
+
+record(mbbi, "$(P)SCATriggerMode_RBV") {
+    field(DESC, "SCA trigger mode")
+    field(DTYP, "asynInt32")
+    field(INP,  "$(IO)DxpSCATriggerMode")
+    field(ZRVL, "0")
+    field(ZRST, "Off")
+    field(ONVL, "1")
+    field(ONST, "Gate high")
+    field(TWVL, "2")
+    field(TWST, "Gate low")
+    field(THVL, "3")
+    field(THST, "Always")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)SCAPulseDuration") {
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT, "$(IO)DxpSCAPulseDuration")
+    field(VAL, "100")
+}
+
+record(longin, "$(P)SCAPulseDuration_RBV") {
+    field(DTYP, "asynInt32")
+    field(INP, "$(IO)DxpSCAPulseDuration")
+    field(SCAN, "I/O Intr")
+}
+
+
 record(longout, "$(P)NumSCAs") {
     field(PINI, "YES")
     field(DTYP, "asynInt32")
@@ -89,7 +133,6 @@ record(longout, "$(P)NumSCAs") {
 record(longin, "$(P)NumSCAs_RBV") {
     field(DTYP, "asynInt32")
     field(INP, "$(IO)DxpNumSCAs")
-    field(VAL, "16")
     field(SCAN, "I/O Intr")
 }
 
