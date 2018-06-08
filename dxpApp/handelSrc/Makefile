@@ -50,7 +50,6 @@ handel_SRCS += miniz.c
 handel_SRCS += falconx_mm.c
 handel_SRCS += falconxn_psl.c
 handel_SRCS += psl.c
-handel_SRCS += sitoro-stub.c
 
 handel_SRCS_Linux += handel_md_threads_posix.c
 handel_SRCS_WIN32 += handel_md_threads_windows.c
