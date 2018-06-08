@@ -11,7 +11,7 @@
     <h1>
       dxpSITORO - EPICS software for XIA FalconX Digital Signal Processing Systems</h1>
     <h2>
-      Release 1-0</h2>
+      Release 1-1</h2>
     <h2>
       June XXX, 2017</h2>
     <h2>
@@ -155,27 +155,34 @@
     <tbody>
       <tr>
         <td align="center" colspan="3">
-          <b>Records in dxpHighLevel.template</b></td>
+          <b>Records in dxpHighLevel.template</b>
+        </td>
       </tr>
       <tr>
         <th>
-          Record Name</th>
+          Record Name
+        </th>
         <th>
-          Record Type</th>
+          Record Type
+        </th>
         <th>
-          Description</th>
+          Description
+        </th>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Detection Records</b></td>
+          <b>Detection Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
           DetectionFilter<br />
-          DetectionFilter_RBV</td>
+          DetectionFilter_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           The detection filter type. Choices are:
           <ul>
@@ -185,86 +192,109 @@
             <li>HighRate</li>
             <li>MaxThroughput</li>
           </ul>
-          .</td>
+          .
+        </td>
       </tr>
       <tr valign="top">
         <td>
           DetectionThreshold<br />
-          DetectionThreshold_RBV</td>
+          DetectionThreshold_RBV
+        </td>
         <td>
           ao<br />
-          ai</td>
+          ai
+        </td>
         <td>
-          The threshold in keV (?).</td>
+          The threshold in keV (?).
+        </td>
       </tr>
       <tr valign="top">
         <td>
           MinPulsePairSeparation<br />
-          MinPulsePairSeparation_RBV</td>
+          MinPulsePairSeparation_RBV
+        </td>
         <td>
           longout<br />
-          longout</td>
+          longout
+        </td>
         <td>
-          The minimum number of samples between pulses.</td>
+          The minimum number of samples between pulses.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Pre-amp and Energy Range Records</b></td>
+          <b>Pre-amp and Energy Range Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
           DetectorPolarity<br />
-          DetectorPolarity_RBV</td>
+          DetectorPolarity_RBV
+        </td>
         <td>
           bo<br />
-          bi</td>
+          bi
+        </td>
         <td>
           Pre-amp polarity (not high-voltage polarity). 0=Neg, 1=Pos. Positive polarity means
           an x-ray pulse causes an increase in the pre-amp voltage output. This is normally
           defined in the .ini file, but is accessible to EPICS to allow quick determination
-          of the correct polarity.</td>
+          of the correct polarity.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           ResetDelay<br />
-          ResetDelay_RBV</td>
+          ResetDelay_RBV
+        </td>
         <td>
           ao<br />
-          ai</td>
+          ai
+        </td>
         <td>
-          For reset pre-amps the time in microseconds to recover after a pre-amp reset.</td>
+          For reset pre-amps the time in microseconds to recover after a pre-amp reset.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           DecayTime<br />
-          DecayTime_RBV</td>
+          DecayTime_RBV
+        </td>
         <td>
           ao<br />
-          ai</td>
+          ai
+        </td>
         <td>
-          For RC pre-amps the characteristic decay time in microseconds.</td>
+          For RC pre-amps the characteristic decay time in microseconds.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           ScaleFactor<br />
-          ScaleFactor_RBV</td>
+          ScaleFactor_RBV
+        </td>
         <td>
           ao<br />
-          ai</td>
+          ai
+        </td>
         <td>
-          Scale factor to control the energy range of the spectra.</td>
+          Scale factor to control the energy range of the spectra.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Preset Counting Records</b></td>
+          <b>Preset Counting Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PresetMode<br />
-          PresetMode_RBV</td>
+          PresetMode_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           The preset counting mode. The choices are:
           <ul>
@@ -274,128 +304,167 @@
             <li>"Triggers" The preset number of triggers is set by the PresetTriggers record.</li>
           </ul>
           The preset real time and preset live time are controlled by the .PRTM and .PLTM
-          fields of the corresponding MCA record.</td>
+          fields of the corresponding MCA record.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PresetReal<br />
-          PresetReal_RBV</td>
+          PresetReal_RBV
+        </td>
         <td>
           ao<br />
-          ai</td>
+          ai
+        </td>
         <td>
-          The real time in seconds count for.</td>
+          The real time in seconds count for.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PresetEvents<br />
-          PresetEvents_RBV</td>
+          PresetEvents_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
-          The number of events to count for.</td>
+          The number of events to count for.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PresetTriggers<br />
-          PresetTriggers_RBV</td>
+          PresetTriggers_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The number of triggers to count for. Triggers are x-rays that were processed by
           the trigger filter, and includes pileups and other events that are not actually
-          present in the spectrum.</td>
+          present in the spectrum.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Counting Statistics Records</b></td>
+          <b>Counting Statistics Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          ElapsedRealTime</td>
+          ElapsedRealTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The elapsed real time. This is the same information as in the .ERTM field of the
-          corresponding MCA record.</td>
+          corresponding MCA record.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          ElapsedLiveTime</td>
+          ElapsedLiveTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The elapsed live time. This is the same information as in the .ELTM field of the
-          corresponding MCA record.</td>
+          corresponding MCA record.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          ElapsedTriggerLiveTime</td>
+          ElapsedTriggerLiveTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The elapsed live time for the trigger filter.</td>
+          The elapsed live time for the trigger filter.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          Triggers</td>
+          Triggers
+        </td>
         <td>
-          longin</td>
+          longin
+        </td>
         <td>
-          The number of trigger filter events.</td>
+          The number of trigger filter events.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          Events</td>
+          Events
+        </td>
         <td>
-          longin</td>
+          longin
+        </td>
         <td>
-          The number of energy filter events.</td>
+          The number of energy filter events.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          InputCountRate</td>
+          InputCountRate
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The input count rate (ICR), which is the same as Triggers/ElapsedTriggerLiveTime.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          OutputCountRate</td>
+          OutputCountRate
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The output count rate (OCR), which is the same as Events/ElapsedRealTime.</td>
+          The output count rate (OCR), which is the same as Events/ElapsedRealTime.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Mapping Records</b></td>
+          <b>Mapping Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CurrentPixel</td>
+          CurrentPixel
+        </td>
         <td>
-          longin</td>
+          longin
+        </td>
         <td>
-          The current pixel in the mapping run in MCA mapping mode.</td>
+          The current pixel in the mapping run in MCA mapping mode.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Diagnostic Trace Records</b></td>
+          <b>Diagnostic Trace Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          TraceData</td>
+          TraceData
+        </td>
         <td>
-          waveform</td>
+          waveform
+        </td>
         <td>
           The diagnostic trace data. The array is read from the hardware when this record
           is processed. <i>Note: this record should not be processed while normal data acquisition
-            is in progress or it will slow things down.</i></td>
+            is in progress or it will slow things down.</i>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -418,33 +487,42 @@
     <tbody>
       <tr>
         <td align="center" colspan="3">
-          <b>Records in dxpSCA.template</b></td>
+          <b>Records in dxpSCA.template</b>
+        </td>
       </tr>
       <tr>
         <th>
-          Record Name</th>
+          Record Name
+        </th>
         <th>
-          Record Type</th>
+          Record Type
+        </th>
         <th>
-          Description</th>
+          Description
+        </th>
       </tr>
       <tr valign="top">
         <td>
           SCA$(N)Low<br />
-          SCA$(N)Low_RBV</td>
+          SCA$(N)Low_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
-          The low channel for SCA $(N). Actual record names are SCA0Low, SCA1Low, etc.</td>
+          The low channel for SCA $(N). Actual record names are SCA0Low, SCA1Low, etc.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           SCA$(N)High<br />
-          SCA$(N)High_RBV</td>
+          SCA$(N)High_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The high channel for SCA $(N). Actual record names are SCA0High, SCA1High, etc.
         </td>
@@ -462,70 +540,124 @@
     <tbody>
       <tr>
         <td align="center" colspan="3">
-          <b>Records in dxpSystem.template</b></td>
+          <b>Records in dxpSystem.template</b>
+        </td>
       </tr>
       <tr>
         <th>
-          Record Name</th>
+          Record Name
+        </th>
         <th>
-          Record Type</th>
+          Record Type
+        </th>
         <th>
-          Description</th>
+          Description
+        </th>
       </tr>
       <tr valign="top">
         <td>
-          TraceTime</td>
+          TraceTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The time per sample in microseconds for the TraceData arrays.</td>
+          The time per sample in microseconds for the TraceData arrays.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          TraceTimeArray</td>
+          TraceTimeArray
+        </td>
         <td>
-          waveform</td>
+          waveform
+        </td>
         <td>
           The time values for the trace data. This array is used to provide a calibrated X-axis
-          when plotting the TraceData.</td>
+          when plotting the TraceData.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxSCAs</td>
+          MaxSCAs
+        </td>
         <td>
-          longin</td>
+          longin
+        </td>
         <td>
-          The maximum number of SCAs that the system supports.</td>
+          The maximum number of SCAs that the system supports.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           NumSCAs<br />
-          NumSCAs_RBV</td>
+          NumSCAs_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The number of SCAs (ROIs) to use. The records for each SCA are defined in the database
-          dxpSCA.template.</td>
+          dxpSCA.template.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          SCATriggerMode<br />
+          SCATriggerMode_RBV
+        </td>
+        <td>
+          mboo<br />
+          mbbi
+        </td>
+        <td>
+          The SCA trigger mode, which controls when the FalconX outputs SCA pulses. The choices
+          are:
+          <ul>
+            <li>0: Off </li>
+            <li>1: Gate high </li>
+            <li>2: Gate low </li>
+            <li>2: Always </li>
+          </ul>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          SCAPulseDuration<br />
+          SCAPulseDurection_RBV
+        </td>
+        <td>
+          longout<br />
+          longin
+        </td>
+        <td>
+          The duration (width) of the SCA pulse oututs in ns.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PollTime<br />
-          PollTime_RBV</td>
+          PollTime_RBV
+        </td>
         <td>
           bo<br />
-          ao</td>
+          ao
+        </td>
         <td>
           The EPICS driver rapidly polls the hardware when acquisition is active to detect
           when acquisition is complete. This record controls the poll time, which is typically
           .001 to .01 seconds. Decreasing the time decreases latency at the expense of more
-          CPU time, and there is a minimum time required to poll the hardware.</td>
+          CPU time, and there is a minimum time required to poll the hardware.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          SaveSystemFile</td>
+          SaveSystemFile
+        </td>
         <td>
-          waveform</td>
+          waveform
+        </td>
         <td>
           The name of a file in which to save the system information. This file is created
           by the XIA Handel software, and is the ".ini" file format used in the call to xiaInit()
@@ -533,33 +665,42 @@
           ProSpect program and EPICS. This is a waveform record with type DBF_UCHAR and length
           256, rather than a stringout record, so that file paths/names longer than 40 characters
           can be used. Client applications must convert the file name to an unsigned char
-          array when writing to this field.</td>
+          array when writing to this field.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           SaveSystem<br />
-          SaveSystem_RBV</td>
+          SaveSystem_RBV
+        </td>
         <td>
           bo<br />
-          bi</td>
+          bi
+        </td>
         <td>
           Writing 1 to this record causes the system information to be written to the file
-          specified by SaveSystemFile.</td>
+          specified by SaveSystemFile.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          EnableClientWait</td>
+          EnableClientWait
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           This record enables waiting for a client when acquisition completes. It can be used
-          to wait for a client application to save data to disk, etc. </td>
+          to wait for a client application to save data to disk, etc.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          SetClientWait</td>
+          SetClientWait
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           This record sets the ClientWait record to Busy if EnableClientWait is set to Enable.
           This record is processed by EraseStart and StartAll in the dxpMED.template database.
@@ -567,12 +708,15 @@
       </tr>
       <tr valign="top">
         <td>
-          ClientWait</td>
+          ClientWait
+        </td>
         <td>
-          busy</td>
+          busy
+        </td>
         <td>
           This record forces processing to wait until a client clears it after acquisition
-          starts when EnableClientWait is set to Enable.</td>
+          starts when EnableClientWait is set to Enable.
+        </td>
       </tr>
     </tbody>
   </table>
@@ -597,25 +741,32 @@
     <tbody>
       <tr>
         <td align="center" colspan="3">
-          <b>Records in dxpMED.template</b></td>
+          <b>Records in dxpMED.template</b>
+        </td>
       </tr>
       <tr>
         <th>
-          Record Name</th>
+          Record Name
+        </th>
         <th>
-          Record Type</th>
+          Record Type
+        </th>
         <th>
-          Description</th>
+          Description
+        </th>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>SNL Status Records</b></td>
+          <b>SNL Status Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          SNL_Connected</td>
+          SNL_Connected
+        </td>
         <td>
-          bi</td>
+          bi
+        </td>
         <td>
           This record will be 1 ("Connected") when the SNL program has connected to all of
           the PVs. If it is 0 ("Not connected") then there is a problem with the SNL program.
@@ -623,52 +774,68 @@
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Acquisition Control Records</b></td>
+          <b>Acquisition Control Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          EraseAll</td>
+          EraseAll
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
-          Writing 1 to this record erases all of the MCA records in this system.</td>
+          Writing 1 to this record erases all of the MCA records in this system.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          EraseStart</td>
+          EraseStart
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record erases and starts acquisition on all of the MCA records
-          in this system. In the mapping modes it starts a new mapping run.</td>
+          in this system. In the mapping modes it starts a new mapping run.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          StartAll</td>
+          StartAll
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record starts acquisition on all of the MCA records in this system
           without first erasing any existing spectra. In the mapping modes it starts a new
-          mapping run.</td>
+          mapping run.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          StopAll</td>
+          StopAll
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
-          Writing 1 to this record stops acquisition in MCA and mapping modes.</td>
+          Writing 1 to this record stops acquisition in MCA and mapping modes.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Preset Control Records</b></td>
+          <b>Preset Control Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          PresetMode</td>
+          PresetMode
+        </td>
         <td>
-          mbbo</td>
+          mbbo
+        </td>
         <td>
           The preset counting mode. The choices are:
           <ul>
@@ -683,125 +850,166 @@
       </tr>
       <tr valign="top">
         <td>
-          PresetReal</td>
+          PresetReal
+        </td>
         <td>
-          ao</td>
+          ao
+        </td>
         <td>
-          The preset real time.</td>
+          The preset real time.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          PresetEvents</td>
+          PresetEvents
+        </td>
         <td>
-          longout</td>
+          longout
+        </td>
         <td>
-          The number of events to count for.</td>
+          The number of events to count for.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          PresetTriggers</td>
+          PresetTriggers
+        </td>
         <td>
-          longout</td>
+          longout
+        </td>
         <td>
-          The number of triggers to count for.</td>
+          The number of triggers to count for.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Status/Statistics Records</b></td>
+          <b>Status/Statistics Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          StatusAll</td>
+          StatusAll
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           Processing this record causes the status information (Acquiring, ElapsedReal, etc.)
           to be read. For maximum performance with short count times this record should have
           .SCAN=Passive. When this record is Passive the status information will still be
-          read once when acquisition completes in normal MCA mode.</td>
+          read once when acquisition completes in normal MCA mode.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          ReadAll</td>
+          ReadAll
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           Processing this record causes the MCA spectra to be read. For maximum performance
           with short count times this record should have .SCAN=Passive. When this record is
           Passive the MCA spectra will still be read once when acquisition completes in normal
           MCA mode. However, in order for the MCA spectra update in the MCA mapping mode this
-          record must be set to periodically process (e.g. "2 second").</td>
+          record must be set to periodically process (e.g. "2 second").
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          Acquiring</td>
+          Acquiring
+        </td>
         <td>
-          bi</td>
+          bi
+        </td>
         <td>
           Acquisition status, 0=Done, 1=Acquiring. Acquiring will be 1 if any channel is acquiring.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxElapsedReal</td>
+          MaxElapsedReal
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the elapsed real time of all system channels.</td>
+          The maximum of the elapsed real time of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxElapsedLive</td>
+          MaxElapsedLive
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the elapsed live time of all system channels.</td>
+          The maximum of the elapsed live time of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxElapsedTriggerLive</td>
+          MaxElapsedTriggerLive
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the elapsed trigger live time of all system channels.</td>
+          The maximum of the elapsed trigger live time of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxTriggers</td>
+          MaxTriggers
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the triggers of all system channels.</td>
+          The maximum of the triggers of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxEvents</td>
+          MaxEvents
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the events of all system channels.</td>
+          The maximum of the events of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxInputCountRate</td>
+          MaxInputCountRate
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the input count rate of all system channels.</td>
+          The maximum of the input count rate of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MaxOutputCountRate</td>
+          MaxOutputCountRate
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
-          The maximum of the output count rate of all system channels.</td>
+          The maximum of the output count rate of all system channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          DeadTime</td>
+          DeadTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The dead time. This value is the average of the dead time of all system channels.
           The dead time of each MCA is the cumulative dead time since the MCA was last erased.
@@ -809,137 +1017,175 @@
       </tr>
       <tr valign="top">
         <td>
-          IDeadTime</td>
+          IDeadTime
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The instantaneous dead time. This value is the average of the intantaneous dead
           time of all system channels. The instantaneous dead time of each MCA is the dead
-          time in the interval since the MCA status was last read.</td>
+          time in the interval since the MCA status was last read.
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>High-Level Parameter Records</b></td>
+          <b>High-Level Parameter Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyDetectionThreshold</td>
+          CopyDetectionThreshold
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the DetectionThreshold from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyMinPulsePairSeparation</td>
+          CopyMinPulsePairSeparation
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the MinPulsePairSeparation from channel 1 to all
-          channels. </td>
+          channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyDetectionFiler</td>
+          CopyDetectionFiler
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the DetectionFilter from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyScaleFactor</td>
+          CopyScaleFactor
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the ScaleFactor from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyDetectorPolarity</td>
+          CopyDetectorPolarity
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the DetectorPolarity from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyResetDelay</td>
+          CopyResetDelay
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the ResetDelay from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyDecayTime</td>
+          CopyDecayTime
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
-          Writing 1 to this record copies the DecayTime from channel 1 to all channels.</td>
+          Writing 1 to this record copies the DecayTime from channel 1 to all channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyResetDelay</td>
+          CopyResetDelay
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies the ResetDelay from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyDecayTime</td>
+          CopyDecayTime
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
-          Writing 1 to this record copies the DecayTime from channel 1 to all channels.</td>
+          Writing 1 to this record copies the DecayTime from channel 1 to all channels.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          ReadTraces</td>
+          ReadTraces
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record reads the TraceData for all channels. <i>Note: this record
             should be set to Passive during normal data acquisition, or it will slow things
-            down.</i></td>
+            down.</i>
+        </td>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>ROI and SCA Records</b></td>
+          <b>ROI and SCA Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyROIChannel</td>
+          CopyROIChannel
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies all ROIs from channel 1 to all channels on a channel-by-channel
-          basis.</td>
+          basis.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyROIEnergy</td>
+          CopyROIEnergy
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies all ROIs from channel 1 to all channels on an energy-by-energy
-          basis, i.e. using the energy calibration information for each MCA.</td>
+          basis, i.e. using the energy calibration information for each MCA.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          CopyROI_SCA</td>
+          CopyROI_SCA
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record copies every ROI for every channel to the corresponding
-          SCA.</td>
+          SCA.
+        </td>
       </tr>
     </tbody>
   </table>
@@ -962,27 +1208,34 @@
     <tbody>
       <tr>
         <td align="center" colspan="3">
-          <b>Records in dxpMapping.template</b></td>
+          <b>Records in dxpMapping.template</b>
+        </td>
       </tr>
       <tr>
         <th>
-          Record Name</th>
+          Record Name
+        </th>
         <th>
-          Record Type</th>
+          Record Type
+        </th>
         <th>
-          Description</th>
+          Description
+        </th>
       </tr>
       <tr>
         <td align="center" colspan="3">
-          <b>Mapping Mode Control Records</b></td>
+          <b>Mapping Mode Control Records</b>
+        </td>
       </tr>
       <tr valign="top">
         <td>
           CollectMode<br />
-          CollectMode_RBV</td>
+          CollectMode_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Selects the collection mode for the system. The choices are:
           <ul>
@@ -991,15 +1244,18 @@
             <li>"MCA mapping" MCA mapping mode where MCA spectra are collected into the double-buffered
               memory.</li>
           </ul>
-          Note: In the future List mapping will probably also be supported. </td>
+          Note: In the future List mapping will probably also be supported.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           NDArrayMode<br />
-          NDArrayMode_RBV</td>
+          NDArrayMode_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Selects how the mapping data is stored in NDArrays, and thus the structure of the
           data when written to disk. The choices are:
@@ -1022,10 +1278,12 @@
       <tr valign="top">
         <td>
           PixelAdvanceMode<br />
-          PixelAdvanceMode_RBV</td>
+          PixelAdvanceMode_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Selects the pixel advance mode for system. The choices are:
           <ul>
@@ -1037,33 +1295,41 @@
       </tr>
       <tr valign="top">
         <td>
-          NextPixel</td>
+          NextPixel
+        </td>
         <td>
-          bo</td>
+          bo
+        </td>
         <td>
           Writing 1 to this record causes the system to advance to the next pixel in MCA mapping
           mode. This is a "software" pixel advance, and can be issued any time mapping mode
-          acquisition is in progress, regardless of the setting of PixelAdvanceMode. </td>
+          acquisition is in progress, regardless of the setting of PixelAdvanceMode.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PixelsPerRun<br />
-          PixelsPerRun_RBV</td>
+          PixelsPerRun_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The total number of pixels to acquire in one "run" when acquisition starts. If this
           value is -1 then there is no preset number of pixels, and acquisition will continue
-          forever until it is stopped manually with StopAll.</td>
+          forever until it is stopped manually with StopAll.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           PixelsPerBuffer<br />
-          PixelsPerBuffer_RBV</td>
+          PixelsPerBuffer_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The number of pixels per buffer. If AutoPixelsPerBuffer=Manual, then this value
           is used, rather than using the maximum possible value computed when AutoPixelsPerBuffer=Auto.
@@ -1072,26 +1338,32 @@
           per pixel is relatively long then decreasing PixelsPerBuffer will result in more
           frequent updates of the MCA and statistics displays. Setting this value too low
           when doing rapid mapping can result in buffer overflow. PixelsPerBuffer_RBV always
-          contains the actual number of pixels per buffer. </td>
+          contains the actual number of pixels per buffer.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           AutoPixelsPerBuffer<br />
-          AutoPixelsPerBuffer_RBV</td>
+          AutoPixelsPerBuffer_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Flag controlling how the number of pixels per buffer is determined. Choices are
           0=Manual and 1=Auto. If Manual is selected then the number of pixels per buffer
           is controlled by the PixelsPerBuffer record. If Auto is selected then the maximum
-          number of pixels that the mapping buffer can hold is automatically computed. </td>
+          number of pixels that the mapping buffer can hold is automatically computed.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          BufferSize_RBV</td>
+          BufferSize_RBV
+        </td>
         <td>
-          longin</td>
+          longin
+        </td>
         <td>
           The size of the buffer being used in units of 32-bit words. This will be the first
           dimension of the array passed to the plugins when a buffer is read out. The maximum
@@ -1101,39 +1373,51 @@
       <tr valign="top">
         <td>
           IgnoreGate<br />
-          IgnoreGate_RBV</td>
+          IgnoreGate_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Flag controlling whether the Gate input signal is used to inhibit counting. Choices
           are 0=No and 1=Yes. If IgnoreGate=Yes then the Gate input can be used as a pixel
           advance signal, but its high or low state will not influence whether counting is
           enabled, i.e. only the transitions are significant. If IgnoreGate=No then counting
           will be inhibited when the Gate input is low (if InputLogicPolarity=Normal) or high
-          (if InputLogicPolarity=Inverted). </td>
+          (if InputLogicPolarity=Inverted). NOTE: Although this record is in dxpMapping.template
+          with recent FalconX firmware IgnoreGate also controls the behavior of the gate input
+          in normal MCA mode, not only in mapping mode.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           InputLogicPolarity<br />
-          InputLogicPolarity_RBV</td>
+          InputLogicPolarity_RBV
+        </td>
         <td>
           mbbo<br />
-          mbbi</td>
+          mbbi
+        </td>
         <td>
           Flag controlling the polarity of the Gate input signal. Choices are 0=Normal, 1=Inverted.
           In Normal mode a low level on the Gate input inhibits counting (if IgnoreGate=No)
           and a high-to-low transition performs a pixel advance (if PixelAdvanceMode=Gate).
           In Inverted mode these levels are the opposite, i.e. a high level inhibits counting
-          and a low-to-high transition performs a pixel advance. </td>
+          and a low-to-high transition performs a pixel advance. NOTE: Although this record
+          is in dxpMapping.template with recent FalconX firmware InputLogicPolarity also controls
+          the behavior of the gate input in normal MCA mode, not only in mapping mode.
+        </td>
       </tr>
       <tr valign="top">
         <td>
           SyncCount<br />
-          SyncCount_RBV</td>
+          SyncCount_RBV
+        </td>
         <td>
           longout<br />
-          longin</td>
+          longin
+        </td>
         <td>
           The divisor used on the Gate input for pixel advance if PixelAdvanceMode=Gate. This
           value can be used to divide the Gate clock. For example, if the Gate input were
@@ -1144,18 +1428,23 @@
       </tr>
       <tr valign="top">
         <td>
-          ReadRate_RBV</td>
+          ReadRate_RBV
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The burst read rate in MBytes/s measured when reading the mapping data from each
-          module. </td>
+          module.
+        </td>
       </tr>
       <tr valign="top">
         <td>
-          MBytesRead_RBV</td>
+          MBytesRead_RBV
+        </td>
         <td>
-          ai</td>
+          ai
+        </td>
         <td>
           The total number of MBytes of mapping data read from all modules since the IOC started.
         </td>
