@@ -462,7 +462,9 @@ asynStatus NDDxp::writeInt32( asynUser *pasynUser, epicsInt32 value)
     {
         this->setDxpParam(pasynUser, addr, function, (double)value);
     }
-    else if ((function == NDDxpNumSCAs)    ||
+    else if ((function == NDDxpNumSCAs)          ||
+             (function == NDDxpSCATriggerMode)   ||
+             (function == NDDxpSCAPulseDuration) ||
              ((function >= NDDxpSCALow[0]) &&
               (function <= NDDxpSCAHigh[DXP_MAX_SCAS-1]))) 
     {
@@ -741,6 +743,7 @@ asynStatus NDDxp::setSCAs(asynUser *pasynUser, int addr)
     int i;
     int numSCAs, maxSCAs;
     int low, high;
+    int scaTriggerMode, scaPulseDuration;
     double dTmp;
     asynStatus status=asynSuccess;
     static const char *functionName = "setSCAs";
@@ -752,6 +755,13 @@ asynStatus NDDxp::setSCAs(asynUser *pasynUser, int addr)
     if (channel == DXP_ALL) channel0 = 0; else channel0 = channel;
     xiaGetRunData(channel0, "run_active", &runActive);
     if (runActive) xiaStopRun(channel);
+
+    getIntegerParam(0, NDDxpSCATriggerMode, &scaTriggerMode);
+    getIntegerParam(0, NDDxpSCAPulseDuration, &scaPulseDuration);
+    dTmp = scaTriggerMode;
+    CALLHANDEL(xiaSetAcquisitionValues(DXP_ALL, "sca_trigger_mode", &dTmp), "sca_trigger_mode");
+    dTmp = scaPulseDuration;
+    CALLHANDEL(xiaSetAcquisitionValues(DXP_ALL, "sca_pulse_duration", &dTmp), "sca_pulse_duration");
 
     /* We get the number of SCAs from the channel 0, force all detectors to be the same */
     getIntegerParam(0, NDDxpNumSCAs, &numSCAs);
@@ -924,6 +934,27 @@ asynStatus NDDxp::configureCollectMode()
         if (status == asynError) return status;
     }
 
+    // ignoreGate and inputLogicPolarity are used in both mca and mapping mode
+    getIntegerParam(NDDxpIgnoreGate, &ignoreGate);
+    getIntegerParam(NDDxpInputLogicPolarity, &inputLogicPolarity);
+    for (i=0; i<this->nChannels; i++)
+    {
+        dTmp = ignoreGate;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting gate_ignore = %f\n", 
+            driverName, functionName, i, dTmp);
+        xiastatus = xiaSetAcquisitionValues(i, "gate_ignore", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "gate_ignore");
+
+        dTmp = inputLogicPolarity;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting input_logic_polarity = %f\n", 
+            driverName, functionName, i, dTmp);
+        xiastatus = xiaSetAcquisitionValues(i, "input_logic_polarity", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "input_logic_polarity");
+        callParamCallbacks(i);
+    }
+
     switch(collectMode)
     {
     case NDDxpModeMCA:
@@ -952,8 +983,6 @@ asynStatus NDDxp::configureCollectMode()
         if (autoPixelsPerBuffer) pixelsPerBuffer = -1;  /* Handel will compute maximum */
         getIntegerParam(NDDxpSyncCount, &syncCount);
         if (syncCount < 1) syncCount = 1;
-        getIntegerParam(NDDxpIgnoreGate, &ignoreGate);
-        getIntegerParam(NDDxpInputLogicPolarity, &inputLogicPolarity);
         setIntegerParam(NDDataType, NDUInt16);
             
         if (collectMode == NDDxpModeListMapping) {
@@ -997,20 +1026,6 @@ asynStatus NDDxp::configureCollectMode()
             xiastatus = xiaSetAcquisitionValues(i, "sync_count", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "sync_count");
 
-            dTmp = ignoreGate;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting gate_ignore = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "gate_ignore", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "gate_ignore");
-
-            dTmp = inputLogicPolarity;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting input_logic_polarity = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "input_logic_polarity", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "input_logic_polarity");
-            
             /* Clear the normal MCA mode status settings */
             setIntegerParam(i, NDDxpTriggers, 0);
             setDoubleParam(i, mcaElapsedRealTime, 0);
