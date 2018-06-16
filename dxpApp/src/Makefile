@@ -31,8 +31,6 @@ PROD_IOC_Linux = $(PROD_NAME)
 PROD_IOC_WIN32 = $(PROD_NAME)
 
 DBD += $(PROD_NAME).dbd
-$(PROD_NAME)_DBD += mcaSupport.dbd
-$(PROD_NAME)_DBD += dxpSupport.dbd
 
 # <name>_registerRecordDeviceDriver.cpp will be created from <name>.dbd
 dxpApp_SRCS += dxpMain.cpp dxpApp_registerRecordDeviceDriver.cpp
@@ -42,6 +40,8 @@ dxpApp_LIBS += mca
 dxpApp_LIBS += seq pv
 
 include $(ADCORE)/ADApp/commonDriverMakefile
+$(PROD_NAME)_DBD += mcaSupport.dbd
+$(PROD_NAME)_DBD += dxpSupport.dbd
 
 include $(TOP)/configure/RULES
 #----------------------------------------
