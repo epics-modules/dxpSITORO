@@ -1,7 +1,7 @@
 
 file {
 	name="/home/epics/devel/dxpSITORO/dxpApp/op/adl/SITORO_Top.adl"
-	version=030107
+	version=030109
 }
 display {
 	object {
@@ -107,6 +107,11 @@ text {
 		height=20
 	}
 	display[0] {
+		label="Falcon 1-element MED"
+		name="4element_SITORO.adl"
+		args="P=dxpSITORO:, M=mca, D=dxp"
+	}
+	display[1] {
 		label="Falcon 4-element MED"
 		name="4element_SITORO.adl"
 		args="P=dxpSITORO:, M=mca, D=dxp"
