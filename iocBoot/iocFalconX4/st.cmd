@@ -36,8 +36,6 @@ callbackSetQueueSize(4000)
 < ../save_restore.cmd
 save_restoreSet_status_prefix("$(PREFIX)")
 dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db", "P=$(PREFIX)")
-set_pass0_restoreFile("auto_settings4.sav")
-set_pass1_restoreFile("auto_settings4.sav")
 
 # Set logging level (1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG)
 xiaSetLogLevel(2)
@@ -67,7 +65,7 @@ seq dxpMED, "P=$(PREFIX), DXP=dxp, MCA=mca, N_DETECTORS=4, N_SCAS=4"
 
 ### Start up the autosave task and tell it what to do.
 # Save settings every thirty seconds
-create_monitor_set("auto_settings4.req", 30, "P=$(PREFIX)")
+create_monitor_set("auto_settings.req", 30, "P=$(PREFIX)")
 
 ### Start the saveData task.
 saveData_Init("saveData.req", "P=$(PREFIX)")
