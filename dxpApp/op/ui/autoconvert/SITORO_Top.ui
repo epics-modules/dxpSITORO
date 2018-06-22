@@ -169,16 +169,16 @@ border-radius: 2px;
                 <enum>Menu</enum>
             </property>
             <property name="labels">
-                <string>Falcon 4-element MED</string>
+                <string>Falcon 1-element MED;Falcon 4-element MED</string>
             </property>
             <property name="files">
-                <string>4element_SITORO.adl</string>
+                <string>4element_SITORO.adl;4element_SITORO.adl</string>
             </property>
             <property name="args">
-                <string>P=dxpSITORO:, M=mca, D=dxp</string>
+                <string>P=dxpSITORO:, M=mca, D=dxp;P=dxpSITORO:, M=mca, D=dxp</string>
             </property>
             <property name="removeParent">
-                <string>false</string>
+                <string>false;false</string>
             </property>
         </widget>
         <widget class="caLabel" name="caLabel_1">

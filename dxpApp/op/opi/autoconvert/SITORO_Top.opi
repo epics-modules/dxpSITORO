@@ -70,8 +70,19 @@
     <x>11</x>
     <y>9</y>
   </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="2.0.0">
+  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">
     <actions hook="false" hook_all="false">
+      <action type="OPEN_DISPLAY">
+        <path>4element_SITORO.opi</path>
+        <macros>
+          <include_parent_macros>true</include_parent_macros>
+          <P>dxpSITORO:</P>
+          <M>mca</M>
+          <D>dxp</D>
+        </macros>
+        <mode>1</mode>
+        <description>Falcon 1-element MED</description>
+      </action>
       <action type="OPEN_DISPLAY">
         <path>4element_SITORO.opi</path>
         <macros>
@@ -84,6 +95,7 @@
         <description>Falcon 4-element MED</description>
       </action>
     </actions>
+    <actions_from_pv>false</actions_from_pv>
     <alarm_pulsing>false</alarm_pulsing>
     <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
     <background_color>
@@ -93,7 +105,7 @@
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
-    <border_style>0</border_style>
+    <border_style>6</border_style>
     <border_width>1</border_width>
     <enabled>true</enabled>
     <font>
@@ -104,9 +116,8 @@
       <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
-    <image></image>
-    <name>Action Button</name>
-    <push_action_index>0</push_action_index>
+    <label></label>
+    <name>Menu Button</name>
     <pv_name></pv_name>
     <pv_value />
     <rules />
@@ -116,13 +127,12 @@
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <scripts />
-    <style>0</style>
-    <text></text>
-    <toggle_button>false</toggle_button>
+    <show_down_arrow>false</show_down_arrow>
     <tooltip>$(pv_name)
 $(pv_value)</tooltip>
+    <transparent>false</transparent>
     <visible>true</visible>
-    <widget_type>Action Button</widget_type>
+    <widget_type>Menu Button</widget_type>
     <width>66</width>
     <x>75</x>
     <y>40</y>
