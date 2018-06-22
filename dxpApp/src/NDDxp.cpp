@@ -335,6 +335,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
         // NDDxpNumSCAs and then we would get an error
         setIntegerParam(i, NDDxpNumSCAs, this->maxSCAs);
     }
+    setIntegerParam(NDDxpSCAPulseDuration, 100);
 
     /* Read the MCA and DXP parameters once */
     this->getDxpParams(this->pasynUserSelf, DXP_ALL);
@@ -978,9 +979,9 @@ asynStatus NDDxp::configureCollectMode()
         getIntegerParam(NDDxpPixelAdvanceMode, (int *)&pixelAdvanceMode);
         getIntegerParam(NDDxpPixelsPerRun, &pixelsPerRun);
         getIntegerParam(NDDxpPixelsPerBuffer, &pixelsPerBuffer);
-        if (pixelsPerBuffer == 0) pixelsPerBuffer = -1; /* Handel will compute maximum */
+        if (pixelsPerBuffer == 0) pixelsPerBuffer = 0; /* Handel will compute maximum */
         getIntegerParam(NDDxpAutoPixelsPerBuffer, &autoPixelsPerBuffer);
-        if (autoPixelsPerBuffer) pixelsPerBuffer = -1;  /* Handel will compute maximum */
+        if (autoPixelsPerBuffer) pixelsPerBuffer = 0;  /* Handel will compute maximum */
         getIntegerParam(NDDxpSyncCount, &syncCount);
         if (syncCount < 1) syncCount = 1;
         setIntegerParam(NDDataType, NDUInt16);
