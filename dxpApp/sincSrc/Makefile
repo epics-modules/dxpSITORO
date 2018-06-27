@@ -1,37 +1,35 @@
-TOP=../..
+SRCS		= api.c command.c encode.c request.c encapsulation.c decode.c readmessage.c blocking.c listmode.c lmbuf.c socket.c discovery.c projectfile.c base64.c jsmn.c sinc.pb-c.c protobuf-c.c
+OBJS		= $(SRCS:%.c=%.o)
+TARGET		= libsinc-c.a
+CFLAGS  	= -g -Wall -I.
 
-include $(TOP)/configure/CONFIG
-#----------------------------------------
-#  ADD MACRO DEFINITIONS AFTER THIS LINE
-#=============================
+all: $(TARGET)
 
-#==================================================
-# build a support library
+$(TARGET): $(OBJS)
+	ar r $(TARGET) $(OBJS)
 
-INC += base64.h
-INC += protobuf-c.h
-INC += sinc.h
-INC += sinc.pb-c.h
+clean:
+	rm -f $(TARGET) $(OBJS)
 
-LIBRARY_IOC_Linux  += sinc
-LIBRARY_IOC_WIN32  += sinc
+protocol:
+	protoc-c --proto_path=../../proto ../../proto/sinc.proto --c_out=.
 
-sinc_SRCS += api.c
-sinc_SRCS += base64.c
-sinc_SRCS += blocking.c
-sinc_SRCS += command.c
-sinc_SRCS += decode.c
-sinc_SRCS += encapsulation.c
-sinc_SRCS += encode.c
-sinc_SRCS += readmessage.c
-sinc_SRCS += request.c
-sinc_SRCS += sinc.pb-c.c
-sinc_SRCS += socket.c
-sinc_SRCS += protobuf-c.c
+.PHONY: all clean protocol
 
-#===========================
-
-include $(TOP)/configure/RULES
-#----------------------------------------
-#  ADD RULES AFTER THIS LINE
-
+api.o: api.c sinc.h sinc.pb-c.h sinc_internal.h
+command.o: command.c sinc.h sinc.pb-c.h sinc_internal.h
+encode.o: encode.c sinc.h sinc.pb-c.h sinc_internal.h
+request.o: request.c sinc.h sinc.pb-c.h sinc_internal.h
+encapsulation.o: encapsulation.c sinc.h sinc.pb-c.h sinc_internal.h
+decode.o: decode.c sinc.h sinc.pb-c.h sinc_internal.h
+readmessage.o: readmessage.c sinc.h sinc.pb-c.h sinc_internal.h
+blocking.o: blocking.c sinc.h sinc.pb-c.h sinc_internal.h
+listmode.o: listmode.c sinc_internal.h sinc.pb-c.h sinc.h lmbuf.h
+lmbuf.o: lmbuf.c lmbuf.h
+socket.o: socket.c sinc.h sinc.pb-c.h sinc_internal.h
+discovery.o: discovery.c sinc.h sinc.pb-c.h sinc_internal.h discovery.h
+projectfile.o: projectfile.c sinc.h sinc.pb-c.h sinc_internal.h jsmn.h
+base64.o: base64.c sinc_internal.h sinc.pb-c.h sinc.h
+jsmn.o: jsmn.c jsmn.h
+sinc.pb-c.o: sinc.pb-c.c sinc.pb-c.h
+protobuf-c.o: protobuf-c.c protobuf-c.h

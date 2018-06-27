@@ -64,6 +64,8 @@ static const AcqNameValues falconxn_values[] =
         { "reset_blanking_postsamples", 1000, 4 },
         { "detection_threshold", 0.999, 0.0 },
         { "min_pulse_pair_separation", 1023, 0 },
+        { "risetime_optimization", 0, 4000 },
+        { "risetime_optimization", 4, 62 },
         { "detection_filter", XIA_FILTER_LOW_ENERGY, XIA_FILTER_HIGH_RATE },
         { "decay_time", XIA_DECAY_LONG, XIA_DECAY_SHORT },
         { "preset_type", 1, 0 },
@@ -71,6 +73,7 @@ static const AcqNameValues falconxn_values[] =
         { "scale_factor", 1, 200 },
         { "num_map_pixels", 0, 1ull << 32 },
         { "num_map_pixels_per_buffer", 0, 1024 },
+        { "num_map_pixels_per_buffer", -1, 1024 },
         { "pixel_advance_mode", 0, 1 },
         { NULL, 0, 0 }
     };

@@ -148,6 +148,7 @@ typedef int (*SynchAcqValue_FP)(int          detChan,
                                 Module*      m,
                                 Detector*    det,
                                 XiaDefaults* defs);
+typedef boolean_t (*SupportedAcqValue_FP)(FalconXNDetector* fDetector);
 typedef int (*DoBoardOperation_FP)(int detChan,
                                    Detector* detector, Module* module,
                                    const char *name, void *value);
@@ -185,12 +186,13 @@ typedef struct acqValue {
 
 /* Acquisition Values */
 struct _AcquisitionValue {
-    const char*      name;
-    double           defaultValue;
-    acqValueTypes    type;
-    uint32_t         flags;
-    AcqValue_FP      handler;
-    SynchAcqValue_FP sync;
+    const char*          name;
+    double               defaultValue;
+    acqValueTypes        type;
+    uint32_t             flags;
+    AcqValue_FP          handler;
+    SynchAcqValue_FP     sync;
+    SupportedAcqValue_FP supported;
 };
 
 /* A generic board operation */
@@ -318,6 +320,8 @@ struct _FalconXNDetector {
         boolean_t mcaGateVeto;
         boolean_t termination50ohm;
         boolean_t attenuationGround;
+        boolean_t risetimeOptimization;
+        int64_t   sampleRate;
     } features;
 
     /* Characterization data returned when valid. */

@@ -66,7 +66,7 @@ static void usage(const char* prog)
 int main(int argc, char** argv)
 {
     int status;
-    size_t text_size;
+    int text_size;
     char* text;
     int percentage = 0;
     int* last_percentage;
@@ -75,24 +75,26 @@ int main(int argc, char** argv)
     char module_type[MAXITEM_LEN];
 
     char ini[MAXITEM_LEN] = "t_api/sandbox/xia_test_helper.ini";
+    char ini_save[] = "t_api/sandbox/hd-det-characterize.gen.ini";
+
     int a;
 
     for (a = 1; a < argc; ++a) {
         if (argv[a][0] == '-') {
             switch (argv[a][1]) {
-                case 'f':
-                    ++a;
-                    if (a >= argc) {
-                        printf("error: no file provided\n");
-                        exit (1);
-                    }
-                    strncpy(ini, argv[a], sizeof(ini) / sizeof(ini[0]));
-                    break;
+            case 'f':
+                ++a;
+                if (a >= argc) {
+                    printf("error: no file provided\n");
+                    exit (1);
+                }
+                strncpy(ini, argv[a], sizeof(ini) / sizeof(ini[0]));
+                break;
 
-                default:
-                    printf("error: invalid option: %s\n", argv[a]);
-                    usage(argv[0]);
-                    exit(1);
+            default:
+                printf("error: invalid option: %s\n", argv[a]);
+                usage(argv[0]);
+                exit(1);
             }
         }
         else {
@@ -129,7 +131,7 @@ int main(int argc, char** argv)
 
     text = malloc(text_size);
     if (!text) {
-        printf("No memory for progress text of length %d\n", (int) text_size);
+        printf("No memory for progress text of length %d\n", text_size);
         status = xiaExit();
         if (status != XIA_SUCCESS)
             printf("Handel exit failed, Status = %d\n", status);
@@ -223,6 +225,12 @@ int main(int argc, char** argv)
                 printf("error: not all channels succeeded. Stopping detector characterization\n");
                 status = xiaDoSpecialRun(-1, "detc-stop", NULL);
                 CHECK_ERROR(status);
+
+                free(last_percentage);
+                free(text);
+                status = xiaExit();
+                CHECK_ERROR(status);
+                exit(2);
             }
 
             break;
@@ -244,7 +252,7 @@ int main(int argc, char** argv)
     }
 
     printf("Saving the .ini file.\n");
-    status = xiaSaveSystem("handel_ini", ini);
+    status = xiaSaveSystem("handel_ini", ini_save);
     CHECK_ERROR(status);
 
     printf("Cleaning up Handel.\n");
@@ -262,12 +270,12 @@ static int SEC_SLEEP(float *time)
 #else
     unsigned long secs = (unsigned long) *time;
     struct timespec req = {
-        .tv_sec = (time_t) secs,
-        .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
+                           .tv_sec = (time_t) secs,
+                           .tv_nsec = (time_t) ((*time - secs) * 1000000000.0f)
     };
     struct timespec rem = {
-        .tv_sec = 0,
-        .tv_nsec = 0
+                           .tv_sec = 0,
+                           .tv_nsec = 0
     };
     while (TRUE_) {
         if (nanosleep(&req, &rem) == 0)

@@ -138,9 +138,16 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #ifdef _MSC_VER
-#define PRAGMA_msvc(_p)   __pragma(_p)
-#define PRAGMA_PUSH       PRAGMA_msvc(warning(push))
-#define PRAGMA_POP        PRAGMA_msvc(warning(pop))
+#define PRAGMA_msvc(_p)                 __pragma(_p)
+#define PRAGMA_PUSH                     PRAGMA_msvc(warning(push))
+#define PRAGMA_POP                      PRAGMA_msvc(warning(pop))
+#define PRAGMA_IGNORE_COND_CONST        PRAGMA_msvc(warning(disable:4127))
+
+/* msvc /Ze allows non-constant and address of automatic variable
+ * aggregate initializers but warns.
+ */
+#define PRAGMA_IGNORE_AGGREGATE_INIT    PRAGMA_msvc(warning(disable:4204; disable:4221))
+
 #else
 #define PRAGMA_msvc(_p)
 #endif
@@ -160,6 +167,13 @@ typedef SSIZE_T ssize_t;
 #if !defined(PRAGMA_IGNORE_STRICT_PROTOTYPES)
 #define PRAGMA_IGNORE_STRICT_PROTOTYPES
 #endif
+#if !defined(PRAGMA_IGNORE_COND_CONST)
+#define PRAGMA_IGNORE_COND_CONST
+#endif
+#if !defined(PRAGMA_IGNORE_AGGREGATE_INIT)
+#define PRAGMA_IGNORE_AGGREGATE_INIT
+#endif
+
 
 /* A generic buffer to facilitate passing data with length in one argument. */
 typedef struct {

@@ -156,7 +156,7 @@ int main(int argc, char** argv)
     }
 
     printf("Saving the .ini file.\n");
-    status = xiaSaveSystem("handel_ini", "t_api/sandbox/xia_test_helper.gen.ini");
+    status = xiaSaveSystem("handel_ini", "t_api/sandbox/hd-save-system.gen.ini");
     CHECK_ERROR(status);
 
     printf("Cleaning up Handel.\n");

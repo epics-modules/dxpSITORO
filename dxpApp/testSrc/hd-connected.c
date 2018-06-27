@@ -75,24 +75,29 @@ int main(int argc, char** argv)
     float sleepS;
 
     char ini[MAXITEM_LEN] = "t_api/sandbox/xia_test_helper.ini";
+    boolean_t interactive = TRUE_;
     int a;
 
     for (a = 1; a < argc; ++a) {
         if (argv[a][0] == '-') {
             switch (argv[a][1]) {
-                case 'f':
-                    ++a;
-                    if (a >= argc) {
-                        printf("error: no file provided\n");
-                        exit (1);
-                    }
-                    strncpy(ini, argv[a], sizeof(ini) / sizeof(ini[0]));
-                    break;
+            case 'f':
+                ++a;
+                if (a >= argc) {
+                    printf("error: no file provided\n");
+                    exit (1);
+                }
+                strncpy(ini, argv[a], sizeof(ini) / sizeof(ini[0]));
+                break;
 
-                default:
-                    printf("error: invalid option: %s\n", argv[a]);
-                    usage(argv[0]);
-                    exit(1);
+            case 'h': /* headless, no wait for disconnect */
+                interactive = FALSE_;
+                break;
+
+            default:
+                printf("error: invalid option: %s\n", argv[a]);
+                usage(argv[0]);
+                exit(1);
             }
         }
         else {
@@ -123,15 +128,17 @@ int main(int argc, char** argv)
     CHECK_CONNECTED(TRUE_, connected);
     printf("ok\n");
 
-    sleepS = 5.0;
-    printf("Sleeping %.1f seconds. Please turn off the device.\n", (double) sleepS);
-    SEC_SLEEP(&sleepS);
+    if (interactive) {
+        sleepS = 5.0;
+        printf("Sleeping %.1f seconds. Please turn off the device.\n", (double) sleepS);
+        SEC_SLEEP(&sleepS);
 
-    printf("Checking disconnected status... ");
-    status = xiaBoardOperation(0, "get_connected", &connected);
-    CHECK_ERROR(status);
-    CHECK_CONNECTED(FALSE_, connected);
-    printf("ok\n");
+        printf("Checking disconnected status... ");
+        status = xiaBoardOperation(0, "get_connected", &connected);
+        CHECK_ERROR(status);
+        CHECK_CONNECTED(FALSE_, connected);
+        printf("ok\n");
+    }
 
     printf("Cleaning up Handel.\n");
     status = xiaExit();
@@ -147,12 +154,12 @@ static int SEC_SLEEP(float *time)
     Sleep(wait);
 #else
     struct timespec req = {
-      .tv_sec = (time_t) (unsigned long) *time,
-      .tv_nsec = (time_t) ((*time) * 1000000000.0f)
+                           .tv_sec = (time_t) (unsigned long) *time,
+                           .tv_nsec = (time_t) ((*time) * 1000000000.0f)
     };
     struct timespec rem = {
-      .tv_sec = 0,
-      .tv_nsec = 0
+                           .tv_sec = 0,
+                           .tv_nsec = 0
     };
     while (TRUE_) {
         if (nanosleep(&req, &rem) == 0)

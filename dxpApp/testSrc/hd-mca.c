@@ -116,10 +116,10 @@ int main(int argc, char** argv)
     CHECK_ERROR(status);
 
     /* Start MCA mode runs. First a short one, then a short one with
-     * resume=true and a long one with resume=false. */
-    do_run(0, 5);
-    do_run(1, 5);
-    do_run(0, 20);
+     * resume=true and a longer one with resume=false. */
+    do_run(0, 1);
+    do_run(1, 1);
+    do_run(0, 2);
 
     printf("Cleaning up Handel.\n");
     status = xiaExit();
