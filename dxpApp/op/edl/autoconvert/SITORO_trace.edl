@@ -1,28 +1,28 @@
-4 0 0
+4 0 1
 beginScreenProperties
 major 4
 minor 0
-release 0
+release 1
 x 127
 y 148
 w 650
 h 400
 font "helvetica-medium-r-18.0"
-ctlFont "helvetica-medium-r-8.0"
+ctlFont "helvetica-bold-r-10.0"
 btnFont "helvetica-medium-r-18.0"
-fgColor index 14
-bgColor index 4
-textColor index 14
-ctlFgColor1 index 30
-ctlFgColor2 index 32
-ctlBgColor1 index 34
-ctlBgColor2 index 35
-topShadowColor index 37
-botShadowColor index 44
+fgColor rgb 0 0 0
+bgColor rgb 47872 47872 47872
+textColor rgb 0 0 0
+ctlFgColor1 rgb 64256 62208 18944
+ctlFgColor2 rgb 60928 46592 11008
+ctlBgColor1 rgb 52480 24832 0
+ctlBgColor2 rgb 65280 45056 65280
+topShadowColor rgb 44544 19968 48128
+botShadowColor rgb 13312 13056 34304
+showGrid
 snapToGrid
-gridSize 5
+gridSize 4
 endScreenProperties
-
 
 # (X-Y Graph)
 object xyGraphClass
@@ -39,9 +39,9 @@ border
 graphTitle "$(P)$(R) ADC Trace"
 xLabel "Time (usec)"
 yLabel "ADC units"
-fgColor index 14
-bgColor index 4
-gridColor index 14
+fgColor rgb 0 0 0
+bgColor rgb 47872 47872 47872
+gridColor rgb 0 0 0
 font "helvetica-medium-r-10.0"
 # Operating Modes
 plotMode "plotLastNPts"
@@ -71,7 +71,7 @@ plotSymbolType {
   0 "circle"
 }
 plotColor {
-  0 index 54
+  0 rgb 2560 0 47104
 }
 endObjectProperties
 
@@ -79,17 +79,18 @@ endObjectProperties
 object activeXTextClass
 beginObjectProperties
 major 4
-minor 0
-release 0
+minor 1
+release 1
 x 156
 y 341
-w 0
+w 8
 h 40
-font "helvetica-medium-r-8.0"
-fgColor index 14
+font "utopia-medium-r-34.0"
+fgColor rgb 0 0 0
+bgColor index 3
 useDisplayBg
 value {
- ""
+  ""
 }
 endObjectProperties
 
@@ -97,17 +98,18 @@ endObjectProperties
 object activeXTextClass
 beginObjectProperties
 major 4
-minor 0
-release 0
+minor 1
+release 1
 x 490
 y 698
-w 158
+w 199
 h 40
-font "helvetica-medium-r-8.0"
-fgColor index 14
+font "utopia-medium-r-34.0"
+fgColor rgb 0 0 0
+bgColor index 3
 useDisplayBg
 value {
- "Read rate:"
+  "Read rate:"
 }
 endObjectProperties
 
@@ -124,7 +126,6 @@ h 42
 
 beginGroup
 
-
 # (Group)
 object activeGroupClass
 beginObjectProperties
@@ -138,7 +139,6 @@ h 20
 
 beginGroup
 
-
 endGroup
 
 endObjectProperties
@@ -148,17 +148,18 @@ endObjectProperties
 object activeXTextClass
 beginObjectProperties
 major 4
-minor 0
-release 0
+minor 1
+release 1
 x 87
 y 350
 w 90
 h 20
-font "helvetica-medium-r-8.0"
-fgColor index 14
+font "helvetica-medium-r-14.0"
+fgColor rgb 0 0 0
+bgColor index 3
 useDisplayBg
 value {
- "Read Rate"
+  "Read Rate"
 }
 endObjectProperties
 
@@ -171,42 +172,43 @@ endObjectProperties
 object activeXTextClass
 beginObjectProperties
 major 4
-minor 0
-release 0
+minor 1
+release 1
 x 290
 y 372
 w 180
 h 20
-font "helvetica-medium-r-8.0"
-fgColor index 14
+font "helvetica-medium-r-14.0"
+fgColor rgb 0 0 0
+bgColor index 3
 useDisplayBg
 value {
- "Trace time (usec):"
+  "Trace time (usec):"
 }
 endObjectProperties
 
-# (Text Control)
-object activeXTextDspClass
+# (Text Monitor)
+object activeXTextDspClass:noedit
 beginObjectProperties
 major 4
-minor 0
+minor 7
 release 0
 x 475
 y 372
 w 82
 h 20
 controlPv "$(P)TraceTime"
-font "helvetica-medium-r-8.0"
+format "decimal"
+font "helvetica-medium-r-14.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
 smartRefresh
 fastUpdate
-fgColor index 54
-bgColor index 4
-autoHeight
-format decimal
-nullColor index 32
-useHexPrefix
-objType "controls"
 newPos
+objType "controls"
 endObjectProperties
 
 # (Menu Button)
@@ -219,14 +221,14 @@ x 652
 y 696
 w 126
 h 40
-fgColor index 14
-bgColor index 51
-inconsistentColor index 12
-topShadowColor index 2
-botShadowColor index 12
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(R):ReadTrace.SCAN"
 indicatorPv "$(P)$(R):ReadTrace.SCAN"
-font "helvetica-medium-r-10.0"
+font "utopia-medium-r-24.0"
 endObjectProperties
 # (Group)
 object activeGroupClass
@@ -240,7 +242,6 @@ w 165
 h 42
 
 beginGroup
-
 # (Group)
 object activeGroupClass
 beginObjectProperties
@@ -254,7 +255,6 @@ h 20
 
 beginGroup
 
-
 # (Menu Button)
 object activeMenuButtonClass
 beginObjectProperties
@@ -265,11 +265,11 @@ x 50
 y 373
 w 80
 h 18
-fgColor index 14
-bgColor index 51
-inconsistentColor index 12
-topShadowColor index 2
-botShadowColor index 12
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(R)TraceData.SCAN"
 indicatorPv "$(P)$(R)TraceData.SCAN"
 font "helvetica-medium-r-10.0"
@@ -285,11 +285,11 @@ x 135
 y 372
 w 80
 h 20
-fgColor index 14
-onColor index 51
-offColor index 51
-topShadowColor index 0
-botShadowColor index 14
+fgColor rgb 0 0 0
+onColor rgb 29440 57088 65280
+offColor rgb 29440 57088 65280
+topShadowColor rgb 65280 65280 65280
+botShadowColor rgb 0 0 0
 controlPv "$(P)$(R)TraceData.PROC"
 pressValue "1"
 releaseValue 
@@ -297,7 +297,7 @@ onLabel "Read Once"
 offLabel "Read Once"
 3d
 useEnumNumeric
-font "helvetica-medium-r-10.0"
+font "helvetica-medium-r-12.0"
 endObjectProperties
 
 endGroup
