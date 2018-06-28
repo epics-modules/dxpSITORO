@@ -13,7 +13,7 @@
     <h2>
       Release 1-1</h2>
     <h2>
-      June XXX, 2017</h2>
+      June 28, 2017</h2>
     <h2>
       Mark Rivers</h2>
     <h2>
@@ -279,6 +279,19 @@
         </td>
         <td>
           Scale factor to control the energy range of the spectra.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          RisetimeOptimization<br />
+          RisetimeOptimization_RBV
+        </td>
+        <td>
+          ao<br />
+          ai
+        </td>
+        <td>
+          Risetime optimization factor for the pre-amp signal. Range is 0 to 4000.
         </td>
       </tr>
       <tr>
@@ -1076,6 +1089,17 @@
         </td>
         <td>
           Writing 1 to this record copies the ScaleFactor from channel 1 to all channels.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          CopyRisetimeOptimization
+        </td>
+        <td>
+          bo
+        </td>
+        <td>
+          Writing 1 to this record copies the RisetimeOptimization from channel 1 to all channels.
         </td>
       </tr>
       <tr valign="top">
