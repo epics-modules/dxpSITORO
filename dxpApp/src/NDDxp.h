@@ -107,6 +107,7 @@ typedef struct falconMCAPixelHeader {
 #define NDDxpMinPulsePairSeparationString   "DxpMinPulsePairSeparation"
 #define NDDxpDetectionFilterString          "DxpDetectionFilter"
 #define NDDxpScaleFactorString              "DxpScaleFactor"
+#define NDDxpRisetimeOptimizationString     "DxpRisetimeOptimization"
 #define NDDxpNumMCAChannelsString           "DxpNumMCAChannels"
 #define NDDxpMCARefreshPeriodString         "DxpMCARefreshPeriod"
 #define NDDxpPresetModeString               "DxpPresetMode"
@@ -224,6 +225,7 @@ protected:
     int NDDxpMinPulsePairSeparation;
     int NDDxpDetectionFilter;
     int NDDxpScaleFactor;
+    int NDDxpRisetimeOptimization;
     int NDDxpNumMCAChannels;
     int NDDxpMCARefreshPeriod;
     int NDDxpPresetMode;

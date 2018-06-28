@@ -69,6 +69,11 @@ assign  ScaleFactor to {};
 int     CopyScaleFactor; assign CopyScaleFactor to "{P}CopyScaleFactor";
 monitor CopyScaleFactor; evflag CopyScaleFactorMon; sync CopyScaleFactor CopyScaleFactorMon;
 
+double  RisetimeOptimization[MAX_DETECTORS]; 
+assign  RisetimeOptimization to {};
+int     CopyRisetimeOptimization; assign CopyRisetimeOptimization to "{P}CopyRisetimeOptimization";
+monitor CopyRisetimeOptimization; evflag CopyRisetimeOptimizationMon; sync CopyRisetimeOptimization CopyRisetimeOptimizationMon;
+
 int     DetectorPolarity[MAX_DETECTORS]; 
 assign  DetectorPolarity to {};
 int     CopyDetectorPolarity; assign CopyDetectorPolarity to "{P}CopyDetectorPolarity";
@@ -202,6 +207,9 @@ ss dxp_control {
 
                 sprintf(temp, "%s%s%d:ScaleFactor", prefix, dxp, det);
                 pvAssign(ScaleFactor[i], temp);
+
+                sprintf(temp, "%s%s%d:RisetimeOptimization", prefix, dxp, det);
+                pvAssign(RisetimeOptimization[i], temp);
 
                 sprintf(temp, "%s%s%d:DetectorPolarity", prefix, dxp, det);
                 pvAssign(DetectorPolarity[i], temp);
@@ -337,6 +345,16 @@ ss dxp_control {
             }
             CopyScaleFactor = 0;
             pvPut(CopyScaleFactor);
+        } state monitor_changes
+
+        when(efTestAndClear(CopyRisetimeOptimizationMon) && (CopyRisetimeOptimization == 1)) {
+            pvGet(RisetimeOptimization[0]);
+            for (i=0; i<nDetectors; i++) {
+                RisetimeOptimization[i] = RisetimeOptimization[0];
+                pvPut(RisetimeOptimization[i]);
+            }
+            CopyRisetimeOptimization = 0;
+            pvPut(CopyRisetimeOptimization);
         } state monitor_changes
 
         when(efTestAndClear(CopyDetectorPolarityMon) && (CopyDetectorPolarity == 1)) {

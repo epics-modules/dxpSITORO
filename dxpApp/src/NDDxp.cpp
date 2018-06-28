@@ -193,6 +193,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     createParam(NDDxpMinPulsePairSeparationString, asynParamInt32,   &NDDxpMinPulsePairSeparation);
     createParam(NDDxpDetectionFilterString,        asynParamInt32  , &NDDxpDetectionFilter);
     createParam(NDDxpScaleFactorString,            asynParamFloat64, &NDDxpScaleFactor);
+    createParam(NDDxpRisetimeOptimizationString,   asynParamFloat64, &NDDxpRisetimeOptimization);
     createParam(NDDxpNumMCAChannelsString,         asynParamInt32,   &NDDxpNumMCAChannels);
     createParam(NDDxpMCARefreshPeriodString,       asynParamFloat64, &NDDxpMCARefreshPeriod);
     createParam(NDDxpPresetModeString,             asynParamInt32,   &NDDxpPresetMode);
@@ -522,9 +523,10 @@ asynStatus NDDxp::writeFloat64( asynUser *pasynUser, epicsFloat64 value)
         this->setPresets(pasynUser, addr);
     } 
     else if 
-       ((function == NDDxpDetectionThreshold) ||
-        (function == NDDxpScaleFactor)        ||
-        (function == NDDxpDecayTime)          ||
+       ((function == NDDxpDetectionThreshold)   ||
+        (function == NDDxpScaleFactor)          ||
+        (function == NDDxpRisetimeOptimization) ||
+        (function == NDDxpDecayTime)            ||
         (function == NDDxpMCARefreshPeriod))
     {
         this->setDxpParam(pasynUser, addr, function, value);
@@ -722,6 +724,8 @@ asynStatus NDDxp::setDxpParam(asynUser *pasynUser, int addr, int function, doubl
         xiastatus = xiaSetAcquisitionValues(channel, "detection_filter", &dvalue);
     } else if (function == NDDxpScaleFactor) {
         xiastatus = xiaSetAcquisitionValues(channel, "scale_factor", &dvalue);
+    } else if (function == NDDxpRisetimeOptimization) {
+        xiastatus = xiaSetAcquisitionValues(channel, "risetime_optimization", &dvalue);
     } else if (function == NDDxpDecayTime) {
         xiastatus = xiaSetAcquisitionValues(channel, "decay_time", &dvalue);
     } else if (function == NDDxpMCARefreshPeriod) {
@@ -1245,6 +1249,8 @@ asynStatus NDDxp::getDxpParams(asynUser *pasynUser, int addr)
         setIntegerParam(channel, NDDxpDetectionFilter, (int)dvalue);
         xiaGetAcquisitionValues(channel, "scale_factor", &dvalue);
         setDoubleParam(channel, NDDxpScaleFactor, dvalue);
+        xiaGetAcquisitionValues(channel, "risetime_optimization", &dvalue);
+        setDoubleParam(channel, NDDxpRisetimeOptimization, dvalue);
         
         // Read mapping parameters, which are assumed to be the same for all modules 
         dTmp = 0;

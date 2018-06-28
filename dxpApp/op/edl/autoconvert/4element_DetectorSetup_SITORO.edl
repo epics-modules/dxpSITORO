@@ -5,7 +5,7 @@ minor 0
 release 1
 x 540
 y 300
-w 920
+w 1050
 h 315
 font "helvetica-medium-r-18.0"
 ctlFont "helvetica-bold-r-10.0"
@@ -831,19 +831,6 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 305
-y 64
-w 605
-h 179
-
-beginGroup
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
 x 565
 y 64
 w 120
@@ -1630,13 +1617,26 @@ endGroup
 endObjectProperties
 
 
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 825
+y 64
+w 215
+h 179
+
+beginGroup
+
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
 major 4
 minor 1
 release 1
-x 781
+x 911
 y 79
 w 42
 h 14
@@ -1656,7 +1656,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 769
+x 899
 y 64
 w 67
 h 14
@@ -1676,7 +1676,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 102
 w 215
 h 108
@@ -1689,7 +1689,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 102
 w 110
 h 108
@@ -1707,7 +1707,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 810
+x 940
 y 104
 w 100
 h 104
@@ -1720,7 +1720,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 810
+x 940
 y 134
 w 100
 h 14
@@ -1744,7 +1744,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 810
+x 940
 y 104
 w 100
 h 14
@@ -1768,7 +1768,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 810
+x 940
 y 164
 w 100
 h 14
@@ -1792,7 +1792,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 810
+x 940
 y 194
 w 100
 h 14
@@ -1824,6 +1824,246 @@ endGroup
 
 endObjectProperties
 
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 726
+y 64
+w 60
+h 14
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Risetime"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 713
+y 79
+w 84
+h 14
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Optimization"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 695
+y 131
+w 59
+h 20
+controlPv "$(P)$(D)2:RisetimeOptimization"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+editable
+motifWidget
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 756
+y 134
+w 59
+h 14
+controlPv "$(P)$(D)2:RisetimeOptimization_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor rgb 55808 55808 55808
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 695
+y 101
+w 59
+h 20
+controlPv "$(P)$(D)1:RisetimeOptimization"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+editable
+motifWidget
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 756
+y 104
+w 59
+h 14
+controlPv "$(P)$(D)1:RisetimeOptimization_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor rgb 55808 55808 55808
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 695
+y 161
+w 59
+h 20
+controlPv "$(P)$(D)3:RisetimeOptimization"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+editable
+motifWidget
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 756
+y 164
+w 59
+h 14
+controlPv "$(P)$(D)3:RisetimeOptimization_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor rgb 55808 55808 55808
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 695
+y 191
+w 59
+h 20
+controlPv "$(P)$(D)4:RisetimeOptimization"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+editable
+motifWidget
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 756
+y 194
+w 59
+h 14
+controlPv "$(P)$(D)4:RisetimeOptimization_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor rgb 55808 55808 55808
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
 # (Group)
 object activeGroupClass
 beginObjectProperties
@@ -2155,18 +2395,6 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 305
-y 64
-w 605
-h 179
-
-beginGroup
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
 x 565
 y 64
 w 120
@@ -2304,6 +2532,18 @@ endGroup
 
 endObjectProperties
 
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 825
+y 64
+w 215
+h 179
+
+beginGroup
 
 # (Message Button)
 object activeMessageButtonClass
@@ -2311,7 +2551,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 743
+x 873
 y 225
 w 118
 h 18
@@ -2335,7 +2575,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 102
 w 215
 h 108
@@ -2347,7 +2587,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 102
 w 110
 h 108
@@ -2360,7 +2600,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 132
 w 110
 h 18
@@ -2380,7 +2620,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 102
 w 110
 h 18
@@ -2400,7 +2640,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 162
 w 110
 h 18
@@ -2420,7 +2660,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 695
+x 825
 y 192
 w 110
 h 18
@@ -2444,7 +2684,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 810
+x 940
 y 104
 w 100
 h 104
@@ -2465,4 +2705,29 @@ endGroup
 
 endObjectProperties
 
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 697
+y 225
+w 118
+h 18
+fgColor rgb 0 0 0
+onColor rgb 29440 57088 65280
+offColor rgb 29440 57088 65280
+topShadowColor rgb 65280 65280 65280
+botShadowColor rgb 0 0 0
+controlPv "$(P)CopyRisetimeOptimization"
+pressValue "1"
+releaseValue 
+onLabel "Copy 1->All"
+offLabel "Copy 1->All"
+3d
+useEnumNumeric
+font "helvetica-medium-r-10.0"
+endObjectProperties
 

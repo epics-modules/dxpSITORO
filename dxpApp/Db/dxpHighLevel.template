@@ -154,6 +154,23 @@ record(ai, "$(P)$(R)ScaleFactor_RBV") {
     field(SCAN, "I/O Intr")
 }
 
+record(ao, "$(P)$(R)RisetimeOptimization") {
+    field(PINI, "YES")
+    field(VAL,  "2.0")
+    field(DTYP, "asynFloat64")
+    field(OUT, "$(IO)DxpRisetimeOptimization")
+    field(PREC, "3")
+    field(DRVL, "0.5")
+    field(DRVH, "200.0")
+}
+
+record(ai, "$(P)$(R)RisetimeOptimization_RBV") {
+    field(DTYP, "asynFloat64")
+    field(INP, "$(IO)DxpRisetimeOptimization")
+    field(PREC, "3")
+    field(SCAN, "I/O Intr")
+}
+
 record(bo, "$(P)$(R)DetectorPolarity") {
     field(PINI, "YES")
     field(VAL,  "1")

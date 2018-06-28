@@ -239,6 +239,11 @@ record(bo,"$(P)CopyScaleFactor") {
     field(ONAM, "Copy")
 }
 
+record(bo,"$(P)CopyRisetimeOptimization") {
+    field(ZNAM, "Done")
+    field(ONAM, "Copy")
+}
+
 record(bo,"$(P)CopyDetectorPolarity") {
     field(ZNAM, "Done")
     field(ONAM, "Copy")
