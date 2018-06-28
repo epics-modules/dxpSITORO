@@ -160,8 +160,8 @@ record(ao, "$(P)$(R)RisetimeOptimization") {
     field(DTYP, "asynFloat64")
     field(OUT, "$(IO)DxpRisetimeOptimization")
     field(PREC, "3")
-    field(DRVL, "0.5")
-    field(DRVH, "200.0")
+    field(DRVL, "0.0")
+    field(DRVH, "4000.0")
 }
 
 record(ai, "$(P)$(R)RisetimeOptimization_RBV") {
