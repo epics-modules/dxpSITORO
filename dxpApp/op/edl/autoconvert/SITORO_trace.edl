@@ -42,7 +42,7 @@ yLabel "ADC units"
 fgColor rgb 0 0 0
 bgColor rgb 47872 47872 47872
 gridColor rgb 0 0 0
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-10.0"
 # Operating Modes
 plotMode "plotLastNPts"
 nPts 1
@@ -83,9 +83,9 @@ minor 1
 release 1
 x 156
 y 341
-w 0
+w 8
 h 40
-font "helvetica-bold-r-12.0"
+font "utopia-medium-r-34.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -102,9 +102,9 @@ minor 1
 release 1
 x 490
 y 698
-w 158
+w 199
 h 40
-font "helvetica-bold-r-12.0"
+font "utopia-medium-r-34.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -154,7 +154,7 @@ x 87
 y 350
 w 90
 h 20
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-14.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -178,7 +178,7 @@ x 290
 y 372
 w 180
 h 20
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-14.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -199,7 +199,7 @@ w 82
 h 20
 controlPv "$(P)TraceTime"
 format "decimal"
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-14.0"
 fontAlign "left"
 fgColor rgb 2560 0 47104
 bgColor rgb 47872 47872 47872
@@ -228,7 +228,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(R):ReadTrace.SCAN"
 indicatorPv "$(P)$(R):ReadTrace.SCAN"
-font "helvetica-bold-r-12.0"
+font "utopia-medium-r-24.0"
 endObjectProperties
 # (Group)
 object activeGroupClass
@@ -272,7 +272,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(R)TraceData.SCAN"
 indicatorPv "$(P)$(R)TraceData.SCAN"
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-10.0"
 endObjectProperties
 
 # (Message Button)
@@ -297,7 +297,7 @@ onLabel "Read Once"
 offLabel "Read Once"
 3d
 useEnumNumeric
-font "helvetica-bold-r-12.0"
+font "helvetica-medium-r-12.0"
 endObjectProperties
 
 endGroup
