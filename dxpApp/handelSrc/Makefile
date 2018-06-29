@@ -54,6 +54,7 @@ handel_SRCS += psl.c
 handel_SRCS_Linux += handel_md_threads_posix.c
 handel_SRCS_WIN32 += handel_md_threads_windows.c
 
+handel_LIBS += sinc
 handel_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
