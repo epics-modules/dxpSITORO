@@ -147,7 +147,7 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
     }
     this->maxSCAs = (int)tempUS;
     /* There is a bug in the firmware which causes maxSCAs to be wrong. Force it to be 16/nChannels */
-    this->maxSCAs = 16/nChannels;
+    //this->maxSCAs = 16/nChannels;
 
     /* Mapping mode parameters */
     createParam(NDDxpCollectModeString,            asynParamInt32,   &NDDxpCollectMode);
