@@ -22,9 +22,7 @@ USR_CFLAGS_Linux += -std=c99
 USR_CFLAGS_WIN32 += -DWIN32 -DWIN32_LEAN_AND_MEAN
 
 ifeq ($(SHARED_LIBRARIES),YES)
-  USR_CFLAGS_WIN32 += -DSITORO_EXPORTS
-else
-  USR_CFLAGS_WIN32 += -DSITORO_NO_IMPORTEXPORT
+  USR_CFLAGS_WIN32 += -DHANDEL_MAKE_DLL
 endif
 
 LIBRARY_IOC_Linux    += handel
@@ -70,6 +68,7 @@ handel_SRCS += sinc.pb-c.c
 handel_SRCS += socket.c
 handel_SRCS += protobuf-c.c
 
+handel_SYS_LIBS_WIN32 += ws2_32
 handel_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
