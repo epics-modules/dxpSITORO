@@ -32,9 +32,9 @@ minor 1
 release 1
 x 591
 y 68
-w 25
+w 10
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 2560 0 47104
 bgColor index 3
 useDisplayBg
@@ -69,7 +69,7 @@ x 156
 y 21
 w 489
 h 40
-font "utopia-medium-r-34.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 65280 65280 65280
 bgColor index 3
@@ -87,9 +87,9 @@ minor 1
 release 1
 x 198
 y 68
-w 25
+w 10
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 2560 0 47104
 bgColor index 3
 useDisplayBg
@@ -106,9 +106,9 @@ minor 1
 release 1
 x 198
 y 322
-w 25
+w 10
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 2560 0 47104
 bgColor index 3
 useDisplayBg
@@ -125,9 +125,9 @@ minor 1
 release 1
 x 591
 y 322
-w 25
+w 10
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 2560 0 47104
 bgColor index 3
 useDisplayBg
@@ -154,7 +154,7 @@ yLabel "ADC units"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
 gridColor rgb 0 0 0
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 # Operating Modes
 plotMode "plotLastNPts"
 nPts 1
@@ -205,7 +205,7 @@ yLabel "ADC units"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
 gridColor rgb 0 0 0
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 # Operating Modes
 plotMode "plotLastNPts"
 nPts 1
@@ -248,7 +248,7 @@ x 50
 y 560
 w 105
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -275,7 +275,7 @@ yLabel "ADC units"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
 gridColor rgb 0 0 0
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 # Operating Modes
 plotMode "plotLastNPts"
 nPts 1
@@ -326,7 +326,7 @@ yLabel "ADC units"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
 gridColor rgb 0 0 0
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 # Operating Modes
 plotMode "plotLastNPts"
 nPts 1
@@ -369,7 +369,7 @@ x 360
 y 560
 w 180
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
@@ -390,7 +390,7 @@ w 82
 h 20
 controlPv "$(P)TraceTime"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 2560 0 47104
 bgColor rgb 47872 47872 47872
@@ -424,7 +424,7 @@ onLabel "Read Once"
 offLabel "Read Once"
 3d
 useEnumNumeric
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -444,6 +444,6 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)ReadTraces.SCAN"
 indicatorPv "$(P)ReadTraces.SCAN"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 

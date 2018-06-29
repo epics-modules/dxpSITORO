@@ -50,7 +50,7 @@ x 45
 y 10
 w 324
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 65280 65280 65280
 bgColor index 3
@@ -79,11 +79,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 339
+x 340
 y 49
-w 56
+w 54
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -99,11 +99,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 336
+x 347
 y 71
-w 59
+w 36
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -125,7 +125,7 @@ w 90
 h 22
 controlPv "$(P)$(D)1:PresetEvents"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -151,7 +151,7 @@ w 90
 h 22
 controlPv "$(P)$(D)2:PresetEvents"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -177,7 +177,7 @@ w 90
 h 22
 controlPv "$(P)$(D)3:PresetEvents"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -203,7 +203,7 @@ w 90
 h 22
 controlPv "$(P)$(D)4:PresetEvents"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -223,11 +223,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 244
+x 245
 y 49
-w 56
+w 54
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -243,11 +243,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 236
+x 252
 y 71
-w 68
+w 36
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -269,7 +269,7 @@ w 90
 h 22
 controlPv "$(P)$(D)1:PresetTriggers"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -295,7 +295,7 @@ w 90
 h 22
 controlPv "$(P)$(D)2:PresetTriggers"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -321,7 +321,7 @@ w 90
 h 22
 controlPv "$(P)$(D)3:PresetTriggers"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -347,7 +347,7 @@ w 90
 h 22
 controlPv "$(P)$(D)4:PresetTriggers"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -385,11 +385,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 96
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -405,11 +405,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 123
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -425,11 +425,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 150
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -445,11 +445,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 177
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -469,7 +469,7 @@ x 5
 y 70
 w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -489,7 +489,7 @@ x 72
 y 49
 w 60
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -505,11 +505,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 74
+x 79
 y 71
-w 51
+w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -525,11 +525,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 159
+x 166
 y 49
-w 56
+w 42
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -545,11 +545,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 164
+x 171
 y 71
-w 42
+w 28
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -571,7 +571,7 @@ w 70
 h 22
 controlPv "$(P)$(M)1.PRTM"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -597,7 +597,7 @@ w 70
 h 22
 controlPv "$(P)$(M)2.PRTM"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -623,7 +623,7 @@ w 70
 h 22
 controlPv "$(P)$(M)3.PRTM"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -649,7 +649,7 @@ w 70
 h 22
 controlPv "$(P)$(M)4.PRTM"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -714,7 +714,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)1:PresetMode"
 indicatorPv "$(P)$(D)1:PresetMode"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -734,7 +734,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)2:PresetMode"
 indicatorPv "$(P)$(D)2:PresetMode"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -754,7 +754,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)3:PresetMode"
 indicatorPv "$(P)$(D)3:PresetMode"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -774,7 +774,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)4:PresetMode"
 indicatorPv "$(P)$(D)4:PresetMode"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 endGroup

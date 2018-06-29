@@ -50,7 +50,7 @@ x 205
 y 6
 w 180
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 65280 65280 65280
 bgColor index 3
 useDisplayBg
@@ -84,7 +84,7 @@ x 109
 y 49
 w 154
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -104,7 +104,7 @@ x 392
 y 50
 w 161
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -133,11 +133,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 2
+x 5
 y 49
-w 36
+w 30
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -153,11 +153,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 9
+x 16
 y 104
-w 21
+w 7
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -173,11 +173,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 9
+x 16
 y 74
-w 21
+w 7
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -193,11 +193,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 9
+x 16
 y 134
-w 21
+w 7
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -213,11 +213,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 9
+x 16
 y 164
-w 21
+w 7
 h 14
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -257,7 +257,7 @@ w 120
 h 14
 controlPv "$(P)$(D)2:TriggerOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -281,7 +281,7 @@ w 120
 h 14
 controlPv "$(P)$(D)1:TriggerOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -305,7 +305,7 @@ w 120
 h 14
 controlPv "$(P)$(D)3:TriggerOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -329,7 +329,7 @@ w 120
 h 14
 controlPv "$(P)$(D)4:TriggerOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -402,7 +402,7 @@ w 120
 h 14
 controlPv "$(P)$(D)2:LiveTimeOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -426,7 +426,7 @@ w 120
 h 14
 controlPv "$(P)$(D)1:LiveTimeOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -450,7 +450,7 @@ w 120
 h 14
 controlPv "$(P)$(D)3:LiveTimeOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -474,7 +474,7 @@ w 120
 h 14
 controlPv "$(P)$(D)4:LiveTimeOutput_RBV"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 55808 55808 55808
@@ -572,7 +572,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)2:TriggerOutput"
 indicatorPv "$(P)$(D)2:TriggerOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -592,7 +592,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)1:TriggerOutput"
 indicatorPv "$(P)$(D)1:TriggerOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -612,7 +612,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)3:TriggerOutput"
 indicatorPv "$(P)$(D)3:TriggerOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -632,7 +632,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)4:TriggerOutput"
 indicatorPv "$(P)$(D)4:TriggerOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 endGroup
@@ -703,7 +703,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)2:LiveTimeOutput"
 indicatorPv "$(P)$(D)2:LiveTimeOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -723,7 +723,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)1:LiveTimeOutput"
 indicatorPv "$(P)$(D)1:LiveTimeOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -743,7 +743,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)3:LiveTimeOutput"
 indicatorPv "$(P)$(D)3:LiveTimeOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 # (Menu Button)
@@ -763,7 +763,7 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 controlPv "$(P)$(D)4:LiveTimeOutput"
 indicatorPv "$(P)$(D)4:LiveTimeOutput"
-font "helvetica-medium-r-10.0"
+font "helvetica-bold-r-12.0"
 endObjectProperties
 
 endGroup

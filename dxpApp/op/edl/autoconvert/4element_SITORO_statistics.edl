@@ -50,7 +50,7 @@ x 425
 y 10
 w 360
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 65280 65280 65280
 bgColor index 3
@@ -79,11 +79,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 96
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -99,11 +99,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 123
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -119,11 +119,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 150
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -139,11 +139,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 177
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -163,7 +163,7 @@ x 5
 y 70
 w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -179,11 +179,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 128
+x 133
 y 49
-w 66
+w 55
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -199,11 +199,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 140
+x 145
 y 71
-w 41
+w 31
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -225,7 +225,7 @@ w 70
 h 20
 controlPv "$(P)$(M)1.ELTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -249,7 +249,7 @@ w 70
 h 20
 controlPv "$(P)$(M)2.ELTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -273,7 +273,7 @@ w 70
 h 20
 controlPv "$(P)$(M)3.ELTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -297,7 +297,7 @@ w 70
 h 20
 controlPv "$(P)$(M)4.ELTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -319,7 +319,7 @@ x 380
 y 49
 w 69
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -335,11 +335,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 385
+x 394
 y 71
-w 59
+w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -361,7 +361,7 @@ w 90
 h 20
 controlPv "$(P)$(D)1:Events"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -385,7 +385,7 @@ w 90
 h 20
 controlPv "$(P)$(D)2:Events"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -409,7 +409,7 @@ w 90
 h 20
 controlPv "$(P)$(D)3:Events"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -433,7 +433,7 @@ w 90
 h 20
 controlPv "$(P)$(D)4:Events"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -455,7 +455,7 @@ x 285
 y 49
 w 69
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -471,11 +471,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 285
+x 299
 y 71
-w 68
+w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -497,7 +497,7 @@ w 90
 h 20
 controlPv "$(P)$(D)1:Triggers"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -521,7 +521,7 @@ w 90
 h 20
 controlPv "$(P)$(D)2:Triggers"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -545,7 +545,7 @@ w 90
 h 20
 controlPv "$(P)$(D)3:Triggers"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -569,7 +569,7 @@ w 90
 h 20
 controlPv "$(P)$(D)4:Triggers"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -587,11 +587,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 206
+x 208
 y 49
-w 60
+w 55
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -607,11 +607,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 215
+x 220
 y 71
-w 41
+w 31
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -633,7 +633,7 @@ w 70
 h 20
 controlPv "$(P)$(D)1:ElapsedTriggerLiveTime"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -657,7 +657,7 @@ w 70
 h 20
 controlPv "$(P)$(D)2:ElapsedTriggerLiveTime"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -681,7 +681,7 @@ w 70
 h 20
 controlPv "$(P)$(D)3:ElapsedTriggerLiveTime"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -705,7 +705,7 @@ w 70
 h 20
 controlPv "$(P)$(D)4:ElapsedTriggerLiveTime"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -723,11 +723,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 52
+x 58
 y 49
-w 66
+w 54
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -743,11 +743,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 64
+x 69
 y 71
-w 42
+w 31
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -769,7 +769,7 @@ w 70
 h 20
 controlPv "$(P)$(M)1.ERTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -793,7 +793,7 @@ w 70
 h 20
 controlPv "$(P)$(M)2.ERTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -817,7 +817,7 @@ w 70
 h 20
 controlPv "$(P)$(M)3.ERTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -841,7 +841,7 @@ w 70
 h 20
 controlPv "$(P)$(M)4.ERTM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -881,7 +881,7 @@ x 475
 y 49
 w 69
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -903,7 +903,7 @@ w 90
 h 20
 controlPv "$(P)$(D)1:InputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -927,7 +927,7 @@ w 90
 h 20
 controlPv "$(P)$(D)2:InputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -951,7 +951,7 @@ w 90
 h 20
 controlPv "$(P)$(D)3:InputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -975,7 +975,7 @@ w 90
 h 20
 controlPv "$(P)$(D)4:InputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -997,7 +997,7 @@ x 570
 y 49
 w 69
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1019,7 +1019,7 @@ w 90
 h 20
 controlPv "$(P)$(D)1:OutputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1043,7 +1043,7 @@ w 90
 h 20
 controlPv "$(P)$(D)2:OutputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1067,7 +1067,7 @@ w 90
 h 20
 controlPv "$(P)$(D)3:OutputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1091,7 +1091,7 @@ w 90
 h 20
 controlPv "$(P)$(D)4:OutputCountRate"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1113,7 +1113,7 @@ x 978
 y 49
 w 90
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1133,7 +1133,7 @@ x 873
 y 71
 w 130
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1155,7 +1155,7 @@ w 90
 h 20
 controlPv "$(P)$(M)1.IDTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1179,7 +1179,7 @@ w 90
 h 20
 controlPv "$(P)$(M)2.IDTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1203,7 +1203,7 @@ w 90
 h 20
 controlPv "$(P)$(M)3.IDTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1227,7 +1227,7 @@ w 90
 h 20
 controlPv "$(P)$(M)4.IDTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1345,7 +1345,7 @@ x 1074
 y 71
 w 90
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1367,7 +1367,7 @@ w 90
 h 20
 controlPv "$(P)$(M)1.DTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1391,7 +1391,7 @@ w 90
 h 20
 controlPv "$(P)$(M)2.DTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1415,7 +1415,7 @@ w 90
 h 20
 controlPv "$(P)$(M)3.DTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1439,7 +1439,7 @@ w 90
 h 20
 controlPv "$(P)$(M)4.DTIM"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1557,7 +1557,7 @@ x 665
 y 49
 w 69
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1579,7 +1579,7 @@ w 90
 h 20
 controlPv "$(P)$(D)1:CurrentPixel"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1603,7 +1603,7 @@ w 90
 h 20
 controlPv "$(P)$(D)2:CurrentPixel"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1627,7 +1627,7 @@ w 90
 h 20
 controlPv "$(P)$(D)3:CurrentPixel"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1651,7 +1651,7 @@ w 90
 h 20
 controlPv "$(P)$(D)4:CurrentPixel"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1673,7 +1673,7 @@ x 670
 y 71
 w 60
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1693,7 +1693,7 @@ x 760
 y 49
 w 70
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1715,7 +1715,7 @@ w 90
 h 20
 controlPv "$(P)$(M)1.ACQG"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1739,7 +1739,7 @@ w 90
 h 20
 controlPv "$(P)$(M)2.ACQG"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1763,7 +1763,7 @@ w 90
 h 20
 controlPv "$(P)$(M)3.ACQG"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1787,7 +1787,7 @@ w 90
 h 20
 controlPv "$(P)$(M)4.ACQG"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "right"
 fgColor rgb 2560 0 47104
 bgColor rgb 60416 60416 60416
@@ -1809,7 +1809,7 @@ x 765
 y 71
 w 60
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3

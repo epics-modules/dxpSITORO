@@ -61,9 +61,9 @@ minor 1
 release 1
 x 102
 y 10
-w 106
+w 100
 h 25
-font "helvetica-medium-r-18.0"
+font "helvetica-bold-r-12.0"
 fgColor rgb 65280 65280 65280
 bgColor index 3
 useDisplayBg
@@ -87,7 +87,7 @@ x 60
 y 69
 w 140
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -109,7 +109,7 @@ w 83
 h 20
 controlPv "$(P)NumSCAs"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -133,7 +133,7 @@ x 10
 y 44
 w 190
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -149,11 +149,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 6
+x 8
 y 96
-w 44
+w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -169,11 +169,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 75
+x 80
 y 96
-w 40
+w 30
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -189,11 +189,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 155
+x 156
 y 96
-w 43
+w 40
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -209,11 +209,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 236
+x 242
 y 96
-w 42
+w 30
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -229,11 +229,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 469
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -249,11 +249,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 442
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -269,11 +269,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 415
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -289,11 +289,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 388
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -309,11 +309,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 361
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -329,11 +329,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 334
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -349,11 +349,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 307
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -369,11 +369,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 280
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -389,11 +389,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 253
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -409,11 +409,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 226
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -429,11 +429,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 199
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -449,11 +449,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 172
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -469,11 +469,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 145
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -489,11 +489,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 496
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -509,11 +509,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 3
+x 13
 y 523
-w 30
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -535,7 +535,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA13Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -561,7 +561,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA12Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -587,7 +587,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA11Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -613,7 +613,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA10Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -639,7 +639,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA9Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -665,7 +665,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA8Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -691,7 +691,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA7Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -717,7 +717,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA6Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -743,7 +743,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA5Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -769,7 +769,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA4Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -795,7 +795,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA3Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -821,7 +821,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA2Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -847,7 +847,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA1Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -873,7 +873,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA14Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -899,7 +899,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA15Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -925,7 +925,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA13High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -951,7 +951,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA12High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -977,7 +977,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA11High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1003,7 +1003,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA10High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1029,7 +1029,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA9High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1055,7 +1055,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA8High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1081,7 +1081,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA7High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1107,7 +1107,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA6High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1133,7 +1133,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA5High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1159,7 +1159,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA4High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1185,7 +1185,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA3High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1211,7 +1211,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA2High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1237,7 +1237,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA1High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1263,7 +1263,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA14High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1289,7 +1289,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA15High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1315,7 +1315,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA13Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1339,7 +1339,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA12Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1363,7 +1363,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA11Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1387,7 +1387,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA10Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1411,7 +1411,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA9Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1435,7 +1435,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA8Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1459,7 +1459,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA7Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1483,7 +1483,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA6Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1507,7 +1507,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA5Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1531,7 +1531,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA4Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1555,7 +1555,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA3Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1579,7 +1579,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA2Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1603,7 +1603,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA1Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1627,7 +1627,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA14Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1651,7 +1651,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA15Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1669,11 +1669,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
+x 18
 y 123
-w 22
+w 10
 h 20
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 0 0 0
 bgColor index 3
@@ -1695,7 +1695,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA0Low"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1721,7 +1721,7 @@ w 76
 h 22
 controlPv "$(P)$(R)SCA0High"
 format "decimal"
-font "helvetica-medium-r-12.0"
+font "helvetica-bold-r-12.0"
 fontAlign "left"
 fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
@@ -1747,7 +1747,7 @@ w 76
 h 20
 controlPv "$(P)$(R)SCA0Counts"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
@@ -1771,7 +1771,7 @@ w 76
 h 20
 controlPv "$(P)MaxSCAs"
 format "decimal"
-font "helvetica-medium-r-14.0"
+font "helvetica-bold-r-12.0"
 fontAlign "center"
 fgColor rgb 2560 0 47104
 bgColor rgb 51200 51200 51200
