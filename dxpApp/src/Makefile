@@ -17,7 +17,7 @@ DBD += dxpSupport.dbd
 dxp_SRCS += NDDxp.cpp
 dxp_SRCS += dxpMED.st
 
-dxp_LIBS += handel sinc
+dxp_LIBS += handel
 dxp_LIBS += asyn
 dxp_LIBS += mca
 dxp_LIBS += ADBase
