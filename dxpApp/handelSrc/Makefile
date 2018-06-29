@@ -25,51 +25,51 @@ ifeq ($(SHARED_LIBRARIES),YES)
   USR_CFLAGS_WIN32 += -DHANDEL_MAKE_DLL
 endif
 
-LIBRARY_IOC_Linux    += handel
-LIBRARY_IOC_WIN32    += handel
+LIBRARY_IOC_Linux    += handelSITORO
+LIBRARY_IOC_WIN32    += handelSITORO
 
-handel_SRCS += handel.c
-handel_SRCS += handel_detchan.c
-handel_SRCS += handel_dyn_detector.c
-handel_SRCS += handel_dyn_module.c
-handel_SRCS += handel_file.c
-handel_SRCS += handel_run_params.c
-handel_SRCS += handel_system.c
-handel_SRCS += handel_dbg.c
-handel_SRCS += handel_dyn_default.c
-handel_SRCS += handel_dyn_firmware.c
-handel_SRCS += handel_fdd_shim.c
-handel_SRCS += handel_log.c
-handel_SRCS += handel_run_control.c
-handel_SRCS += handel_sort.c
-handel_SRCS += xia_assert.c
-handel_SRCS += xia_file.c
-handel_SRCS += xia_sio.c
-handel_SRCS += md_shim.c
-handel_SRCS += miniz.c
-handel_SRCS += falconx_mm.c
-handel_SRCS += falconxn_psl.c
-handel_SRCS += psl.c
+handelSITORO_SRCS += handel.c
+handelSITORO_SRCS += handel_detchan.c
+handelSITORO_SRCS += handel_dyn_detector.c
+handelSITORO_SRCS += handel_dyn_module.c
+handelSITORO_SRCS += handel_file.c
+handelSITORO_SRCS += handel_run_params.c
+handelSITORO_SRCS += handel_system.c
+handelSITORO_SRCS += handel_dbg.c
+handelSITORO_SRCS += handel_dyn_default.c
+handelSITORO_SRCS += handel_dyn_firmware.c
+handelSITORO_SRCS += handel_fdd_shim.c
+handelSITORO_SRCS += handel_log.c
+handelSITORO_SRCS += handel_run_control.c
+handelSITORO_SRCS += handel_sort.c
+handelSITORO_SRCS += xia_assert.c
+handelSITORO_SRCS += xia_file.c
+handelSITORO_SRCS += xia_sio.c
+handelSITORO_SRCS += md_shim.c
+handelSITORO_SRCS += miniz.c
+handelSITORO_SRCS += falconx_mm.c
+handelSITORO_SRCS += falconxn_psl.c
+handelSITORO_SRCS += psl.c
 
-handel_SRCS_Linux += handel_md_threads_posix.c
-handel_SRCS_WIN32 += handel_md_threads_windows.c
+handelSITORO_SRCS_Linux += handel_md_threads_posix.c
+handelSITORO_SRCS_WIN32 += handel_md_threads_windows.c
 
 SRC_DIRS += $(TOP)/dxpApp/sincSrc
-handel_SRCS += api.c
-handel_SRCS += base64.c
-handel_SRCS += blocking.c
-handel_SRCS += command.c
-handel_SRCS += decode.c
-handel_SRCS += encapsulation.c
-handel_SRCS += encode.c
-handel_SRCS += readmessage.c
-handel_SRCS += request.c
-handel_SRCS += sinc.pb-c.c
-handel_SRCS += socket.c
-handel_SRCS += protobuf-c.c
+handelSITORO_SRCS += api.c
+handelSITORO_SRCS += base64.c
+handelSITORO_SRCS += blocking.c
+handelSITORO_SRCS += command.c
+handelSITORO_SRCS += decode.c
+handelSITORO_SRCS += encapsulation.c
+handelSITORO_SRCS += encode.c
+handelSITORO_SRCS += readmessage.c
+handelSITORO_SRCS += request.c
+handelSITORO_SRCS += sinc.pb-c.c
+handelSITORO_SRCS += socket.c
+handelSITORO_SRCS += protobuf-c.c
 
-handel_SYS_LIBS_WIN32 += ws2_32
-handel_LIBS += $(EPICS_BASE_IOC_LIBS)
+handelSITORO_SYS_LIBS_WIN32 += ws2_32
+handelSITORO_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
 
