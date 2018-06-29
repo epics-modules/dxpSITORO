@@ -16,6 +16,8 @@ INC += handel_constants.h
 INC += handel_generic.h
 INC += md_generic.h
 
+USR_INCLUDES += -I$(TOP)/dxpApp/sincSrc
+
 USR_CFLAGS_Linux += -std=c99 
 USR_CFLAGS_WIN32 += -DWIN32 -DWIN32_LEAN_AND_MEAN
 
@@ -54,7 +56,20 @@ handel_SRCS += psl.c
 handel_SRCS_Linux += handel_md_threads_posix.c
 handel_SRCS_WIN32 += handel_md_threads_windows.c
 
-handel_LIBS += sinc
+SRC_DIRS += $(TOP)/dxpApp/sincSrc
+handel_SRCS += api.c
+handel_SRCS += base64.c
+handel_SRCS += blocking.c
+handel_SRCS += command.c
+handel_SRCS += decode.c
+handel_SRCS += encapsulation.c
+handel_SRCS += encode.c
+handel_SRCS += readmessage.c
+handel_SRCS += request.c
+handel_SRCS += sinc.pb-c.c
+handel_SRCS += socket.c
+handel_SRCS += protobuf-c.c
+
 handel_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
