@@ -8,36 +8,36 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
-LIBRARY_IOC_Linux += dxp
-LIBRARY_IOC_WIN32 += dxp
+LIBRARY_IOC_Linux += dxpSITORO
+LIBRARY_IOC_WIN32 += dxpSITORO
 
-DBD += dxpSupport.dbd
+DBD += dxpSITOROSupport.dbd
 
 # The following are compiled and added to the library
-dxp_SRCS += NDDxp.cpp
-dxp_SRCS += dxpMED.st
+dxpSITORO_SRCS += NDDxp.cpp
+dxpSITORO_SRCS += dxpMED.st
 
-dxp_LIBS += handel
-dxp_LIBS += asyn
-dxp_LIBS += mca
-dxp_LIBS += ADBase
-dxp_LIBS += seq pv
-dxp_LIBS += $(EPICS_BASE_IOC_LIBS)
+dxpSITORO_LIBS += handel
+dxpSITORO_LIBS += asyn
+dxpSITORO_LIBS += mca
+dxpSITORO_LIBS += ADBase
+dxpSITORO_LIBS += seq pv
+dxpSITORO_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #=============================
 # build an ioc application
-PROD_NAME = dxpApp
+PROD_NAME = dxpSITOROApp
 PROD_IOC_Linux = $(PROD_NAME)
 PROD_IOC_WIN32 = $(PROD_NAME)
 
 DBD += $(PROD_NAME).dbd
 
 # <name>_registerRecordDeviceDriver.cpp will be created from <name>.dbd
-dxpApp_SRCS += dxpMain.cpp dxpApp_registerRecordDeviceDriver.cpp
+$(PROD_NAME)_SRCS += dxpMain.cpp $(PROD_NAME)_registerRecordDeviceDriver.cpp
 
-dxpApp_LIBS += dxp handel
-dxpApp_LIBS += mca
-dxpApp_LIBS += seq pv
+$(PROD_NAME)_LIBS += dxpSITORO handel
+$(PROD_NAME)_LIBS += mca
+$(PROD_NAME)_LIBS += seq pv
 
 include $(ADCORE)/ADApp/commonDriverMakefile
 $(PROD_NAME)_DBD += mcaSupport.dbd
