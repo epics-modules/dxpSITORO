@@ -35,7 +35,7 @@ DBD += $(PROD_NAME).dbd
 # <name>_registerRecordDeviceDriver.cpp will be created from <name>.dbd
 dxpApp_SRCS += dxpMain.cpp dxpApp_registerRecordDeviceDriver.cpp
 
-dxpApp_LIBS += dxp handel sinc
+dxpApp_LIBS += dxp handel
 dxpApp_LIBS += mca
 dxpApp_LIBS += seq pv
 
