@@ -76,7 +76,7 @@ PROD_IOC_Linux     += hd-connected
 PROD_IOC_WIN32     += hd-connected
 hd-connected_SRCS  += hd-connected.c
 
-PROD_LIBS += handel sinc
+PROD_LIBS += handel
 
 include $(TOP)/configure/RULES
 #----------------------------------------
