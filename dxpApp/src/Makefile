@@ -17,7 +17,7 @@ DBD += dxpSITOROSupport.dbd
 dxpSITORO_SRCS += NDDxp.cpp
 dxpSITORO_SRCS += dxpMED.st
 
-dxpSITORO_LIBS += handel
+dxpSITORO_LIBS += handelSITORO
 dxpSITORO_LIBS += asyn
 dxpSITORO_LIBS += mca
 dxpSITORO_LIBS += ADBase
@@ -35,7 +35,7 @@ DBD += $(PROD_NAME).dbd
 # <name>_registerRecordDeviceDriver.cpp will be created from <name>.dbd
 $(PROD_NAME)_SRCS += dxpMain.cpp $(PROD_NAME)_registerRecordDeviceDriver.cpp
 
-$(PROD_NAME)_LIBS += dxpSITORO handel
+$(PROD_NAME)_LIBS += dxpSITORO handelSITORO
 $(PROD_NAME)_LIBS += mca
 $(PROD_NAME)_LIBS += seq pv
 
