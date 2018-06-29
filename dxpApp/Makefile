@@ -1,10 +1,7 @@
 TOP = ..
 include $(TOP)/configure/CONFIG
 
-DIRS += sincSrc
-
 DIRS += handelSrc
-handelSrc_DEPEND_DIRS = sincSrc
 
 DIRS += testSrc
 testSrc_DEPEND_DIRS = handelSrc
