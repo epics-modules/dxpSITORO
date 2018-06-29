@@ -16,6 +16,8 @@ INC += sinc.pb-c.h
 LIBRARY_IOC_Linux  += sinc
 LIBRARY_IOC_WIN32  += sinc
 
+LIB_SYS_LIBS_WIN32 += ws2_32
+
 sinc_SRCS += api.c
 sinc_SRCS += base64.c
 sinc_SRCS += blocking.c
