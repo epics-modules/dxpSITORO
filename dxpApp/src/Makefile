@@ -41,7 +41,7 @@ $(PROD_NAME)_LIBS += seq pv
 
 include $(ADCORE)/ADApp/commonDriverMakefile
 $(PROD_NAME)_DBD += mcaSupport.dbd
-$(PROD_NAME)_DBD += dxpSupport.dbd
+$(PROD_NAME)_DBD += dxpSITOROSupport.dbd
 
 include $(TOP)/configure/RULES
 #----------------------------------------
