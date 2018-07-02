@@ -146,6 +146,21 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
             driverName, functionName, xiastatus);
     }
     this->maxSCAs = (int)tempUS;
+//For testing only
+printf("maxSCAS=%d\n", this->maxSCAs);
+double nSCAs = this->maxSCAs;
+char scaStr[80];
+double scaLowLimit = 0;
+double scaHighLimit = 2047;
+xiastatus = xiaSetAcquisitionValues(-1, "number_of_scas", (void *)&nSCAs);
+for (i = 0; i < (int)nSCAs; i++) {
+    sprintf(scaStr, "sca%d_lo", i);
+    xiastatus = xiaSetAcquisitionValues(-1, scaStr, (void *)(&scaLowLimit));
+    sprintf(scaStr, "sca%d_hi", i);
+    xiastatus = xiaSetAcquisitionValues(-1, scaStr, (void *)&(scaHighLimit));
+    printf("Set SCA %d to low=%f high=%f\n", i, scaLowLimit, scaHighLimit);
+}
+
     /* There is a bug in the firmware which causes maxSCAs to be wrong. Force it to be 16/nChannels */
     //this->maxSCAs = 16/nChannels;
 
