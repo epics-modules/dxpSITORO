@@ -2,8 +2,8 @@
 
 # Tell EPICS all about the record types, device-support modules, drivers,
 # etc. in this build from dxpApp
-dbLoadDatabase("$(DXP_SITORO)/dbd/dxpApp.dbd")
-dxpApp_registerRecordDeviceDriver(pdbbase)
+dbLoadDatabase("$(DXP_SITORO)/dbd/dxpSITOROApp.dbd")
+dxpSITOROApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
 epicsEnvSet("PREFIX", "dxpSITORO:")
