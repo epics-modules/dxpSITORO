@@ -146,20 +146,6 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
             driverName, functionName, xiastatus);
     }
     this->maxSCAs = (int)tempUS;
-//For testing only
-printf("maxSCAS=%d\n", this->maxSCAs);
-double nSCAs = this->maxSCAs;
-char scaStr[80];
-double scaLowLimit = 0;
-double scaHighLimit = 2047;
-xiastatus = xiaSetAcquisitionValues(-1, "number_of_scas", (void *)&nSCAs);
-for (i = 0; i < (int)nSCAs; i++) {
-    sprintf(scaStr, "sca%d_lo", i);
-    xiastatus = xiaSetAcquisitionValues(-1, scaStr, (void *)(&scaLowLimit));
-    sprintf(scaStr, "sca%d_hi", i);
-    xiastatus = xiaSetAcquisitionValues(-1, scaStr, (void *)&(scaHighLimit));
-    printf("Set SCA %d to low=%f high=%f\n", i, scaLowLimit, scaHighLimit);
-}
 
     /* There is a bug in the firmware which causes maxSCAs to be wrong. Force it to be 16/nChannels */
     //this->maxSCAs = 16/nChannels;
@@ -957,24 +943,20 @@ asynStatus NDDxp::configureCollectMode()
     // ignoreGate and inputLogicPolarity are used in both mca and mapping mode
     getIntegerParam(NDDxpIgnoreGate, &ignoreGate);
     getIntegerParam(NDDxpInputLogicPolarity, &inputLogicPolarity);
-    for (i=0; i<this->nChannels; i++)
-    {
-        dTmp = ignoreGate;
-        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-            "%s::%s [%d] setting gate_ignore = %f\n", 
-            driverName, functionName, i, dTmp);
-        xiastatus = xiaSetAcquisitionValues(i, "gate_ignore", &dTmp);
-        status = this->xia_checkError(pasynUserSelf, xiastatus, "gate_ignore");
+    dTmp = ignoreGate;
+    asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+        "%s::%s [%d] setting gate_ignore = %f\n", 
+        driverName, functionName, DXP_ALL, dTmp);
+    xiastatus = xiaSetAcquisitionValues(DXP_ALL, "gate_ignore", &dTmp);
+    status = this->xia_checkError(pasynUserSelf, xiastatus, "gate_ignore");
 
-        dTmp = inputLogicPolarity;
-        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-            "%s::%s [%d] setting input_logic_polarity = %f\n", 
-            driverName, functionName, i, dTmp);
-        xiastatus = xiaSetAcquisitionValues(i, "input_logic_polarity", &dTmp);
-        status = this->xia_checkError(pasynUserSelf, xiastatus, "input_logic_polarity");
-        callParamCallbacks(i);
-    }
-
+    dTmp = inputLogicPolarity;
+    asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+        "%s::%s [%d] setting input_logic_polarity = %f\n", 
+        driverName, functionName, DXP_ALL, dTmp);
+    xiastatus = xiaSetAcquisitionValues(DXP_ALL, "input_logic_polarity", &dTmp);
+    status = this->xia_checkError(pasynUserSelf, xiastatus, "input_logic_polarity");
+    
     switch(collectMode)
     {
     case NDDxpModeMCA:
@@ -1015,37 +997,37 @@ asynStatus NDDxp::configureCollectMode()
             xiastatus = xiaSetAcquisitionValues(DXP_ALL, "list_mode_variant", &dTmp);
             status = this->xia_checkError(pasynUserSelf, xiastatus, "list_mode_variant");
         }
+        dTmp = pixelAdvanceMode;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting pixel_advance_mode = %f\n", 
+            driverName, functionName, DXP_ALL, dTmp);
+        xiastatus = xiaSetAcquisitionValues(DXP_ALL, "pixel_advance_mode", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "pixel_advance_mode");
+
+        dTmp = pixelsPerRun;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting num_map_pixels = %f\n", 
+            driverName, functionName, DXP_ALL, dTmp);
+        xiastatus = xiaSetAcquisitionValues(DXP_ALL, "num_map_pixels", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels");
+
+        dTmp = pixelsPerBuffer;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting num_map_pixels_per_buffer = %f\n", 
+            driverName, functionName, DXP_ALL, dTmp);
+        xiastatus = xiaSetAcquisitionValues(DXP_ALL, "num_map_pixels_per_buffer", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels_per_buffer");
+
+        /* The xMAP and Mercury actually divides the sync input by N+1, e.g. sync_count=0 does no division
+         * of sync clock.  We subtract 1 so user-units are intuitive. */
+        dTmp = syncCount-1;
+        asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
+            "%s::%s [%d] setting sync_count = %f\n", 
+            driverName, functionName, DXP_ALL, dTmp);
+        xiastatus = xiaSetAcquisitionValues(DXP_ALL, "sync_count", &dTmp);
+        status = this->xia_checkError(pasynUserSelf, xiastatus, "sync_count");
+
         for (i=0; i<this->nChannels; i++) {
-            dTmp = pixelAdvanceMode;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting pixel_advance_mode = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "pixel_advance_mode", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "pixel_advance_mode");
-
-            dTmp = pixelsPerRun;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting num_map_pixels = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "num_map_pixels", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels");
-
-            dTmp = pixelsPerBuffer;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting num_map_pixels_per_buffer = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "num_map_pixels_per_buffer", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "num_map_pixels_per_buffer");
-
-            /* The xMAP and Mercury actually divides the sync input by N+1, e.g. sync_count=0 does no division
-             * of sync clock.  We subtract 1 so user-units are intuitive. */
-            dTmp = syncCount-1;
-            asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-                "%s::%s [%d] setting sync_count = %f\n", 
-                driverName, functionName, i, dTmp);
-            xiastatus = xiaSetAcquisitionValues(i, "sync_count", &dTmp);
-            status = this->xia_checkError(pasynUserSelf, xiastatus, "sync_count");
-
             /* Clear the normal MCA mode status settings */
             setIntegerParam(i, NDDxpTriggers, 0);
             setDoubleParam(i, mcaElapsedRealTime, 0);
@@ -1089,7 +1071,7 @@ asynStatus NDDxp::getAcquisitionStatus(asynUser *pasynUser, int addr)
             acquiring = MAX(acquiring, ivalue);
         }
         setIntegerParam(addr, NDDxpAcquiring, acquiring);
-        if (!acquiring) xiaStopRun(0);
+        if (!acquiring) xiaStopRun(DXP_ALL);
     } else {
         /* Get the run time status from the handel library - informs whether the
          * HW is acquiring or not.        */
@@ -1656,7 +1638,7 @@ asynStatus NDDxp::startAcquiring(asynUser *pasynUser)
     for (i=0; i<this->nChannels; i++) this->currentBuf[i] = 0;
 
     // do xiaStart command
-    CALLHANDEL( xiaStartRun(0, resume), "xiaStartRun()" )
+    CALLHANDEL( xiaStartRun(DXP_ALL, resume), "xiaStartRun()" )
 
     setIntegerParam(addr, NDDxpErased, 0); /* reset the erased flag */
     setIntegerParam(addr, mcaAcquiring, 1); /* Set the acquiring flag */
