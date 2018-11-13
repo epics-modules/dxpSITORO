@@ -101,7 +101,7 @@ HANDEL_EXPORT int HANDEL_API xiaStartRun(int detChan, unsigned short resume)
 
                 if (module->state->runActive[chan])
                 {
-                    xiaLog(XIA_LOG_ERROR, status, "xiaStartRun",
+                    xiaLog(XIA_LOG_INFO, "xiaStartRun",
                            "detChan %d is part of a multichannel module whose"
                            " run was already started", detChan);
                     break;
@@ -223,7 +223,7 @@ HANDEL_EXPORT int HANDEL_API xiaStopRun(int detChan)
 
                 if (!module->state->runActive[chan])
                 {
-                    xiaLog(XIA_LOG_ERROR, status, "xiaStopRun",
+                    xiaLog(XIA_LOG_INFO, "xiaStopRun",
                            "detChan %d is part of a multichannel module whose"
                            " run was already stopped", detChan);
                     break;
