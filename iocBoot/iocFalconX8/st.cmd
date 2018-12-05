@@ -39,19 +39,19 @@ dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db", "P=$(PREFIX)")
 
 # Set logging level (1=ERROR, 2=WARNING, 3=INFO, 4=DEBUG)
 xiaSetLogLevel(2)
-xiaInit("falconxn4.ini")
+xiaInit("falconxn8.ini")
 xiaStartSystem
 
 # DXPConfig(serverName, ndetectors, maxBuffers, maxMemory)
-NDDxpConfig($(PORT),  4, 0, 0)
+NDDxpConfig($(PORT),  8, 0, 0)
 
-dbLoadTemplate("4element.substitutions")
+dbLoadTemplate("8element.substitutions")
 
 # Create a standard arrays plugin. driver.
 NDStdArraysConfigure("Image1", 20, 0, "$(PORT)", 0, 0, 0, 0, 0, 5)
-# This creates a waveform large enough for max. buffer size (~4.5 MB) times 4 detectors
+# This creates a waveform large enough for max. buffer size (~4.5 MB) times 8 detectors
 # This waveform only allows transporting 8-bit images
-dbLoadRecords("NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),TYPE=Int32,FTVL=LONG,NELEMENTS=20000000")
+dbLoadRecords("NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),TYPE=Int32,FTVL=LONG,NELEMENTS=40000000")
 
 < $(ADCORE)/iocBoot/commonPlugins.cmd
 
@@ -61,7 +61,7 @@ dbLoadRecords("NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,
 
 iocInit
 
-seq dxpMED, "P=$(PREFIX), DXP=dxp, MCA=mca, N_DETECTORS=4, N_SCAS=4"
+seq dxpMED, "P=$(PREFIX), DXP=dxp, MCA=mca, N_DETECTORS=8, N_SCAS=2"
 
 ### Start up the autosave task and tell it what to do.
 # Save settings every thirty seconds
