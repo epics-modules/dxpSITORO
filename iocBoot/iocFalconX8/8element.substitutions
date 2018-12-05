@@ -1,0 +1,71 @@
+file "$(DXP_SITORO)/db/dxpSystem.template" {
+{P=dxpSITORO:, IO="@asyn(DXP1,0)"}
+}
+
+file "$(DXP_SITORO)/db/dxpMED.template" {
+{P=dxpSITORO:, DETALL="@asyn(DXP1,8,1)"} 
+}
+
+file "$(DXP_SITORO)/db/dxpMapping.template" {
+{P=dxpSITORO:, IO="@asyn(DXP1,0)"}
+}
+
+# DXP parameters
+file "$(DXP_SITORO)/db/dxpHighLevel.template"
+{
+pattern
+{         P,       R,           IO}
+{dxpSITORO:,    dxp1:,  "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp5:,  "@asyn(DXP1,4,1)"}
+{dxpSITORO:,    dxp6:,  "@asyn(DXP1,5,1)"}
+{dxpSITORO:,    dxp7:,  "@asyn(DXP1,6,1)"}
+{dxpSITORO:,    dxp8:,  "@asyn(DXP1,7,1)"}
+}
+
+# SCA parameters
+file "$(DXP_SITORO)/db/dxpSCA.template"
+{
+pattern
+{         P,       R,   N,        IO}
+{dxpSITORO:,    dxp1:,  0, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  0, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  0, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  0, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp5:,  0, "@asyn(DXP1,4,1)"}
+{dxpSITORO:,    dxp6:,  0, "@asyn(DXP1,5,1)"}
+{dxpSITORO:,    dxp7:,  0, "@asyn(DXP1,6,1)"}
+{dxpSITORO:,    dxp8:,  0, "@asyn(DXP1,7,1)"}
+{dxpSITORO:,    dxp1:,  1, "@asyn(DXP1,0,1)"}
+{dxpSITORO:,    dxp2:,  1, "@asyn(DXP1,1,1)"}
+{dxpSITORO:,    dxp3:,  1, "@asyn(DXP1,2,1)"}
+{dxpSITORO:,    dxp4:,  1, "@asyn(DXP1,3,1)"}
+{dxpSITORO:,    dxp5:,  1, "@asyn(DXP1,4,1)"}
+{dxpSITORO:,    dxp6:,  1, "@asyn(DXP1,5,1)"}
+{dxpSITORO:,    dxp7:,  1, "@asyn(DXP1,6,1)"}
+{dxpSITORO:,    dxp8:,  1, "@asyn(DXP1,7,1)"}
+}
+
+
+file "$(MCA)/mcaApp/Db/simple_mca.db"
+{
+pattern
+{         P,      M,       DTYP,               INP,  PREC,    CHANS}
+{dxpSITORO:,   mca1,  "asynMCA",   "@asyn(DXP1,0)",     2,     2048}
+{dxpSITORO:,   mca2,  "asynMCA",   "@asyn(DXP1,1)",     2,     2048}
+{dxpSITORO:,   mca3,  "asynMCA",   "@asyn(DXP1,2)",     2,     2048}
+{dxpSITORO:,   mca4,  "asynMCA",   "@asyn(DXP1,3)",     2,     2048}
+{dxpSITORO:,   mca5,  "asynMCA",   "@asyn(DXP1,4)",     2,     2048}
+{dxpSITORO:,   mca6,  "asynMCA",   "@asyn(DXP1,5)",     2,     2048}
+{dxpSITORO:,   mca7,  "asynMCA",   "@asyn(DXP1,6)",     2,     2048}
+{dxpSITORO:,   mca8,  "asynMCA",   "@asyn(DXP1,7)",     2,     2048}
+}
+
+file "$(ASYN)/db/asynRecord.db"
+{
+pattern
+{       P,      R,  PORT,   ADDR,  IMAX,  OMAX}
+{dxpSITORO:, Asyn,  DXP1,      0,    80,    80}
+}
