@@ -78,12 +78,12 @@
   <ul>
     <li>An <a href="http://www.aps.anl.gov/epics/modules/soft/asyn/">asyn port driver</a>.
       This driver is implements a class called <a href="dxpDoxygenHTML/class_n_d_dxp.html">
-        NDDxp</a>, which is derived from the <a href="http://cars.uchicago.edu/software/epics/areaDetectorDoc.html#asynNDArrayDriver">
+        NDDxp</a>, which is derived from the <a href="https://cars.uchicago.edu/software/epics/areaDetectorDoc.html#asynNDArrayDriver">
           asynNDArrayDriver</a> and <a href="http://www.aps.anl.gov/epics/modules/soft/asyn/R4-31/asynPortDriver.html">
             asynPortDriver</a> base C++ classes. The driver communicates with the hardware
       using the <a href="falconxn.pdf">XIA Handel library</a>, which in turn communicates
       with the Southern Innovation SINC library. </li>
-    <li>An EPICS <a href="http://cars.uchicago.edu/software/epics/mcaRecord.html">MCA
+    <li>An EPICS <a href="https://cars.uchicago.edu/software/epics/mcaRecord.html">MCA
       record</a> for each detector. This communicates with the driver via the asyn MCA
       device support. This support allows each detector to be treated identically with
       other supported MCA hardware, such as the Canberra AIM. The MCA record is used for
@@ -95,7 +95,7 @@
       records use the standard asyn device support.</li>
     <li>A State Notation Language program (dxpMED) for synchronizing acquisition, ROIs,
       and FalconX parameters in multi-element detector systems.</li>
-    <li>Support for the plugins from the <a href="http://cars.uchicago.edu/software/epics/areaDetector.html">
+    <li>Support for the plugins from the <a href="https://cars.uchicago.edu/software/epics/areaDetector.html">
       areaDetector</a> package. These plugins are used to stream data to disk in the mappping
       modes, to define ROIs, compute statistics, etc.</li>
     <li>Databases for single-element and multi-element detector systems.</li>
@@ -1480,16 +1480,16 @@
   <p>
     In the mapping mode data are collected into a double-buffered memory on the module.
     When one half of the buffer memory is full the EPICS driver reads the data from
-    that buffer and converts it into an <a href="http://cars.uchicago.edu/software/epics/areaDetectorDoc.html#NDArray">
+    that buffer and converts it into an <a href="https://cars.uchicago.edu/software/epics/areaDetectorDoc.html#NDArray">
       NDArray object.</a> If NDArrayMode=Raw buffers then there is no conversion of
     the buffer when it is copied to the NDArray. If NDArrayMode=MCA spectra then the
     buffer is unpacked into an NDArray of dimensions [numMCAChannels, numDetectors].
-    The driver then calls any registered <a href="http://cars.uchicago.edu/software/epics/pluginDoc.html">
-      plugins</a> with that NDArray. The plugins will typically be one of the <a href="http://cars.uchicago.edu/software/epics/NDPluginFile.html">
+    The driver then calls any registered <a href="https://cars.uchicago.edu/software/epics/pluginDoc.html">
+      plugins</a> with that NDArray. The plugins will typically be one of the <a href="https://cars.uchicago.edu/software/epics/NDPluginFile.html">
         NDPluginFile</a> plugins which will write the data to disk. The useful file
     plugins can write the data in netCDF, NeXus/HDF5, and TIFF formats. The JPEG plugin
     will not be useful, because the data are not images. The data can also be passed
-    to the <a href="http://cars.uchicago.edu/software/epics/NDPluginStdArrays.html">NDPluginStdArrays</a>
+    to the <a href="https://cars.uchicago.edu/software/epics/NDPluginStdArrays.html">NDPluginStdArrays</a>
     plugin which can make the data available to EPICS channel access clients as waveform
     records.</p>
   <p>
@@ -1548,11 +1548,11 @@
     for each row, using a new file name, or auto-increment on the file number. Data
     can be saved into HDF5, NeXus, netCDF or TIFF files.</p>
   <p>
-    There are IDL functions available in the <a href="http://cars.uchicago.edu/software/idl/detectors.html">
+    There are IDL functions available in the <a href="https://cars.uchicago.edu/software/idl/detectors.html">
       CARS IDL detector package</a> to conveniently extract the mapping mode data from
-    netCDF files produced with the netCDF plugin. <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#read_nd_netcdf">
+    netCDF files produced with the netCDF plugin. <a href="https://cars.uchicago.edu/software/idl/detector_routines.html#read_nd_netcdf">
       read_nd_netcdf.pro</a> reads the data from a netCDF file written by the areaDetector
-    NDFileNetCDF plugin. If raw buffers were written to the file then <a href="http://cars.uchicago.edu/software/idl/detector_routines.html#decode_falcon_buffers">
+    NDFileNetCDF plugin. If raw buffers were written to the file then <a href="https://cars.uchicago.edu/software/idl/detector_routines.html#decode_falcon_buffers">
       decode_falcon_buffers.pro</a> can be used to decode the data.</p>
   <h3 id="medm">
     medm screens</h3>
