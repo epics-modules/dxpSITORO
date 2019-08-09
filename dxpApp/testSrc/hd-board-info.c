@@ -142,6 +142,7 @@ int main(int argc, char** argv)
         int boardChannelCount;
         unsigned int number_of_channels;
         char info[160];
+        char firmware_version[32];
 
         /* Get the detChan of the first channel in the module. */
         status = xiaGetModuleItem(modules[i], "channel0_alias", &detChan);
@@ -154,6 +155,12 @@ int main(int argc, char** argv)
         printf("Info for module %s, detChan %d.\n",
                modules[i], detChan);
         status = xiaBoardOperation(detChan, "get_board_info", info);
+        if (status != XIA_SUCCESS) {
+            free_modules(modules, numModules);
+            CHECK_ERROR(status);
+        }
+
+        status = xiaBoardOperation(detChan, "get_firmware_version", firmware_version);
         if (status != XIA_SUCCESS) {
             free_modules(modules, numModules);
             CHECK_ERROR(status);
@@ -175,7 +182,7 @@ int main(int argc, char** argv)
 
         printf("  Product name:       %s\n", &info[0]);
         printf("  Protocol version:   %d\n", GET_INT(&info[40]));
-        printf("  Firmware version:   %s\n", &info[48]);
+        printf("  Firmware version:   %s (%s)\n", &info[48], firmware_version);
         printf("  Digital board SN:   %s\n", &info[80]);
         printf("  Analog board SN:    %s\n", &info[112]);
 

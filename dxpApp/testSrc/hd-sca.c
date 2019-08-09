@@ -195,12 +195,12 @@ static void do_tests(void)
     for (int i = 0; i < size; i++) {
       sca_lo = sca_hi + 1.0;
       sprintf(limit, "sca%i_lo", i);
-      status = xiaSetAcquisitionValues(0, limit, &sca_lo);
+      status = xiaSetAcquisitionValues(-1, limit, &sca_lo);
       CHECK_ERROR(status);
 
       sca_hi += scaWidth;
       sprintf(limit, "sca%i_hi", i);
-      status = xiaSetAcquisitionValues(0, limit, &sca_hi);
+      status = xiaSetAcquisitionValues(-1, limit, &sca_hi);
       CHECK_ERROR(status);
     }
 
