@@ -228,6 +228,7 @@ PSL_STATIC int psl__SyncNumberMCAChannels(Module *module, FalconXNDetector *fDet
                                           int64_t number_mca_channels,
                                           int64_t mca_start_channel);
 PSL_STATIC int psl__SyncGateCollectionMode(Module *module, FalconXNDetector *fDetector);
+PSL_STATIC int psl__ClearGateCollectionMode(Module *module, FalconXNDetector *fDetector);
 PSL_STATIC int psl__SyncGateVetoMode(Module *module, FalconXNDetector *fDetector);
 PSL_STATIC int psl__ClearGateVetoMode(Module *module, FalconXNDetector *fDetector);
 PSL_STATIC boolean_t psl__GetCalibrated(Module* module, FalconXNDetector* fDetector);
@@ -4008,6 +4009,15 @@ PSL_STATIC int psl__Start_MappingMode_0(unsigned short resume,
         if (status != XIA_SUCCESS) {
             pslLog(PSL_LOG_ERROR, status,
                    "Error syncing mca_refresh for starting mm0: %s:%d",
+                   module->alias, channel);
+            psl__Stop_MappingMode_0(module);
+            return status;
+        }
+
+        status = psl__ClearGateCollectionMode(module, fDetector);
+        if (status != XIA_SUCCESS) {
+            pslLog(PSL_LOG_ERROR, status,
+                   "Error clearing gate veto mode for starting mm0: %s:%d",
                    module->alias, channel);
             psl__Stop_MappingMode_0(module);
             return status;
@@ -8914,6 +8924,32 @@ PSL_STATIC int psl__SyncGateCollectionMode(Module *module, FalconXNDetector *fDe
     if (status != XIA_SUCCESS) {
         pslLog(PSL_LOG_ERROR, status,
                "Unable to set the gate collection mode");
+        return status;
+    }
+
+    return XIA_SUCCESS;
+}
+
+/*
+ * Sets gate.statsCollectionMode=off. The parameter is used for
+ * mapping mode with GATE pixel advance, but it conflicts with GATE
+ * veto in MCA mode.
+ */
+PSL_STATIC int psl__ClearGateCollectionMode(Module *module, FalconXNDetector *fDetector)
+{
+    SiToro__Sinc__KeyValue kv;
+
+    int status;
+
+    si_toro__sinc__key_value__init(&kv);
+    kv.key = (char*) "gate.statsCollectionMode";
+
+    falconXNSetSincKeyValue(&kv, "off");
+
+    status = psl__SetParam(module, fDetector->modDetChan, &kv);
+    if (status != XIA_SUCCESS) {
+        pslLog(PSL_LOG_ERROR, status,
+               "Unable to clear the gate collection mode");
         return status;
     }
 
