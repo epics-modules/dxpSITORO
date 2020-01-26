@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>SITORO_Top</name>
+  <x>472</x>
+  <y>147</y>
+  <width>300</width>
+  <height>70</height>
+  <background_color>
+    <color red="187" green="187" blue="187">
+    </color>
+  </background_color>
+  <grid_visible>false</grid_visible>
+  <grid_step_x>5</grid_step_x>
+  <widget type="label" version="2.0.0">
+    <name>text #6</name>
+    <text>DXP SITORO Top Level Control</text>
+    <x>11</x>
+    <y>9</y>
+    <width>278</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #9</name>
+    <actions>
+      <action type="open_display">
+        <file>4element_SITORO.opi</file>
+        <macros>
+          <D>dxp</D>
+          <M>mca</M>
+          <P>dxpSITORO:</P>
+        </macros>
+        <target>tab</target>
+        <description>Falcon 1-element MED</description>
+      </action>
+      <action type="open_display">
+        <file>4element_SITORO.opi</file>
+        <macros>
+          <D>dxp</D>
+          <M>mca</M>
+          <P>dxpSITORO:</P>
+        </macros>
+        <target>tab</target>
+        <description>Falcon 4-element MED</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>75</x>
+    <y>40</y>
+    <width>66</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #13</name>
+    <text>FalconXN</text>
+    <x>146</x>
+    <y>40</y>
+    <width>80</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+</display>
