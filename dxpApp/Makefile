@@ -1,13 +1,13 @@
 TOP = ..
 include $(TOP)/configure/CONFIG
 
-DIRS += handelSrc
-
-DIRS += testSrc
-testSrc_DEPEND_DIRS = handelSrc
+DIRS += handel
 
 DIRS += src
-src_DEPEND_DIRS = handelSrc
+src_DEPEND_DIRS = handel
+
+#DIRS += handel/tests
+#testSrc_DEPEND_DIRS = handel
 
 DIRS += op
 
