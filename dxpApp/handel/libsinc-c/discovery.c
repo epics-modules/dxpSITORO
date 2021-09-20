@@ -33,21 +33,35 @@ static int DiscoverFindNetworkInterfaces(Discover *d)
     /* Create a socket. */
     struct ifconf ifc;
     struct ifreq *ifr;
-    char buf[32768];
-    int i;
+    char         *buf;
+    size_t        numInterfaces;
+    size_t        i;
+    int           s;
 
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    s = socket(AF_INET, SOCK_DGRAM, 0);
     if (s < 0)
     {
         DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES);
         return false;
     }
 
+#define BUF_SIZE (32768)
+
+    buf = malloc(BUF_SIZE);
+    if (buf == NULL)
+    {
+        close(s);
+        DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+        return false;
+    }
+
     /* Get the list of interfaces. */
-    ifc.ifc_len = sizeof(buf);
+    ifc.ifc_len = BUF_SIZE;
     ifc.ifc_buf = buf;
     if (ioctl(s, SIOCGIFCONF, &ifc) < 0)
     {
+        free(buf);
+        close(s);
         DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES);
         return false;
     }
@@ -55,13 +69,27 @@ static int DiscoverFindNetworkInterfaces(Discover *d)
     /* Iterate through the list of interfaces. */
     d->numNetworkInterfaces = 0;
     ifr = ifc.ifc_req;
-    int numInterfaces = ifc.ifc_len / (int)sizeof(struct ifreq);
-    d->ifAddrs = calloc((size_t)numInterfaces, sizeof(struct sockaddr_in));
-    d->broadcastAddrs = calloc((size_t)numInterfaces, sizeof(struct sockaddr_in));
-    if (d->ifAddrs == NULL || d->broadcastAddrs == NULL)
+    numInterfaces = ifc.ifc_len / (int)sizeof(struct ifreq);
+    d->ifAddrs = calloc(numInterfaces, sizeof(struct sockaddr_in));
+    d->ifNames = calloc(numInterfaces, sizeof(char*) + IF_NAMESIZE + 1);
+    d->broadcastAddrs = calloc(numInterfaces, sizeof(struct sockaddr_in));
+    if (d->ifAddrs == NULL || d->ifNames == NULL || d->broadcastAddrs == NULL)
     {
+        free(d->ifAddrs);
+        free(d->ifNames);
+        free(d->broadcastAddrs);
+        free(buf);
+        close(s);
         DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
         return false;
+    }
+
+    const char* p = ((const char*) d->ifNames) + numInterfaces * sizeof(char*);
+
+    for (i = 0; i < numInterfaces; i++)
+    {
+        d->ifNames[i] = p;
+        p += IF_NAMESIZE + 1;
     }
 
     for (i = 0; i < numInterfaces; i++)
@@ -73,7 +101,10 @@ static int DiscoverFindNetworkInterfaces(Discover *d)
 
         if (addr->sin_addr.s_addr != htonl(INADDR_LOOPBACK))
         {
-            struct sockaddr_in *storeifaddr = &d->ifAddrs[d->numNetworkInterfaces];
+            int index = d->numNetworkInterfaces;
+            strncpy((char*) d->ifNames[index], item->ifr_name, IF_NAMESIZE);
+
+            struct sockaddr_in *storeifaddr = &d->ifAddrs[index];
             storeifaddr->sin_family = AF_INET;
             storeifaddr->sin_addr = addr->sin_addr;
             storeifaddr->sin_port = 0;
@@ -81,7 +112,7 @@ static int DiscoverFindNetworkInterfaces(Discover *d)
             if (ioctl(s, SIOCGIFBRDADDR, item) >= 0)
             {
                 struct sockaddr_in *baddr = (struct sockaddr_in *)&item->ifr_broadaddr;
-                struct sockaddr_in *storebaddr = &d->broadcastAddrs[d->numNetworkInterfaces];
+                struct sockaddr_in *storebaddr = &d->broadcastAddrs[index];
                 storebaddr->sin_family = AF_INET;
                 storebaddr->sin_addr = baddr->sin_addr;
                 storebaddr->sin_port = htons(DISCOVER_PORT);
@@ -90,6 +121,9 @@ static int DiscoverFindNetworkInterfaces(Discover *d)
             d->numNetworkInterfaces++;
         }
     }
+
+    free(buf);
+    close(s);
 
     return true;
 }
@@ -112,12 +146,18 @@ int DiscoverInit(Discover *d)
         return false;
     }
 
+    d->fd = -1;
     d->readBufUsed = 0;
     d->errNo = SI_TORO__SINC__ERROR_CODE__NO_ERROR;
     d->errStr = NULL;
 
-    d->ifAddrs = NULL;
     d->numNetworkInterfaces = 0;
+    d->ifAddrs = NULL;
+    d->ifNames = NULL;
+    d->broadcastAddrs = NULL;
+
+    d->numValidIfaces = 0;
+    d->validIfaces = NULL;
 
     /* Find the list of network interfaces. */
     if (!DiscoverFindNetworkInterfaces(d))
@@ -142,25 +182,74 @@ int DiscoverInit(Discover *d)
 
 void DiscoverCleanup(Discover *d)
 {
-    if (d->errStr != NULL)
-    {
-        free(d->errStr);
-        d->errStr = NULL;
-    }
+    if (d->fd >= 0)
+        close(d->fd);
+    d->fd = -1;
 
-    if (d->readBuf != NULL)
-    {
-        free(d->readBuf);
-        d->readBuf = NULL;
-    }
+    free(d->errStr);
+    d->errStr = NULL;
 
-    if (d->ifAddrs != NULL)
-    {
-        free(d->ifAddrs);
-        d->ifAddrs = NULL;
-    }
+    free(d->readBuf);
+    d->readBuf = NULL;
+
+    free(d->ifAddrs);
+    d->ifAddrs = NULL;
+
+    free(d->ifNames);
+    d->ifNames = NULL;
+
+    free(d->broadcastAddrs);
+    d->broadcastAddrs = NULL;
+
+    free(d->validIfaces);
+    d->validIfaces = NULL;
 }
 
+/*
+ * NAME:        DiscoverSetInterfaceList
+ * ACTION:      Set the list of interfaces discovery is to operate on. Some systems
+ *              can have external facing interfaces and should not be probed.
+ *              Call this after DiscoverInit() and before DiscoverRequest().
+ * RETURNS:     true on success, false otherwise. On failure use DiscoverErrno() and
+ *                  DiscoverStrError() to get the error status.
+ */
+
+int DiscoverSetInterfaceList(Discover *d, int numValidIfaces, const char *ifaces[])
+{
+    size_t      size;
+    size_t      i;
+    const char *p;
+
+    /*
+     * A single allocation with a table of char* pointers at the start then the
+     * strings themselves. We take a copy of the strings.
+     */
+    size = numValidIfaces * sizeof(char*);
+
+    for (i = 0; i < numValidIfaces; ++i)
+        size += strlen(ifaces[i]) + 1;
+
+    p = calloc(1, size);
+    if (p == NULL)
+    {
+        DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
+        return false;
+    }
+
+    d->validIfaces = (const char**) p;
+    p += numValidIfaces * sizeof(char*);
+
+    for (i = 0; i < numValidIfaces; ++i)
+    {
+        d->validIfaces[i] = p;
+        strcpy((char*) d->validIfaces[i], ifaces[i]);
+        p += strlen(d->validIfaces[i]) + 1;
+    }
+
+    d->numValidIfaces = numValidIfaces;
+
+    return true;
+}
 
 /*
  * NAME:        DiscoverListen
@@ -172,6 +261,10 @@ void DiscoverCleanup(Discover *d)
 
 int DiscoverListen(Discover *d)
 {
+    /* Close if there is an open socket. */
+    if (d->fd >= 0)
+        close(d->fd);
+
     /* Create the socket. */
     d->fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (d->fd < 0)
@@ -182,9 +275,12 @@ int DiscoverListen(Discover *d)
 
     /* Enable broadcast. */
     int broadcastEnable = 1;
-    int ret = setsockopt(d->fd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+    int ret = setsockopt(d->fd, SOL_SOCKET, SO_BROADCAST,
+                         &broadcastEnable, sizeof(broadcastEnable));
     if (ret < 0)
     {
+        close(d->fd);
+        d->fd = -1;
         DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__OUT_OF_RESOURCES);
         return false;
     }
@@ -196,7 +292,14 @@ int DiscoverListen(Discover *d)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = 0;
 
-    bind(d->fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+    ret = bind(d->fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+    if (ret < 0)
+    {
+        close(d->fd);
+        d->fd = -1;
+        DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__CONNECTION_FAILED);
+        return false;
+    }
 
     return true;
 }
@@ -214,23 +317,47 @@ int DiscoverRequest(Discover *d)
 {
     int i;
 
+    if (d->fd < 0)
+    {
+        DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__BAD_PARAMETERS);
+        return false;
+    }
+
     for (i = 0; i < d->numNetworkInterfaces; i++)
     {
+        if (d->numValidIfaces > 0)
+        {
+            int v;
+            for (v = 0; v < d->numValidIfaces; ++v)
+            {
+                if (strcmp(d->ifNames[i], d->validIfaces[v]) == 0)
+                    break;
+            }
+            if (v >= d->numValidIfaces)
+                continue;
+        }
+
         /* Broadcast it to this interface. */
-        if (sendto(d->fd, DISCOVER_REQUEST_MESSAGE, sizeof(DISCOVER_REQUEST_MESSAGE)-1, 0, (struct sockaddr *)&d->broadcastAddrs[i], sizeof(struct sockaddr_in)) < 0)
+        if (d->broadcastAddrs[i].sin_family == AF_INET &&
+            sendto(d->fd, DISCOVER_REQUEST_MESSAGE,
+                   sizeof(DISCOVER_REQUEST_MESSAGE)-1, 0,
+                   (struct sockaddr *)&d->broadcastAddrs[i], sizeof(struct sockaddr_in)) < 0)
         {
             DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__WRITE_FAILED);
             return false;
         }
 
         /* Multicast it. */
-        if (setsockopt(d->fd, IPPROTO_IP, IP_MULTICAST_IF, &d->ifAddrs[i].sin_addr, sizeof(d->ifAddrs[i].sin_addr)) < 0)
+        if (setsockopt(d->fd, IPPROTO_IP, IP_MULTICAST_IF,
+                       &d->ifAddrs[i].sin_addr, sizeof(d->ifAddrs[i].sin_addr)) < 0)
         {
             DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__WRITE_FAILED);
             return false;
         }
 
-        if (sendto(d->fd, DISCOVER_REQUEST_MESSAGE, sizeof(DISCOVER_REQUEST_MESSAGE)-1, 0, (struct sockaddr *)&d->multicastGroupAddr, sizeof(struct sockaddr_in)) < 0)
+        if (sendto(d->fd, DISCOVER_REQUEST_MESSAGE,
+                   sizeof(DISCOVER_REQUEST_MESSAGE)-1, 0,
+                   (struct sockaddr *)&d->multicastGroupAddr, sizeof(struct sockaddr_in)) < 0)
         {
             DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__WRITE_FAILED);
             return false;
@@ -254,6 +381,13 @@ int DiscoverReadyToRead(Discover *d, int timeout, int *dataAvailable)
 {
     int maxFd = 0;
     fd_set readFds;
+
+    if (d->fd < 0)
+    {
+        DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__BAD_PARAMETERS);
+        return false;
+    }
+
     FD_ZERO(&readFds);
     FD_SET(d->fd, &readFds);
     maxFd = d->fd;
@@ -362,7 +496,9 @@ int DiscoverReadResponse(Discover *d, DiscoverDeviceInfo *ddi)
     /* Read a packet. */
     struct sockaddr_storage fromAddr;
     socklen_t fromAddrLen = sizeof(fromAddr);
-    ssize_t packetSize = recvfrom(d->fd, d->readBuf, (size_t)d->readBufSize - 1, 0, (struct sockaddr*)&fromAddr, &fromAddrLen);
+    ssize_t packetSize = recvfrom(d->fd, d->readBuf,
+                                  (size_t)d->readBufSize - 1, 0,
+                                  (struct sockaddr*)&fromAddr, &fromAddrLen);
     if (packetSize < 0 || packetSize == d->readBufSize-1)
     {
         DiscoverSetErrno(d, SI_TORO__SINC__ERROR_CODE__READ_FAILED);

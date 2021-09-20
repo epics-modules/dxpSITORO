@@ -58,6 +58,13 @@ static void usage(const char* prog)
     printf(" -p      : Plot the spectrum\n");
 }
 
+static double header_readDbl(uint16_t* buffer)
+{
+    double value = 0.0;
+    memcpy(&value, buffer, 8);
+    return value;
+}
+
 static int header_read32(uint16_t* buffer)
 {
     return (int) ((((uint32_t) buffer[1]) << 16) | (uint32_t) buffer[0]);
@@ -171,6 +178,7 @@ int main(int argc, char** argv)
         int pixel_count;
         int start_pixel;
         int det_chan;
+        int drops;
 
         if (header[0] != 0x55aa || header[1] != 0xaa55)
             break;
@@ -183,6 +191,7 @@ int main(int argc, char** argv)
         pixel_count = header[8];
         start_pixel = header_read32(&header[9]);
         det_chan    = header[12];
+        drops       = header[25];
 
         if (mode != 1) {
             fprintf(stderr, "error: bad mode, XMAP header @ %08x\n",
@@ -216,18 +225,18 @@ int main(int argc, char** argv)
          * - ch 0, buf 1, pix [N,2N-1]
          * - ch 1, buf 1, pix [N,2N-1]
          */
-        if (start_pixel != pixel[det_chan]) {
+        if (start_pixel < pixel[det_chan]) {
             fprintf(stderr, "error: bad start pixel, XMAP header @ %08x\n",
                     (int) (index * sizeof(uint32_t)));
             free(buffer);
             exit(2);
         }
 
-        printf("BUFFER: [0x%08x:0x%08x] num:%4d id:%c detChan:%4d pixels:%4d pixel:%4d\n",
+        printf("BUFFER: [0x%08x:0x%08x] num:%4d id:%c detChan:%4d pixels:%4d pixel:%4d drops:%4d\n",
                (int) (index * sizeof(uint32_t)),
                (int) ((index + (size_t) header_size / 2) * sizeof(uint32_t)) - 1,
                buffer_num, buffer_id == 0 ? 'A' : 'B',
-               det_chan, pixel_count, start_pixel);
+               det_chan, pixel_count, start_pixel, drops);
 
         index += (size_t) header_size / 2;
 
@@ -241,6 +250,8 @@ int main(int argc, char** argv)
             int px_livetime;
             int px_triggers;
             int px_output_events;
+            double px_si_icr;
+            double px_si_ocr;
 
             header = (uint16_t*) &buffer[index];
 
@@ -260,6 +271,8 @@ int main(int argc, char** argv)
             px_livetime = header_read32(&header[34]);
             px_triggers = header_read32(&header[36]);
             px_output_events = header_read32(&header[38]);
+            px_si_icr = header_readDbl(&header[40]);
+            px_si_ocr = header_readDbl(&header[48]);
 
             if (mode != 1) {
                 fprintf(stderr, "error: bad mode: %d, XMAP pixel @ %08x\n",
@@ -268,7 +281,7 @@ int main(int argc, char** argv)
                 exit(2);
             }
 
-            if (px_number != pixel[det_chan]) {
+            if (px_number < pixel[det_chan]) {
                 fprintf(stderr, "error: bad pixel: %d, XMAP pixel @ %08x\n",
                         px_number, (int) (index * sizeof(uint32_t)));
                 free(buffer);
@@ -282,15 +295,16 @@ int main(int argc, char** argv)
                 exit(2);
             }
 
-            ++pixel[det_chan];
+            pixel[det_chan] = px_number;
 
             printf(" PIXEL: [0x%08x:0x%08x] num:%4d size:%6d chsize:%6d realtime:%10.3f " \
-                   "livetime:%10.3f triggers:%10d output-events:%10d\n",
+                   "livetime:%10.3f triggers:%10d output-events:%10d " \
+                   "si_icr:%10.3f si_ocr:%10.3f\n",
                    (int) (index * sizeof(uint32_t)),
                    (int) ((index + (size_t)px_block_size / 2) * sizeof(uint32_t)) - 1,
                    px_number, px_block_size, px_ch_size,
                    px_realtime * XMAP_MAPPING_TICKS, px_livetime * XMAP_MAPPING_TICKS,
-                   px_triggers, px_output_events);
+                   px_triggers, px_output_events, px_si_icr, px_si_ocr);
 
             if (plot) {
                 plot_graph(&buffer[index + ((size_t) px_header_size / 2)], NULL,

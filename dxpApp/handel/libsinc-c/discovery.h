@@ -32,7 +32,10 @@ typedef struct
     int                 readBufUsed;         // How much of the read data buffer is used.
 
     int                 numNetworkInterfaces;// The number of network interfaces present.
+    int                 numValidIfaces;      // The number of valid interfaces.
+    const char        **validIfaces;         // List of valid interfaces to discover on.
     struct sockaddr_in *ifAddrs;             // An array of the addresses of the network interfaces.
+    const char        **ifNames;             // The names of the interfaces.
     struct sockaddr_in *broadcastAddrs;      // An array of the broadcast addresses of the network interfaces.
     struct sockaddr_in  multicastGroupAddr;  // The address to send multicasts to.
 
@@ -57,6 +60,7 @@ typedef struct
 /* Public functions. */
 int DiscoverInit(Discover *d);
 void DiscoverCleanup(Discover *d);
+int DiscoverSetInterfaceList(Discover *d, int numValidIfaces, const char *ifaces[]);
 int DiscoverRequest(Discover *d);
 int DiscoverReadyToRead(Discover *d, int timeout, int *dataAvailable);
 int DiscoverReadResponse(Discover *d, DiscoverDeviceInfo *ddi);

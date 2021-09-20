@@ -1561,8 +1561,7 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
     Module *next    = NULL;
     Module *current = NULL;
 
-    xiaLog(XIA_LOG_INFO, "xiaRemoveModule",
-           "Removing %s", alias);
+    xiaLog(XIA_LOG_INFO, "xiaRemoveModule", "Removing %s", alias);
 
     current = xiaGetModuleHead();
 
@@ -1600,20 +1599,19 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
                 }
             }
 
-            /* Clean up the detector, for products that use
-             * detector->pslData. This should be reworked to only
-             * remove detectors that are not referenced by any module.
-             */
-            status = xiaRemoveDetector(current->detector[i]);
+            /* Clean up the detector if still exists */
+            if (current->detector[i] != NULL &&
+                xiaFindDetector(current->detector[i]) != NULL) {
+                status = xiaRemoveDetector(current->detector[i]);
 
-            if (status != XIA_SUCCESS) {
-                xiaLog(XIA_LOG_ERROR, status, "xiaRemoveModule",
-                       "Error removing detector %s",
-                       current->detector[i]);
+                if (status != XIA_SUCCESS) {
+                    xiaLog(XIA_LOG_ERROR, status, "xiaRemoveModule",
+                           "Error removing detector %s",
+                           current->detector[i]);
 
-                /* We continue since we'll leak memory if we return. */
+                    /* We continue since we'll leak memory if we return. */
+                }
             }
-
         }
 
         for (i = 0; i < current->number_of_channels; i++)
@@ -1649,16 +1647,17 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveModule(const char *alias)
     {
         for (i = 0; i < current->number_of_channels; i++)
         {
-            status = xiaRemoveFirmware(current->firmware[i]);
+           if (current->firmware[i] != NULL &&
+                xiaFindFirmware(current->firmware[i]) != NULL) {
 
-            if (status != XIA_SUCCESS) {
+                status = xiaRemoveFirmware(current->firmware[i]);
+                if (status != XIA_SUCCESS) {
+                    xiaLog(XIA_LOG_ERROR, status, "xiaRemoveModule",
+                           "Error removing firmware for modChan %u", i);
 
-                xiaLog(XIA_LOG_ERROR, status, "xiaRemoveModule",
-                       "Error removing firmware for modChan %u", i);
-
-                /* We continue since we'll leak memory if we return. */
+                    /* We continue since we'll leak memory if we return. */
+                }
             }
-
             handel_md_free((void *)current->firmware[i]);
         }
     }
@@ -1780,7 +1779,6 @@ HANDEL_EXPORT int HANDEL_API xiaRemoveAllModules(void)
     while (current != NULL)
     {
         xiaRemoveModule(current->alias);
-
         current = xiaGetModuleHead();
     }
 

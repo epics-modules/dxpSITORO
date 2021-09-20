@@ -17,6 +17,7 @@
 #include "sinc_internal.h"
 
 
+
 /*
  * NAME:        SincEncodePing
  * ACTION:      Encodes a packet to check if the device is responding.
@@ -198,8 +199,11 @@ static bool SincEncodeSetParamsInternal(SincBuffer *buf, int channelId, SiToro__
     setParamMsg.params = paramBuf;
     setParamMsg.n_params = (size_t)numParams;
 
-    setParamMsg.has_channelid = true;
-    setParamMsg.channelid = channelId;
+    if (channelId >= 0)
+    {
+        setParamMsg.has_channelid = true;
+        setParamMsg.channelid = channelId;
+    }
 
     setParamMsg.has_settingallparams = setAllParams;
     setParamMsg.settingallparams = setAllParams;
@@ -843,26 +847,47 @@ void SincEncodeDeleteSavedConfiguration(SincBuffer *buf)
  * PARAMETERS:  SincBuffer *buf  - where to put the encoded packet.
  *              int *channelSet - a list of the channels to monitor.
  *              int numChannels - the number of channels in the list.
+ *                                -1 to monitor all channels on the device;
+ *                                in this case channelSet is ignored.
  */
 
 bool SincEncodeMonitorChannels(SincBuffer *buf, const int *channelSet, int numChannels)
 {
-    // Create a buffer to write into.
-    int32_t *channelid;
-    int i;
-
-    channelid = malloc((size_t)numChannels * sizeof(int32_t));
-    if (!channelid)
-        return false;
-
     // Create the packet.
+    int32_t *channelid = NULL;
+    int i;
     SiToro__Sinc__MonitorChannelsCommand mcCmd;
     si_toro__sinc__monitor_channels_command__init(&mcCmd);
 
-    for (i = 0; i < numChannels; i++)
-        channelid[i] = channelSet[i];
+    if (numChannels >= 0)
+    {
+        // Copy the channels from channelSet.
+        channelid = malloc((size_t)numChannels * sizeof(int32_t));
+        if (!channelid)
+            return false;
 
-    mcCmd.n_channelid = (size_t)numChannels;
+        for (i = 0; i < numChannels; i++)
+        {
+            channelid[i] = channelSet[i];
+        }
+
+        mcCmd.n_channelid = (size_t)numChannels;
+    }
+    else
+    {
+        // Set all channels to monitor.
+        channelid = malloc(MAX_DEVICE_CHANNELS * sizeof(int32_t));
+        if (!channelid)
+            return false;
+
+        for (i = 0; i < MAX_DEVICE_CHANNELS; i++)
+        {
+            channelid[i] = i;
+        }
+
+        mcCmd.n_channelid = MAX_DEVICE_CHANNELS;
+    }
+
     mcCmd.channelid = channelid;
 
     // Encode it.
@@ -1059,4 +1084,108 @@ void SincEncodeSetTime(SincBuffer *buf, struct timeval *tv)
     ProtobufCBuffer *cBuf = &buf->cbuf.base;
     cBuf->append(cBuf, SINC_HEADER_LENGTH, headerBuf);
     si_toro__sinc__set_time_command__pack_to_buffer(&stCmd, cBuf);
+}
+
+
+/*
+ * NAME:        SincBufferWriteXXX
+ * ACTION:      Writes a binary value to a ProtobufCBuffer.
+ */
+
+static void SincBufferWriteUint16(ProtobufCBuffer *cBuf, uint16_t v)
+{
+    cBuf->append(cBuf, sizeof(v), (uint8_t *)&v);
+}
+
+
+static void SincBufferWriteUint32(ProtobufCBuffer *cBuf, uint32_t v)
+{
+    cBuf->append(cBuf, sizeof(v), (uint8_t *)&v);
+}
+
+
+static void SincBufferWriteUint64(ProtobufCBuffer *cBuf, uint64_t v)
+{
+    cBuf->append(cBuf, sizeof(v), (uint8_t *)&v);
+}
+
+
+static void SincBufferWriteDouble(ProtobufCBuffer *cBuf, double v)
+{
+    cBuf->append(cBuf, sizeof(v), (uint8_t *)&v);
+}
+
+
+/*
+ * NAME:        SincEncodeHistogramDatagramContent
+ * ACTION:      Encodes a histogram in datagram format. Only encodes the content, not the header.
+ * PARAMETERS:  SincBuffer *buf     - where to put the encoded packet.
+ *              int channelId       - the channel the histogram is for.
+ *              SincHistogram *accepted - the accepted histogram plot.
+ *              SincHistogram *rejected - the rejected histogram plot.
+ *              SincHistogramCountStats *stats - various statistics about the histogram.
+ */
+
+void SincEncodeHistogramDatagramContent(SincBuffer *buf, int channelId, SincHistogram *accepted, SincHistogram *rejected, SincHistogramCountStats *stats)
+{
+    ProtobufCBuffer *cBuf = &buf->cbuf.base;
+    SincBufferWriteUint32(cBuf, 180);
+    SincBufferWriteUint16(cBuf, 0);
+    SincBufferWriteUint16(cBuf, SI_TORO__SINC__MESSAGE_TYPE__HISTOGRAM_DATAGRAM_RESPONSE);
+    SincBufferWriteUint32(cBuf, channelId);
+
+    uint32_t samples = 0;
+    uint32_t spectrumSelectionMask = 0;
+    if (accepted)
+    {
+        samples = accepted->len;
+        spectrumSelectionMask |= SINC_SPECTRUMSELECT_ACCEPTED;
+    }
+
+    if (samples == 0 && rejected)
+    {
+        samples = rejected->len;
+        spectrumSelectionMask |= SINC_SPECTRUMSELECT_REJECTED;
+    }
+
+    SincBufferWriteUint32(cBuf, samples);
+    SincBufferWriteUint32(cBuf, spectrumSelectionMask);
+
+    SincBufferWriteUint64(cBuf, stats->dataSetId);
+    SincBufferWriteDouble(cBuf, stats->timeElapsed);
+    SincBufferWriteUint64(cBuf, stats->samplesDetected);
+    SincBufferWriteUint64(cBuf, stats->samplesErased);
+    SincBufferWriteUint64(cBuf, stats->pulsesAccepted);
+    SincBufferWriteUint64(cBuf, stats->pulsesRejected);
+    SincBufferWriteDouble(cBuf, stats->inputCountRate);
+    SincBufferWriteDouble(cBuf, stats->outputCountRate);
+    SincBufferWriteDouble(cBuf, stats->deadTime);
+    SincBufferWriteUint32(cBuf, stats->subRegionStartIndex);
+    SincBufferWriteUint32(cBuf, stats->subRegionEndIndex);
+    SincBufferWriteUint32(cBuf, stats->gateState);
+    SincBufferWriteUint32(cBuf, stats->refreshRate);
+    SincBufferWriteUint32(cBuf, stats->positiveRailHitCount);
+    SincBufferWriteUint32(cBuf, stats->negativeRailHitCount);
+    SincBufferWriteUint32(cBuf, stats->trigger);
+    SincBufferWriteUint32(cBuf, 0); // reserved.
+    SincBufferWriteUint32(cBuf, 0); // reserved.
+    SincBufferWriteUint32(cBuf, 0); // reserved.
+    SincBufferWriteUint32(cBuf, 0); // reserved.
+
+    size_t i;
+    SincBufferWriteUint32(cBuf, 10); // intensity count.
+    for (i = 0; i < 10; i++)
+    {
+        SincBufferWriteUint32(cBuf, 0); // intensity.
+    }
+
+    if (accepted != NULL)
+    {
+        cBuf->append(cBuf, accepted->len * sizeof(*accepted->data), (uint8_t *)accepted->data);
+    }
+
+    if (rejected != NULL)
+    {
+        cBuf->append(cBuf, rejected->len * sizeof(*rejected->data), (uint8_t *)rejected->data);
+    }
 }

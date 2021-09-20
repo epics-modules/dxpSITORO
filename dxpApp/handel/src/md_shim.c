@@ -35,12 +35,21 @@
 
 #ifdef WIN32
 #include <windows.h>
+
+#include <time.h>
+#ifndef _TIMEVAL_DEFINED /* also in winsock[2].h */
+#define _TIMEVAL_DEFINED
+struct timeval {
+    long tv_sec;
+    long tv_usec;
+};
+#endif /* _TIMEVAL_DEFINED */
+int gettimeofday(struct timeval *tp, void *tzp);
 #else
 #include <sys/time.h>
 #endif
 
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -253,41 +262,38 @@ XIA_SHARED void dxp_md_log(int level, const char *routine, const char *message,
 }
 
 #ifdef WIN32
-/**
- * Convert a Windows system time to time_t... for conversion to struct
- * tm to work with strftime. From
- * https://blogs.msdn.microsoft.com/joshpoley/2007/12/19/datetime-formats-and-conversions/
+/*
+ * Win32 implementation of gettimeofday.
  */
-HANDEL_STATIC void dxp_md_SystemTimeToTime_t(SYSTEMTIME *systemTime, time_t *dosTime)
+int gettimeofday(struct timeval *tp, void *tzp)
 {
-    LARGE_INTEGER jan1970FT = {0};
-    jan1970FT.QuadPart = 116444736000000000I64; // january 1st 1970
+    FILETIME       fileTime;
+    SYSTEMTIME     systemTime;
+    ULARGE_INTEGER fileTimeUlg;
 
-    LARGE_INTEGER utcFT = {0};
-    SystemTimeToFileTime(systemTime, (FILETIME*)&utcFT);
+    ULARGE_INTEGER jan1970 = {0};
+    jan1970.QuadPart = 116444736000000000I64;
 
-    unsigned __int64 utcDosTime = (utcFT.QuadPart - jan1970FT.QuadPart)/10000000;
+    UNUSED(tzp);
 
-    *dosTime = (time_t)utcDosTime;
+    GetLocalTime(&systemTime);
+    SystemTimeToFileTime(&systemTime, &fileTime);
+    fileTimeUlg.LowPart = fileTime.dwLowDateTime;
+    fileTimeUlg.HighPart = fileTime.dwHighDateTime;
+
+    tp->tv_sec = (long) ((fileTimeUlg.QuadPart - jan1970.QuadPart) / 10000000L);
+    tp->tv_usec = (long) (systemTime.wMilliseconds * 1000);
+
+    return 0;
 }
+#endif
 
-/**
- * Returns the current local time as a struct tm for string formatting
- * and the milliseconds on the side for extra precision.
- */
-HANDEL_STATIC void dxp_md_local_time(struct tm **local, int *milli)
+HANDEL_SHARED struct timeval dxp_md_gettimeofday()
 {
-    SYSTEMTIME tod;
-
-    GetLocalTime(&tod);
-
-    time_t current;
-    dxp_md_SystemTimeToTime_t(&tod, &current);
-    *local = gmtime(&current);
-    *milli = tod.wMilliseconds;
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    return t;
 }
-
-#else
 
 /**
  * Returns the current local time as a struct tm for string formatting
@@ -301,7 +307,6 @@ HANDEL_STATIC void dxp_md_local_time(struct tm **local, int *milli)
     time_t current = tod.tv_sec;
     *local = localtime(&current);
 }
-#endif
 
 /**
  * Write a standard log format header.

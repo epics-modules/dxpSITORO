@@ -19,7 +19,22 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
+
+/* The version of the list mode format to encode to. */
+typedef enum
+{
+//    LM_VERSION_0_6_0,
+//    LM_VERSION_0_6_1,
+    LM_VERSION_0_7_1,
+    LM_VERSION_0_8_1,
+    LM_VERSION_0_8_7,
+    LM_VERSION_0_9_0
+} LmVersion;
+
+
+/* Packet data for the various list mode packet types. */
 typedef struct
 {
     uint8_t *buf;          /* The list mode data buffer. */
@@ -61,6 +76,13 @@ typedef struct
 
 typedef struct
 {
+    uint32_t reserved;
+    uint32_t timestamp;
+} LmSync;
+
+
+typedef struct
+{
     uint32_t timestamp;
 } LmTimestamp;
 
@@ -68,8 +90,10 @@ typedef struct
 typedef struct
 {
     bool     invalid;
+    uint32_t reserved1;
     int32_t  amplitude;
     bool     hasTimeOfArrival;      /* If true, this packet has valid timeOfArrival and subSampleTimeOfArrival data. */
+    uint32_t reserved2;
     uint32_t timeOfArrival;
     uint32_t subSampleTimeOfArrival;
     bool     inMarkedRange;
@@ -78,6 +102,7 @@ typedef struct
 
 typedef struct
 {
+    uint32_t reserved;
     bool     gate;
     uint32_t timestamp;
 } LmGateState;
@@ -85,7 +110,7 @@ typedef struct
 
 typedef struct
 {
-    uint32_t sampleCount;
+    uint64_t sampleCount;
     uint32_t erasedSampleCount;
     uint32_t saturatedSampleCount;
     uint32_t estimatedIncomingPulseCount;
@@ -98,7 +123,7 @@ typedef struct
 
 typedef struct
 {
-    int32_t  axis[6];
+    uint32_t axis[6];
     uint32_t timestamp;
 } LmSpatialPosition;
 
@@ -113,11 +138,13 @@ typedef struct
 typedef struct
 {
     LmPacketType typ;
+    size_t len;
+
     union LmPacket_
     {
         LmError           error;
         LmStreamAlignPattern    streamAlign;
-        LmTimestamp       sync;
+        LmSync            sync;
         LmPulse           pulse;
         LmGateState       gateState;
         LmStats           gatedStats;
@@ -127,6 +154,7 @@ typedef struct
         LmAnalogStatus    analogStatus;
         LmTimestamp       internalBufferOverflow;
     } p;
+
 } LmPacket;
 
 
@@ -229,6 +257,19 @@ int  LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet,
  */
 
 int  LmBufTranslatePacketComplex(char *textBuf, int textBufLen, LmPacket *packet, bool hexDump, LmBuf *lmBuf, bool showOnlyErrors, bool showTimestamps, uint32_t *lastTimestamp);
+
+
+/*
+ * NAME:        LmBufEncodePacket
+ * ACTION:      Translates a LmPacket into binary form.
+ * PARAMETERS:  uint8_t *binaryBuf - where to place the resulting binary data.
+ *              size_t textBufLen  - how large the binary buffer is.
+ *              LmPacket *packet   - the parsed packet is written here.
+ *              LmVersion version  - which historical version of the list mode format to produce.
+ * RETURNS:     int - the number of bytes placed in the binary buffer.
+ */
+
+int LmBufEncodePacket(uint8_t *binaryBuf, int binaryBufLen, LmPacket *packet, LmVersion version);
 
 #ifdef __cplusplus
 }

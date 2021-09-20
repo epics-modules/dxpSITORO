@@ -152,7 +152,7 @@ typedef struct
     uint32_t                       negativeRailHitCount;
     SiToro__Sinc__HistogramTrigger trigger;
     uint32_t                       numIntensity;
-    uint32_t                       *intensityData;
+    uint32_t                      *intensityData;
 } SincHistogramCountStats;
 
 
@@ -755,6 +755,7 @@ bool SincInitDatagramComms(Sinc *sc);
  * PARAMETERS:  Sinc *sc        - the sinc connection.
  *              int *channelSet - a list of the channels to monitor.
  *              int numChannels - the number of channels in the list.
+ *                                -1 to monitor all channels on the device.
  * RETURNS:     true on success, false otherwise. On failure use SincCurrentErrorCode() and
  *                  SincCurrentErrorMessage() to get the error status.
  */

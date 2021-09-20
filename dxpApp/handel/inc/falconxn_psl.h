@@ -60,6 +60,11 @@
 #define FALCONXN_MAX_ADC_SAMPLES (0x80000)
 
 /*
+ * Timeout to wait for a DC offset calculation response, typical 520ms.
+ */
+#define FALCONXN_DC_OFFSET_RESPONSE_TIMEOUT (5)
+
+/*
  * Timeout to wait for a channel state change after sending a command.
  */
 #define FALCONXN_CHANNEL_STATE_TIMEOUT (5)
@@ -90,7 +95,8 @@ typedef enum {
     ChannelADC,
     ChannelHistogram,
     ChannelListMode,
-    ChannelCharacterizing
+    ChannelCharacterizing,
+    ChannelDCOffset
 } ChannelState;
 
 typedef enum {
@@ -334,6 +340,9 @@ struct _FalconXNDetector {
 
     /* The buffer size used when reading OSC data. */
     SincOscPlot adcTrace;
+
+    /* The DC offset returned from the calculate command. */
+    double dcOffset;
 
     /* Detector real-time stats */
     double stats[FALCONXN_STATS_NUMOF];

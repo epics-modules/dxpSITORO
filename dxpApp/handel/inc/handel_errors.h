@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2004 X-ray Instrumentation Associates
- *               2005-2018 XIA LLC
+ *               2005-2020 XIA LLC
  * All rights reserved
  *
  * Redistribution and use in source and binary forms,
@@ -40,14 +40,13 @@
 
 #include "handeldef.h"
 
-
 #define XIA_SUCCESS                     0 /* The routine succeeded. */
 
 /* I/O level error codes 1-100 */
-#define XIA_OPEN_FILE	                1 /* Error opening file */
-#define XIA_FILEERR			            2 /* File related error */
-#define XIA_NOSECTION		            3 /* Unable to find section in ini file */
-#define XIA_FORMAT_ERROR	            4 /* Syntax error in ini file */
+#define XIA_OPEN_FILE                   1 /* Error opening file */
+#define XIA_FILEERR                     2 /* File related error */
+#define XIA_NOSECTION                   3 /* Unable to find section in ini file */
+#define XIA_FORMAT_ERROR                4 /* Syntax error in ini file */
 #define XIA_ILLEGAL_OPERATION           5 /* Attempted to configure options in an illegal order */
 #define XIA_FILE_RA                     6 /* File random access unable to find name-value pair */
 #define XIA_SET_POS                     7 /* Error getting file position. */
@@ -72,11 +71,11 @@
 #define XIA_BASELINE_OOR                208 /* Baseline filter length is out-of-range */
 
 /* Configuration errors 301-400 */
-#define XIA_INITIALIZE			        301 /* Fatal error on initialization */
-#define XIA_NO_ALIAS			        302 /* A module, detector, or firmware item with the given alias is not defined. */
-#define XIA_ALIAS_EXISTS	            303 /* Trying to add a configuration item with existing alias */
-#define XIA_BAD_VALUE		            304 /* Out of range or invalid input value */
-#define XIA_INFINITE_LOOP	            305 /* Infinite loop detected */
+#define XIA_INITIALIZE                  301 /* Fatal error on initialization */
+#define XIA_NO_ALIAS                    302 /* A module, detector, or firmware item with the given alias is not defined. */
+#define XIA_ALIAS_EXISTS                303 /* Trying to add a configuration item with existing alias */
+#define XIA_BAD_VALUE                   304 /* Out of range or invalid input value */
+#define XIA_INFINITE_LOOP               305 /* Infinite loop detected */
 #define XIA_BAD_NAME                    306 /* Specified name is not valid */
 #define XIA_BAD_PTRR                    307 /* Specified PTRR is not valid for this alias */
 #define XIA_ALIAS_SIZE                  308 /* Alias name length exceeds #MAXALIAS_LEN */
@@ -121,28 +120,20 @@
 #define XIA_NO_MMU                      361 /* No MMU defined and/or required for this module */
 #define XIA_NULL_FIRMWARE               362 /* No firmware set defined */
 #define XIA_NO_FDD                      363 /* No FDD defined in the firmware set */
-#define XIA_WRONG_DET_TYPE              364 /* The detector type is wrong for the requested operation */
 
 /* Host machine error codes 401-500 */
 #define XIA_NOMEM                       401 /* Unable to allocate memory */
-#define XIA_XERXES			            402 /* XerXes returned an error. Check log error output. */
+#define XIA_XERXES_DEPRECATED           402 /* XerXes returned an error. Check log error output. */
 #define XIA_MD                          403 /* MD layer returned an error */
 #define XIA_EOF                         404 /* EOF encountered */
-#define XIA_XERXES_NORMAL_RUN_ACTIVE    405 /* XerXes says a normal run is still active */
-#define XIA_XERXES_CONTROL_RUN_ACTIVE   406 /* XerXes says a control run is still active */
-#define XIA_HARDWARE_RUN_ACTIVE         406 /* The hardware says a control run is still active */
-#define XIA_BAD_FILE_READ               407 /* File read failed */
-#define XIA_BAD_FILE_WRITE              408 /* File write failed */
+#define XIA_BAD_FILE_READ               405 /* File read failed */
+#define XIA_BAD_FILE_WRITE              406 /* File write failed */
 
 /* Miscellaneous errors 501-600 */
 #define XIA_UNKNOWN                     501
-#define XIA_LOG_LEVEL                   502 /* Log level invalid */
-#define XIA_NO_LIST                     503 /* List size is zero */
-#define XIA_NO_ELEM                     504 /* No data to remove */
-#define XIA_DATA_DUP                    505 /* Data already in table */
-#define XIA_REM_ERR                     506 /* Unable to remove entry from hash table */
+#define XIA_LOG_LEVEL                   506 /* Log level invalid */
 #define XIA_FILE_TYPE                   507 /* Improper file type specified */
-#define XIA_END				            508 /* There are no more instances of the name specified. Pos set to end */
+#define XIA_END                         508 /* There are no more instances of the name specified. Pos set to end */
 #define XIA_INVALID_STR                 509 /* Invalid string format */
 #define XIA_UNIMPLEMENTED               510 /* The routine is unimplemented in this version */
 #define XIA_PARAM_DEBUG_MISMATCH        511 /* A parameter mismatch was found with XIA_PARAM_DEBUG enabled. */
@@ -161,8 +152,8 @@
 #define XIA_BAD_SPECIAL                 611 /* The specified special run is not supported for this module */
 #define XIA_TRACE_OOR                   612 /* The specified value of tracewait (in ns) is out-of-range */
 #define XIA_DEFAULTS                    613 /* The PSL layer encountered an error creating a Defaults element */
-#define XIA_BAD_FILTER      			614 /* Error loading filter info from either a FDD file or the Firmware configuration */
-#define XIA_NO_REMOVE       			615 /* Specified acquisition value is required for this product and can't be removed */
+#define XIA_BAD_FILTER                  614 /* Error loading filter info from either a FDD file or the Firmware configuration */
+#define XIA_NO_REMOVE                   615 /* Specified acquisition value is required for this product and can't be removed */
 #define XIA_NO_GAIN_FOUND               616 /* Handel was unable to converge on a stable gain value */
 #define XIA_UNDEFINED_RUN_TYPE          617 /* Handel does not recognize this run type */
 #define XIA_INTERNAL_BUFFER_OVERRUN     618 /* Handel attempted to overrun an internal buffer boundry */
@@ -232,9 +223,10 @@
 #define XIA_MALFORMED_MM_STATUS         682 /* UltraLo moisture meter status is invalid. */
 #define XIA_MALFORMED_MM_VALUE          683 /* UltraLo moisture meter value is invalid. */
 #define XIA_NO_EVENTS                   684 /* No events to retrieve from the event buffer. */
-#define XIA_NOSUPPORT_RUNDATA	        685 /* The specified run data is not supported */
+#define XIA_NOSUPPORT_RUNDATA           685 /* The specified run data is not supported */
 #define XIA_PARAMETER_OOR               686 /* The parameter passed in is out of range. */
-#define XIA_PASSTHROUGH		            687 /* UART passthrough command error */
+#define XIA_PASSTHROUGH                 687 /* UART passthrough command error */
+#define XIA_UNSUPPORTED                 688 /* Feature unsupported by current hardware */
 
 /* handel-sitoro errors 690-700 */
 #define XIA_DAC_GAIN_OOR                690 /* SiToro DAC gain is out of range. */
@@ -243,21 +235,20 @@
 /* XUP errors 701-800 */
 #define XIA_XUP_VERSION                 701 /* XUP version is not supported */
 #define XIA_CHKSUM                      702 /* checksum mismatch in the XUP */
-#define XIA_BAK_MISSING                 703 /* Requested BAK file cannot be opened */
 #define XIA_SIZE_MISMATCH               704 /* Size read from file is incorrect */
 #define XIA_NO_ACCESS                   705 /* Specified access file isn't valid */
 #define XIA_N_FILTER_BAD                706 /* The number of filter parameters in the FDD doesn't match the number requires for the hardware */
 
-/* Unit Test Errors 801 */
-#define XIA_UNIT_TEST                   801
-
-/* Additional PSL errors 802-900 */
+/* Additional PSL errors used in handel-sitoro 802-900 */
 #define XIA_ACQ_OOR                     802 /* Generic acquisition value conversion out of range. */
 #define XIA_ENCODE                      803 /* Base64 encoding error. */
 #define XIA_DECODE                      804 /* Base64 decoding error. */
 #define XIA_BAD_PSL_ARGS                805 /* Bad call arguments to PSL function. */
 
 /* FalconXN Error codes. */
-#define XIA_FN_BASE_CODE                         (3000)
+#define XIA_FN_BASE_CODE                (3000)
 
-#endif                /* Endif for HANDEL_ERRORS_H */
+/* Xerxes Error codes */
+#define XIA_XERXES_ERROR_BASE           (4000)
+
+#endif              /* Endif for HANDEL_ERRORS_H */

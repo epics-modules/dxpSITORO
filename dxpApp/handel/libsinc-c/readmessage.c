@@ -394,6 +394,7 @@ bool SincPacketPeekMulti(Sinc **channelSet, int numChannels, int timeout, SiToro
     if (fdSetToChannel == NULL)
     {
         *packetChannel = 0;
+        free(fdSet);
         SincReadErrorSetCode(channelSet[*packetChannel], SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
         return false;
     }
@@ -403,6 +404,7 @@ bool SincPacketPeekMulti(Sinc **channelSet, int numChannels, int timeout, SiToro
     {
         *packetChannel = 0;
         free(fdSet);
+        free(fdSetToChannel);
         SincReadErrorSetCode(channelSet[*packetChannel], SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
         return false;
     }

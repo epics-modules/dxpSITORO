@@ -72,6 +72,11 @@
 #define MMC_BUFFERS (2)
 
 /*
+ * Number of bytes per double value in mapping buffer header
+ */
+#define FALCON_HEADER_DOUBLE_SIZE   8
+
+/*
  * Modes.
  */
 typedef enum {
@@ -89,6 +94,8 @@ typedef struct
     uint32_t livetime;
     uint32_t triggers;
     uint32_t output_events;
+    double   icr;
+    double   ocr;
 } MM_Pixel_Stats;
 
 typedef struct
@@ -112,6 +119,7 @@ typedef struct
     boolean_t full;           /* The buffer is full. */
     boolean_t done;           /* The buffer is done and can be used again. */
     uint32_t  bufferPixel;    /* The pixel count in buffer. */
+    uint32_t  drops;          /* Count of skipped pixels, TCP backpressure or UDP loss. */
     size_t    next;           /* The next value to read. */
     size_t    level;          /* The amount of data in the buffer. */
     size_t    marker;         /* Buffer marker. */
@@ -126,6 +134,7 @@ typedef struct
     uint32_t  pixel;          /* The pixel number. */
     uint32_t  numPixels;      /* The number of pixels in a run. */
     uint32_t  bufferOverruns; /* Count of buffer overruns */
+    boolean_t stopped;        /* The run was stopped. Allow partial readout. */
     MM_Buffer buffer[MMC_BUFFERS];
 } MM_Buffers;
 
@@ -206,10 +215,13 @@ int       psl__MappingModeBuffers_Close(MM_Buffers* buffers);
 size_t    psl__MappingModeBuffers_Size(MM_Buffers* buffers);
 void      psl__MappingModeBuffers_Toggle(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_Update(MM_Buffers* buffers);
+boolean_t psl__MappingModeBuffers_Stop(MM_Buffers* buffers);
+boolean_t psl__MappingModeBuffers_Stopped(MM_Buffers* buffers);
 void      psl__MappingModeBuffers_Overrun(MM_Buffers* buffers);
 uint32_t  psl__MappingModeBuffers_Overruns(MM_Buffers* buffers);
 void      psl__MappingModeBuffers_Pixel_Inc(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_PixelsReceived(MM_Buffers* buffers);
+void      psl__MappingModeBuffers_Drop(MM_Buffers* buffers, uint32_t drops);
 
 boolean_t psl__MappingModeBuffers_A_Full(MM_Buffers* buffers);
 boolean_t psl__MappingModeBuffers_A_Active(MM_Buffers* buffers);
@@ -228,6 +240,7 @@ void      psl__MappingModeBuffers_Next_MoveLevel(MM_Buffers* buffers, size_t lev
 size_t    psl__MappingModeBuffers_Next_Remaining(MM_Buffers* buffers);
 uint32_t  psl__MappingModeBuffers_Next_Pixels(MM_Buffers* buffers);
 uint32_t  psl__MappingModeBuffers_Next_PixelTotal(MM_Buffers* buffers);
+uint32_t  psl__MappingModeBuffers_Next_Drops(MM_Buffers* buffers);
 
 int       psl__MappingModeBuffers_Active(MM_Buffers* buffers);
 char      psl__MappingModeBuffers_Active_Label(MM_Buffers* buffers);
@@ -291,6 +304,8 @@ MM_Mode psl__MappingModeControl_Mode(MM_Control* control);
 uint16_t psl__Lower16(uint32_t value);
 uint16_t psl__Upper16(uint32_t value);
 void psl__Write32(uint16_t* buffer, uint32_t value);
+void psl__Write64(uint16_t* buffer, uint64_t value);
+void psl__WriteDbl(uint16_t* buffer, double value);
 
 int psl__XMAP_WriteBufferHeader_MM1(MMC1_Data* mm1);
 int psl__XMAP_UpdateBufferHeader_MM1(MMC1_Data* mm1);

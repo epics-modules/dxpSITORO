@@ -52,9 +52,6 @@
  *
  *****************************************************************************/
 
-static char formatBuffer[2048];
-static handel_md_Mutex lock;
-
 void (*handel_md_log)(int level, const char *func, const char *msg, int status,
                       const char *file, int line);
 
@@ -160,14 +157,10 @@ HANDEL_EXPORT int HANDEL_API xiaSetLogOutput(const char *filename)
 HANDEL_SHARED void HANDEL_API xiaLog(int level, const char* file, int line,
                                      int status, const char* func, const char* fmt, ...)
 {
+    char formatBuffer[2048];
     va_list args;
 
     va_start(args, fmt);
-
-    if (!handel_md_mutex_ready(&lock))
-        handel_md_mutex_create(&lock);
-
-    handel_md_mutex_lock(&lock);
 
     /*
      * Cannot use vsnprintf on MinGW currently because is generates
@@ -179,7 +172,23 @@ HANDEL_SHARED void HANDEL_API xiaLog(int level, const char* file, int line,
 
     handel_md_log(level, func, formatBuffer, status, file, line);
 
-    handel_md_mutex_unlock(&lock);
-
     va_end(args);
+}
+
+
+/*****************************************************************************
+ *
+ * This routine closes the logging stream
+ *
+ *****************************************************************************/
+HANDEL_EXPORT int HANDEL_API xiaCloseLog(void)
+{
+	if (handel_md_output == NULL)
+	{
+		xiaInitHandel();
+	}
+
+	handel_md_output(NULL);
+
+	return XIA_SUCCESS;
 }

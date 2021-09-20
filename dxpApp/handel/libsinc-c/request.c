@@ -663,6 +663,8 @@ bool SincRequestDeleteSavedConfiguration(Sinc *sc)
  * PARAMETERS:  Sinc *sc        - the sinc connection.
  *              int *channelSet - a list of the channels to monitor.
  *              int numChannels - the number of channels in the list.
+ *                                -1 to monitor all channels on the device;
+ *                                in this case channelSet is ignored.
  * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
  *                  SincStrError() to get the error status.
  */

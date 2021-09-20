@@ -36,8 +36,8 @@
 #ifndef MD_SHIM_H
 #define MD_SHIM_H
 
-#include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "Dlldefs.h"
 
@@ -51,5 +51,6 @@ XIA_SHARED void dxp_md_log(int level, const char *routine, const char *message,
                            int error, const char *file, int line);
 XIA_SHARED void dxp_md_output(const char *filename);
 
+XIA_SHARED struct timeval dxp_md_gettimeofday();
 
 #endif /* MD_SHIM_H */

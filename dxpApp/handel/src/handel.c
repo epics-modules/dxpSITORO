@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2002-2004 X-ray Instrumentation Associates
- *               2005-2011 XIA LLC
+ *               2005-2019 XIA LLC
  * All rights reserved
  *
  * Redistribution and use in source and binary forms,
@@ -64,12 +64,8 @@
 HANDEL_STATIC int HANDEL_API xiaInitMemory(void);
 HANDEL_STATIC int HANDEL_API xiaInitHandelDS(void);
 
-
-/* This is currently not used right
- * now. Most libraries require some sort
- * of initialization so it is probably
- * beyond Handel right now to try and warn
- * the user if the library isn't initialized.
+/*
+ * Used to track if the library functions are initialized.
  */
 boolean_t isHandelInit = FALSE_;
 
@@ -90,13 +86,11 @@ boolean_t isHandelInit = FALSE_;
 HANDEL_EXPORT int HANDEL_API xiaInit(const char *iniFile)
 {
     int status;
-    int status2;
     int nFilesOpen;
 
     status = xiaInitHandel();
 
-    if (status != XIA_SUCCESS)
-    {
+    if (status != XIA_SUCCESS) {
         xiaLog(XIA_LOG_ERROR, status, "xiaInit", "Handel initialization failed");
         return status;
     }
@@ -119,35 +113,8 @@ HANDEL_EXPORT int HANDEL_API xiaInit(const char *iniFile)
 
     status = xiaReadIniFile(iniFile);
 
-    if (status != XIA_SUCCESS)
-    {
+    if (status != XIA_SUCCESS) {
         xiaLog(XIA_LOG_ERROR, status, "xiaInit", "Unable to load %s", iniFile);
-
-        /* Need to clear data structures here since we got an
-         * incomplete configuration.
-         */
-        /* Initialize the memory of Handel.
-         */
-        status2 = xiaInitMemory();
-
-        if (status2 != XIA_SUCCESS)
-        {
-            /* If MD routines not defined, then use printf() here since dxp_md_error()
-             *  might not be assigned yet...depending on the error
-             */
-            if (handel_md_log != NULL)
-            {
-                xiaLog(XIA_LOG_ERROR, status2, "xiaInit", "Unable to Initialize memory");
-                return status2;
-            } else {
-                printf("[ERROR] [%d] %s: %s\n",
-                       status2,
-                       "xiaInit",
-                       "Unable to initialize Memory\n");
-                return status2;
-            }
-        }
-
         return status;
     }
 
@@ -170,41 +137,30 @@ HANDEL_EXPORT int HANDEL_API xiaInitHandel(void)
     /* Arbitrary length here */
     char version[120];
 
-    /* In case the user is resetting things
-     * manually.
-     */
-    status = xiaExit();
-
-    if (status != XIA_SUCCESS) {
-        /* Error handler may not
-         * be installed yet.
+    if (!isHandelInit) {
+        /* Make our function pointers equal to XerXes function pointers using the
+         * imported utils variable
          */
-        printf("[ERROR] [%d] %s: %s\n",
-               status, "xiaInitHandel",
-               "Unable to perform exit procedures");
-        return status;
+        handel_md_log           = dxp_md_log;
+        handel_md_output        = dxp_md_output;
+        handel_md_enable_log    = dxp_md_enable_log;
+        handel_md_suppress_log  = dxp_md_suppress_log;
+        handel_md_set_log_level = dxp_md_set_log_level;
+        handel_md_alloc         = malloc;
+        handel_md_free          = free;
+        handel_md_wait          = dxp_md_wait;
+        handel_md_fgets         = dxp_md_fgets;
+
+        isHandelInit = TRUE_;
     }
 
     /* Initialize the memory of both Handel and Xerxes.
      */
     status = xiaInitMemory();
 
-    if (status != XIA_SUCCESS)
-    {
-        /* If MD routines not defined, then use printf() here since dxp_md_error()
-         *  might not be assined yet...depending on the error
-         */
-        if (handel_md_log != NULL)
-        {
-            xiaLog(XIA_LOG_ERROR, status, "xiaInitHandel", "Unable to Initialize memory");
-            return status;
-        } else {
-            printf("[ERROR] [%d] %s: %s\n",
-                   status,
-                   "xiaInitHandel",
-                   "Unable to initialize Memory\n");
-            return status;
-        }
+    if (status != XIA_SUCCESS) {
+        xiaLog(XIA_LOG_ERROR, status, "xiaInitHandel", "Unable to Initialize memory");
+        return status;
     }
 
     xiaGetVersionInfo(NULL, NULL, NULL, version);
@@ -214,8 +170,8 @@ HANDEL_EXPORT int HANDEL_API xiaInitHandel(void)
 #ifdef __VLD_MEM_DBG__
     xiaLog(XIA_LOG_INFO, "xiaInitHandel", "This version of Handel was built with VLD memory leak debugging enabled.");
 #endif
-    
-    
+
+
     return status;
 }
 
@@ -229,20 +185,7 @@ HANDEL_EXPORT int HANDEL_API xiaInitHandel(void)
 HANDEL_STATIC int HANDEL_API xiaInitMemory()
 {
     int status = XIA_SUCCESS;
-
-
-    /* Make our function pointers equal to XerXes function pointers using the
-     * imported utils variable
-     */
-    handel_md_log           = dxp_md_log;
-    handel_md_output        = dxp_md_output;
-    handel_md_enable_log    = dxp_md_enable_log;
-    handel_md_suppress_log  = dxp_md_suppress_log;
-    handel_md_set_log_level = dxp_md_set_log_level;
-    handel_md_alloc         = malloc;
-    handel_md_free          = free;
-    handel_md_wait          = dxp_md_wait;
-    handel_md_fgets         = dxp_md_fgets;
+    xiaLog(XIA_LOG_INFO, "xiaInitMemory", "Clearing up Handel data structures.");
 
     /* Clear the HanDeL data structures */
     status = xiaInitHandelDS();
@@ -253,25 +196,31 @@ HANDEL_STATIC int HANDEL_API xiaInitMemory()
 
     /* Init the FDD lib here */
     status = xiaFddInitialize();
-
     if (status != XIA_SUCCESS) {
         xiaLog(XIA_LOG_ERROR, status, "xiaInitHandel", "Error initializing FDD layer");
         return status;
     }
 
-    isHandelInit = TRUE_;
-
     return status;
 }
 
 
-/**********
+/*
  * Responsible for performing any tasks related to
  * exiting the library.
- **********/
+  */
 HANDEL_EXPORT int HANDEL_API xiaExit(void)
 {
-    xiaRemoveAllModules();
+    int status;
+    xiaLog(XIA_LOG_INFO, "xiaExit", "Exiting...");
+
+    status = xiaRemoveAllModules();
+
+    if (status != XIA_SUCCESS) {
+        xiaLog(XIA_LOG_ERROR, status, "xiaExit", "Unable to remove module connections");
+    }
+    xiaInitMemory();
+
     return XIA_SUCCESS;
 }
 
@@ -304,11 +253,11 @@ HANDEL_EXPORT void HANDEL_API xiaGetVersionInfo(int *rel, int *min, int *maj,
 }
 
 
-/******************************************************************************
+/*
  *
  * Routine to initialize the Detector linked list.
  *
- ******************************************************************************/
+ */
 HANDEL_STATIC int HANDEL_API xiaInitHandelDS()
 {
     int status = XIA_SUCCESS;

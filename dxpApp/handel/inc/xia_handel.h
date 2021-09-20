@@ -63,7 +63,7 @@ HANDEL_EXPORT int HANDEL_API xiaEnableLogOutput(void);
 HANDEL_EXPORT int HANDEL_API xiaSuppressLogOutput(void);
 HANDEL_EXPORT int HANDEL_API xiaSetLogLevel(int level);
 HANDEL_EXPORT int HANDEL_API xiaSetLogOutput(const char *filename);
-
+HANDEL_EXPORT int HANDEL_API xiaCloseLog(void);
 HANDEL_EXPORT int HANDEL_API xiaNewDetector(const char *alias);
 HANDEL_EXPORT int HANDEL_API xiaAddDetectorItem(const char *alias,
                                                 const char *name, void *value);
@@ -160,6 +160,7 @@ HANDEL_EXPORT int HANDEL_API xiaSetIOPriority(int pri);
 
 HANDEL_EXPORT void HANDEL_API xiaGetVersionInfo(int *rel, int *min, int *maj,
                                                 char *pretty);
+HANDEL_EXPORT const char* HANDEL_API xiaGetErrorText(int errorcode);
 
 #ifdef _DEBUG
 
@@ -293,7 +294,6 @@ HANDEL_SHARED int HANDEL_API xiaGetPSLHandlers(const char *boardType,
 HANDEL_SHARED int HANDEL_API xiaGetFirmwareSet(int detChan, Module* module,
                                                FirmwareSet** firmwareSet,
                                                CurrentFirmware** currentFirmware);
-
 
 /* FDD Shims */
 HANDEL_SHARED int xiaFddInitialize(void);

@@ -484,8 +484,11 @@ static bool traverseJsonCalibrationVector(Sinc *sc, const char *jsonStr, jsmntok
     {
         /* It's the base64 encoded calibration data. */
         char calibStr64[256];
+        char calibStr64NoBackslash[256];
         uint8_t calibBin[256];
         size_t calibBinLen;
+        char *csPos;
+        char *csnbPos;
 
         /* The encoded calibration data is a base64-encoded string. */
         if (tok2->type != JSMN_STRING)
@@ -494,11 +497,23 @@ static bool traverseJsonCalibrationVector(Sinc *sc, const char *jsonStr, jsmntok
             return false;
         }
 
-        /* Decode from base64 to binary. */
+        /* Get the base64 data and remove the backslash. */
         tokenToCStr(calibStr64, sizeof(calibStr64), jsonStr, tok2);
 
+        for (csPos = calibStr64, csnbPos = calibStr64NoBackslash; *csPos != 0; csPos++)
+        {
+            if (*csPos != '\\')
+            {
+                *csnbPos = *csPos;
+                csnbPos++;
+            }
+        }
+
+        *csnbPos = 0;
+
+        /* Decode from base64 to binary. */
         calibBinLen = sizeof(calibBin);
-        Base64Decode(calibStr64, strlen(calibStr64), calibBin, &calibBinLen);
+        Base64Decode(calibStr64NoBackslash, strlen(calibStr64NoBackslash), calibBin, &calibBinLen);
 
         /* Put it in the calibration settings. */
         uint8_t *mem = calloc(calibBinLen, 1);
@@ -655,6 +670,53 @@ static bool traverseJsonRegions(Sinc *sc, const char *jsonStr, jsmntok_t *tokens
 
 
 /*
+ * NAME:        traverseJsonValueAndDiscard
+ * ACTION:      Parse a JSON value recursively and discard it.
+ */
+
+static bool traverseJsonValueAndDiscard(Sinc *sc, const char *jsonStr, jsmntok_t *tokens, int *tokPos)
+{
+    int i;
+    jsmntok_t *tok = &tokens[*tokPos];
+    (*tokPos)++;
+
+    switch (tok->type)
+    {
+    case JSMN_OBJECT:
+        for (i = 0; i < tok->size; i++)
+        {
+            jsmntok_t *tok2 = &tokens[*tokPos];
+            (*tokPos)++;
+
+            if (tok2->type != JSMN_STRING)
+            {
+                SincReadErrorSetMessage(sc, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "bad project file - expected name of object");
+                return false;
+            }
+
+            if (!traverseJsonValueAndDiscard(sc, jsonStr, tokens, tokPos))
+                return false;
+        }
+        break;
+
+    case JSMN_ARRAY:
+        for (i = 0; i < tok->size; i++)
+        {
+            if (!traverseJsonValueAndDiscard(sc, jsonStr, tokens, tokPos))
+                return false;
+        }
+        break;
+
+    case JSMN_PRIMITIVE:
+    case JSMN_STRING:
+        break;
+    }
+
+    return true;
+}
+
+
+/*
  * NAME:        traverseJsonChannelParam
  * ACTION:      Parses the JSON tokens by recursive descent
  */
@@ -664,7 +726,7 @@ static bool traverseJsonChannelParam(Sinc *sc, const char *jsonStr, jsmntok_t *t
     static const char *calibPrefix = "calibration.";
     size_t calibPrefixLen = strlen(calibPrefix);
     char key[256];
-    char valStr[256];
+    char valStr[32768];
 
     jsmntok_t *tok = &tokens[*tokPos];
     (*tokPos)++;
@@ -712,9 +774,18 @@ static bool traverseJsonChannelParam(Sinc *sc, const char *jsonStr, jsmntok_t *t
         {
             /* Get the parameter details for this parameter. */
             SiToro__Sinc__ParamDetails *pd = findParamDetails(deviceParams, key);
-            if (pd != NULL && (!pd->has_instrumentlevel || !pd->instrumentlevel) && pd->has_settable && pd->settable)
+            if (pd != NULL && (!pd->has_subsystem || pd->subsystem == SI_TORO__SINC__SUBSYSTEM__CHANNEL) && pd->has_settable && pd->settable)
             {
                 addParamToSettings(pd, settings, *channelId, key, valStr);
+            }
+            else
+            {
+                /* Skip over this parameter even if it's an array or object. */
+                if (tok2->type == JSMN_ARRAY || tok2->type == JSMN_OBJECT)
+                {
+                    (*tokPos)--;
+                    traverseJsonValueAndDiscard(sc, jsonStr, tokens, tokPos);
+                }
             }
         }
     }
@@ -1356,9 +1427,9 @@ bool SincProjectSave(Sinc *sc, const char *fileName)
     int numChannels = 0;
     int i;
 #ifndef _WIN32
-	char deviceAddress[INET6_ADDRSTRLEN];
+    char deviceAddress[INET6_ADDRSTRLEN];
 #else
-	char deviceAddress[20];
+    char deviceAddress[20];
 #endif
 
     /* Get the device's IP address. */

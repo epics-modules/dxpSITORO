@@ -778,6 +778,7 @@ namespace SincProtocol
         void encodeSoftwareUpdate(const std::string &appImage, const std::string &appChecksum, const std::string &fpgaImage, const std::string &fpgaChecksum, bool autoRestart) { SincEncodeSoftwareUpdate(&buf_, reinterpret_cast<const uint8_t *>(appImage.data()), appImage.size(), appChecksum.c_str(), reinterpret_cast<const uint8_t *>(fpgaImage.data()), fpgaImage.size(), fpgaChecksum.c_str(), nullptr, 0, autoRestart); }
         void encodeSaveConfiguration() { SincEncodeSaveConfiguration(&buf_); }
         void encodeDeleteSavedConfiguration() { SincEncodeDeleteSavedConfiguration(&buf_); }
+        void encodeMonitorAllChannels() { SincEncodeMonitorChannels(&buf_, nullptr, -1); }
         void encodeMonitorChannels(const std::vector<int> &channels) { SincEncodeMonitorChannels(&buf_, channels.data(), channels.size()); }
         void encodeProbeDatagram() { SincEncodeProbeDatagram(&buf_); }
         void encodeDownloadCrashDump() { SincEncodeDownloadCrashDump(&buf_); }
@@ -847,6 +848,17 @@ namespace SincProtocol
         int  getFd() const
         {
             return sinc_.fd;
+        }
+
+
+        //
+        // NAME:        getHost
+        // ACTION:      Gets the host name we're connected to.
+        //
+
+        const std::string &getHost() const
+        {
+            return host_;
         }
 
 
@@ -937,10 +949,13 @@ namespace SincProtocol
         bool doSoftwareUpdate(const std::string &appImage, const std::string &appChecksum, const std::string &fpgaImage, const std::string &fpgaChecksum, bool autoRestart) { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestSoftwareUpdate(appImage, appChecksum, fpgaImage, fpgaChecksum, autoRestart)) return false; return waitSuccess(); }
         bool doSaveConfiguration()                                    { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestSaveConfiguration()) return false; return waitSuccess(); }
         bool doDeleteSavedConfiguration()                             { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestDeleteSavedConfiguration()) return false; return waitSuccess(); }
+        bool doMonitorAllChannels()                                   { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestMonitorAllChannels()) return false; return waitSuccess(); }
         bool doMonitorChannels(const std::vector<int> &channels)      { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestMonitorChannels(channels)) return false; return waitSuccess(); }
         bool doProbeDatagram()                                        { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestProbeDatagram()) return false; return waitSuccess(); }
         bool doInitDatagramComms()                                    { std::lock_guard<std::mutex> locker(commandMutex_); if (!SincInitDatagramComms(&sinc_)) return false; return waitSuccess(); }
         bool doDownloadCrashDump(DownloadCrashDump &resp)             { std::lock_guard<std::mutex> locker(commandMutex_); if (!requestDownloadCrashDump()) return false; return waitDownloadCrashDumpResponse(resp); }
+        bool doLoadProject(const std::string &filename)               { std::lock_guard<std::mutex> locker(commandMutex_); return SincProjectLoad(&sinc_, filename.c_str()); }
+        bool doSaveProject(const std::string &filename)               { std::lock_guard<std::mutex> locker(commandMutex_); return SincProjectSave(&sinc_, filename.c_str()); }
 
 
         //
@@ -1053,6 +1068,7 @@ namespace SincProtocol
         }
         bool requestSaveConfiguration()                               { Buffer buf; buf.encodeSaveConfiguration(); return send(buf); }
         bool requestDeleteSavedConfiguration()                        { Buffer buf; buf.encodeDeleteSavedConfiguration(); return send(buf); }
+        bool requestMonitorAllChannels()                              { Buffer buf; buf.encodeMonitorAllChannels(); return send(buf); }
         bool requestMonitorChannels(const std::vector<int> &channels) { Buffer buf; buf.encodeMonitorChannels(channels); return send(buf); }
         bool requestProbeDatagram()                                   { Buffer buf; buf.encodeProbeDatagram(); return send(buf); }
         bool requestDownloadCrashDump()                               { Buffer buf; buf.encodeDownloadCrashDump(); return send(buf); }

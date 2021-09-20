@@ -361,7 +361,7 @@ bool SincWaitReady(Sinc *sc, int channelId, int timeout)
     // Keep getting messages until we find the right ones.
     int done = false;
     int gotGetParamResponse = false;
-    while (!done && !gotGetParamResponse)
+    while (!done)
     {
         // Get a message at a time.
         SiToro__Sinc__MessageType msgType;

@@ -84,7 +84,8 @@ static boolean_t psl__MappingModeBuffers_Full(MM_Buffers* buffers, int buffer)
     return
         (buffers->buffer[buffer].level > 0) &&
         ((buffers->buffer[buffer].level >= buffers->buffer[buffer].size) ||
-         psl__MappingModeBuffers_PixelsReceived(buffers));
+         psl__MappingModeBuffers_PixelsReceived(buffers) ||
+         psl__MappingModeBuffers_Stopped(buffers));
 }
 
 boolean_t psl__MappingModeBuffers_A_Full(MM_Buffers* buffers)
@@ -202,6 +203,7 @@ PSL_STATIC int psl__MappingModeBuffers_Clear(MM_Buffers* buffers, int buffer)
     mmb->marker = 0;
     mmb->full = FALSE_;
     mmb->done = TRUE_;
+    mmb->drops = 0;
     return XIA_SUCCESS;
 }
 
@@ -326,10 +328,29 @@ PSL_STATIC uint32_t psl__MappingModeBuffers_PixelTotal(MM_Buffers* buffers,
     return buffers->pixel;
 }
 
+void psl__MappingModeBuffers_Drop(MM_Buffers* buffers, uint32_t drops)
+{
+    int buffer = psl__MappingModeBuffers_Next(buffers);
+    buffers->buffer[buffer].drops += drops;
+    buffers->pixel += drops;
+}
+
+PSL_STATIC uint32_t psl__MappingModeBuffers_Drops(MM_Buffers* buffers,
+                                                  int buffer)
+{
+    return buffers->buffer[buffer].drops;
+}
+
 uint32_t psl__MappingModeBuffers_Next_PixelTotal(MM_Buffers* buffers)
 {
     int buffer = psl__MappingModeBuffers_Next(buffers);
     return psl__MappingModeBuffers_PixelTotal(buffers, buffer);
+}
+
+uint32_t psl__MappingModeBuffers_Next_Drops(MM_Buffers* buffers)
+{
+    int buffer = psl__MappingModeBuffers_Next(buffers);
+    return psl__MappingModeBuffers_Drops(buffers, buffer);
 }
 
 uint32_t psl__MappingModeBuffers_Active_PixelTotal(MM_Buffers* buffers)
@@ -425,6 +446,28 @@ boolean_t psl__MappingModeBuffers_Update(MM_Buffers* buffers)
     return FALSE_;
 }
 
+boolean_t psl__MappingModeBuffers_Stop(MM_Buffers* buffers)
+{
+    pslLog(PSL_LOG_DEBUG,
+           "STOP: NextPixels:%c ActiveDone:%c",
+           psl__MappingModeBuffers_Next_Pixels(buffers) > 0 ? 'Y' : 'N',
+           psl__MappingModeBuffers_Active_Done(buffers) ? 'Y' : 'N');
+
+    buffers->stopped = TRUE_;
+
+    if (psl__MappingModeBuffers_Next_Pixels(buffers) > 0 &&
+        psl__MappingModeBuffers_Active_Done(buffers)) {
+        psl__MappingModeBuffers_Toggle(buffers);
+        return TRUE_;
+    }
+    return FALSE_;
+}
+
+boolean_t psl__MappingModeBuffers_Stopped(MM_Buffers* buffers)
+{
+    return buffers->stopped;
+}
+
 int psl__MappingModeBuffer_Open(MM_Buffer* buffer, size_t size)
 {
     int status = XIA_SUCCESS;
@@ -445,6 +488,7 @@ int psl__MappingModeBuffer_Open(MM_Buffer* buffer, size_t size)
         buffer->done = TRUE_;
         buffer->next = 0;
         buffer->bufferPixel = 0;
+        buffer->drops = 0;
         buffer->marker = 0;
         buffer->size = size;
     }
@@ -476,6 +520,7 @@ int psl__MappingModeBuffers_Open(MM_Buffers* buffers, size_t size, int64_t numPi
     buffers->bufferNumber = 0;
     buffers->numPixels = (uint32_t) numPixels;
     buffers->pixel = 0;
+    buffers->stopped = FALSE_;
 
     while (buffer < MMC_BUFFERS) {
         status = psl__MappingModeBuffer_Open(&buffers->buffer[buffer], size);
@@ -844,6 +889,24 @@ void psl__Write32(uint16_t* buffer, uint32_t value)
     buffer[1] = psl__Upper16(value);
 }
 
+/*
+ * Write a 64 bit (8 byte) double value into an uint16 buffer pointer
+ * without any conversion.
+ */
+void psl__WriteDbl(uint16_t* buffer, double value)
+{
+    memcpy(buffer, &value, FALCON_HEADER_DOUBLE_SIZE);
+}
+
+/*
+ * Write a 64 bit (8 byte) uint value into an uint16 buffer pointer
+ * without any conversion.
+ */
+void psl__Write64(uint16_t* buffer, uint64_t value)
+{
+    memcpy(buffer, &value, sizeof(uint64_t));
+}
+
 int psl__XMAP_WriteBufferHeader_MM1(MMC1_Data* mm1)
 {
     int status = XIA_SUCCESS;
@@ -907,10 +970,19 @@ int psl__XMAP_UpdateBufferHeader_MM1(MMC1_Data* mm1)
 
     MM_Buffers* mmb = &mm1->buffers;
 
+    uint32_t px = psl__MappingModeBuffers_Next_Pixels(mmb);
+
     uint16_t* in = (uint16_t*) psl__MappingModeBuffers_Next_Data(mmb);
 
     /* 8: number of pixels in the buffer, 16bits */
-    in[8] = (uint16_t) psl__MappingModeBuffers_Next_Pixels(mmb);
+    in[8] = (uint16_t) px;
+
+    /* 25: dropped pixels, 16bits */
+    in[25] = (uint16_t) psl__MappingModeBuffers_Next_Drops(mmb);
+
+    /* 26-27: total buffer size in words, 32 bits */
+    psl__Write32(&in[26], (XMAP_BUFFER_HEADER_SIZE +
+                           (XMAP_PIXEL_HEADER_SIZE + mm1->numMCAChannels * 2) * px));
 
     return status;
 }
@@ -968,8 +1040,12 @@ int psl__XMAP_WritePixelHeader_MM1(MMC1_Data* mm1, MM_Pixel_Stats* stats)
     /* 38,39: ch0 output events */
     psl__Write32(&in[38], stats->output_events);
 
+    /* 40 - 55: Channel statistics SITORO format, only icr and ocr are used*/
+    psl__WriteDbl(&in[40], stats->icr);
+    psl__WriteDbl(&in[48], stats->ocr);
+
     /* 8->XMAP_PIXEL_HEADER_SIZE: set to 0 */
-    for (i = 40; i < XMAP_PIXEL_HEADER_SIZE; ++i)
+    for (i = 56; i < XMAP_PIXEL_HEADER_SIZE; ++i)
         in[i] = 0;
 
     psl__MappingModeBuffers_Next_MoveLevel(mmb, XMAP_PIXEL_HEADER_SIZE_U32);

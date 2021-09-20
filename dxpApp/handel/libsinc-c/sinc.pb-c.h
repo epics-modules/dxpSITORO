@@ -272,9 +272,6 @@ struct  _SiToro__Sinc__GetParamCommand
   char *key;
   protobuf_c_boolean has_channelid;
   int32_t channelid;
-  /*
-   * for fetching multiple params - not implemented yet.
-   */
   size_t n_chankeys;
   SiToro__Sinc__KeyValue **chankeys;
 };
@@ -405,12 +402,24 @@ struct  _SiToro__Sinc__StartOscilloscopeCommand
 {
   ProtobufCMessage base;
   uint32_t reserved;
+  /*
+   * Deprecated.
+   */
   protobuf_c_boolean has_samples;
   uint32_t samples;
+  /*
+   * Deprecated.
+   */
   protobuf_c_boolean has_runcontinuously;
   protobuf_c_boolean runcontinuously;
+  /*
+   * Deprecated.
+   */
   protobuf_c_boolean has_senddataresults;
   protobuf_c_boolean senddataresults;
+  /*
+   * Deprecated.
+   */
   size_t n_option;
   char **option;
   protobuf_c_boolean has_channelid;
@@ -892,6 +901,9 @@ struct  _SiToro__Sinc__ProbeDatagramCommand
 struct  _SiToro__Sinc__DownloadCrashDumpCommand
 {
   ProtobufCMessage base;
+  /*
+   * deprecated.
+   */
   char *timestamp;
 };
 #define SI_TORO__SINC__DOWNLOAD_CRASH_DUMP_COMMAND__INIT \
@@ -905,6 +917,9 @@ struct  _SiToro__Sinc__DownloadCrashDumpResponse
   SiToro__Sinc__SuccessResponse *success;
   protobuf_c_boolean has_content;
   ProtobufCBinaryData content;
+  /*
+   * deprecated.
+   */
   char *timestamp;
   protobuf_c_boolean has_new_;
   protobuf_c_boolean new_;

@@ -186,7 +186,7 @@ message KeyValue {
 message GetParamCommand {
     optional string          key = 1;
     optional int32           channelId = 2;
-    repeated KeyValue        chanKeys = 3; // for fetching multiple params - not implemented yet.
+    repeated KeyValue        chanKeys = 3;
 }
 
 
@@ -314,10 +314,10 @@ message StartListModeCommand {
 
 message StartOscilloscopeCommand {
     required uint32          reserved = 1;
-    optional uint32          samples = 6;
-    optional bool            runContinuously = 2;
-    optional bool            sendDataResults = 3;
-    repeated string          option = 4;
+    optional uint32          samples = 6;         // Deprecated.
+    optional bool            runContinuously = 2; // Deprecated.
+    optional bool            sendDataResults = 3; // Deprecated.
+    repeated string          option = 4;          // Deprecated.
     optional int32           channelId = 5;
 }
 
@@ -721,7 +721,7 @@ message ProbeDatagramCommand {
 // downloaded to prevent unnecessary re-downloading later.
 
 message DownloadCrashDumpCommand {
-    optional string timestamp = 1;
+    optional string timestamp = 1; // deprecated.
 }
 
 
@@ -731,7 +731,7 @@ message DownloadCrashDumpCommand {
 message DownloadCrashDumpResponse {
     optional SuccessResponse    success = 1;
     optional bytes              content = 2;
-    optional string             timestamp = 3;
+    optional string             timestamp = 3; // deprecated.
     optional bool               new = 4;
 }
 

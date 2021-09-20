@@ -273,7 +273,7 @@ bool LmBufGetJsonHeader(LmBuf *lm, char **data, size_t *len, bool *invalidHeader
     }
 
     jsonLen = (size_t)atoi(jsonLenBuf);
-    if (jsonLen <= 0 || jsonLen > 1000000)
+    if (jsonLen > 1000000)
     {
         /* Bad JSON size. Corrupted packet. */
         *invalidHeader = true;
@@ -367,6 +367,7 @@ static bool LmBufGetPulsePacket(LmBuf *lm, LmPacket *packet, uint32_t word0, uns
 
     packet->typ = LmPacketTypePulse;
     packet->p.pulse.amplitude = (int32_t)LMBUF_SIGN_EXTEND_24_TO_32(word0);
+    packet->p.pulse.reserved1 = (word0 >> 24) & 0x7;
     packet->p.pulse.invalid = (word0 & 0x08000000) != 0;
 
     if (word1EventType == LmEventTypePulseToa)
@@ -374,6 +375,7 @@ static bool LmBufGetPulsePacket(LmBuf *lm, LmPacket *packet, uint32_t word0, uns
         packet->p.pulse.hasTimeOfArrival = true;
         packet->p.pulse.timeOfArrival = (word1 >> 8) & 0xfff;
         packet->p.pulse.subSampleTimeOfArrival = word1 & 0xff;
+        packet->p.pulse.reserved2 = (word1 >> 20) & 0xff;
         packet->p.pulse.inMarkedRange = ((word1 >> 20) & 0x1) != 0;
         *packetBytes = sizeof(uint32_t) * 2;
     }
@@ -382,6 +384,7 @@ static bool LmBufGetPulsePacket(LmBuf *lm, LmPacket *packet, uint32_t word0, uns
         packet->p.pulse.hasTimeOfArrival = false;
         packet->p.pulse.timeOfArrival = 0;
         packet->p.pulse.subSampleTimeOfArrival = 0;
+        packet->p.pulse.reserved2 = 0;
         packet->p.pulse.inMarkedRange = false;
         *packetBytes = sizeof(uint32_t);
     }
@@ -444,6 +447,7 @@ static bool LmBufGetGateStatePacket(LmPacket *packet, uint32_t word0, unsigned i
 
     /* Make the decoded packet. */
     packet->typ = LmPacketTypeGateState;
+    packet->p.gateState.reserved = (word0 >> 25) & 0x7;
     packet->p.gateState.gate = (word0 & 0x1000000) != 0;
     packet->p.gateState.timestamp = word0 & 0xffffff;
 
@@ -470,6 +474,7 @@ static bool LmBufGetSyncPacket(LmPacket *packet, uint32_t word0, unsigned int *p
 
     /* Make the decoded packet. */
     packet->typ = LmPacketTypeSync;
+    packet->p.sync.reserved = (word0 >> 24) & 0xf;
     packet->p.sync.timestamp = word0 & 0x00ffffff;
 
     return true;
@@ -493,10 +498,10 @@ static bool LmBufGetNumberedPacket(LmBuf *lm, LmPacket *packet, LmEventType even
 {
     uint32_t    words[16];
     uint32_t    val_u32;
-    uint32_t    word;
+
     LmEventType seenEventType = eventType;
     uint32_t    subtype;
-    int         offset;
+    uint32_t    offset;
     int         i;
 
     /* Clear the packet contents. */
@@ -513,7 +518,7 @@ static bool LmBufGetNumberedPacket(LmBuf *lm, LmPacket *packet, LmEventType even
         }
 
         /* Get the next word of data. */
-        word = LMBUF_LM_GET_WORD(lm, offset);
+        uint32_t word = LMBUF_LM_GET_WORD(lm, offset);
         seenEventType = (word >> 28) & 0xf;
         if (seenEventType != eventType)
         {
@@ -550,10 +555,11 @@ static bool LmBufGetNumberedPacket(LmBuf *lm, LmPacket *packet, LmEventType even
     {
     case LmEventTypeGatedStats:
         packet->typ = LmPacketTypeGatedStats;
-        packet->p.gatedStats.sampleCount = (words[1] << 24) | words[0x0];
+        packet->p.gatedStats.sampleCount = ((uint64_t)words[1] << 24) | words[0x0];
         packet->p.gatedStats.erasedSampleCount = words[0x2];
         packet->p.gatedStats.saturatedSampleCount = words[0x3];
-        packet->p.gatedStats.rawIncomingPulseCount = (words[0x5] << 24) | words[0x4];
+        packet->p.spatialStats.estimatedIncomingPulseCount = words[0x4];
+        packet->p.gatedStats.rawIncomingPulseCount = words[0x5];
         for (i = 0; i < 4; i++)
         {
             packet->p.gatedStats.counter[i] = words[i+0x6];
@@ -599,7 +605,7 @@ static bool LmBufGetNumberedPacket(LmBuf *lm, LmPacket *packet, LmEventType even
         packet->typ = LmPacketTypeSpatialPosition;
         for (i = 0; i < 6; i++)
         {
-            packet->p.spatialPosition.axis[i] = (int32_t)LMBUF_SIGN_EXTEND_24_TO_32(words[i]);
+            packet->p.spatialPosition.axis[i] = LMBUF_SIGN_EXTEND_24_TO_32(words[i]);
         }
 
         packet->p.spatialPosition.timestamp = words[0xf];
@@ -668,7 +674,6 @@ bool LmBufGetNextPacket(LmBuf *lm, LmPacket *packet)
     bool         corrupted = false;
     char         errorMessage[LMBUF_ERROR_MESSAGE_BUFFER_LEN] = "error";
     unsigned int packetBytes = 0;
-    size_t       i;
 
     /* Check if we've got a word to read. */
     if (!LMBUF_CHECK_WORD_AVAILABLE(lm, 0))
@@ -743,6 +748,7 @@ bool LmBufGetNextPacket(LmBuf *lm, LmPacket *packet)
     if (!packetFound)
     {
         /* No complete packet was found. */
+        packet->len = 0;
         return false;
     }
 
@@ -753,7 +759,7 @@ bool LmBufGetNextPacket(LmBuf *lm, LmPacket *packet)
         char *errPos = packet->p.error.message;
         errPos += sprintf(packet->p.error.message, "%s at offset %zu:", errorMessage, lm->srcTailPos);
 
-        for (i = 0; i < packetBytes; i++)
+        for (size_t i = 0; i < packetBytes; i++)
         {
             if (lm->bufTail + i < lm->bufHead)
             {
@@ -774,6 +780,8 @@ bool LmBufGetNextPacket(LmBuf *lm, LmPacket *packet)
         lm->bufTail += packetBytes;
         lm->srcTailPos += packetBytes;
     }
+
+    packet->len = packetBytes;
 
     return true;
 }
@@ -1198,7 +1206,6 @@ bool LmBufGetNextPacket(LmBuf *lm, LmPacket *packet)
 
 int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, int *packetLenPtr)
 {
-    int packetLen = 0;
     int bytesWritten = 0;
 
     /* Show the packet contents. */
@@ -1209,46 +1216,41 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
         break;
 
     case LmPacketTypeStreamAlign:
-        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "align %d", packet->p.streamAlign.pattern);
-        packetLen = sizeof(uint32_t);
+        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "align %u", packet->p.streamAlign.pattern);
         break;
 
     case LmPacketTypeSync:
-        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "sync %d", packet->p.sync.timestamp);
-        packetLen = sizeof(uint32_t);
+        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "sync %u", packet->p.sync.timestamp);
         break;
 
     case LmPacketTypePulse:
         if (packet->p.pulse.hasTimeOfArrival)
         {
             bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-                                    "pulse %d %d %d %d",
+                                    "pulse %d %d %u %u",
                                     packet->p.pulse.invalid,
                                     packet->p.pulse.amplitude,
                                     packet->p.pulse.timeOfArrival,
                                     packet->p.pulse.subSampleTimeOfArrival);
-            packetLen = sizeof(uint32_t) * 2;
         }
         else
         {
             bytesWritten = snprintf(textBuf, (size_t)textBufLen, "pulseShort %d %d",
                    packet->p.pulse.invalid,
                    packet->p.pulse.amplitude);
-            packetLen = sizeof(uint32_t);
         }
         break;
 
     case LmPacketTypeGateState:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-               "gateState %d %d",
+               "gateState %d %u",
                packet->p.gateState.gate,
                packet->p.gateState.timestamp);
-        packetLen = sizeof(uint32_t);
         break;
 
     case LmPacketTypeGatedStats:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-               "gatedStats %d %d %d %d %d %d %d %d %d %d %d",
+               "gatedStats %" PRId64 " %u %u %u %u %u %u %u %u %u %u",
                packet->p.gatedStats.sampleCount,
                packet->p.gatedStats.erasedSampleCount,
                packet->p.gatedStats.saturatedSampleCount,
@@ -1260,12 +1262,11 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
                packet->p.gatedStats.counter[3],
                packet->p.gatedStats.vetoSampleCount,
                packet->p.gatedStats.timestamp);
-        packetLen = sizeof(uint32_t) * 9;
         break;
 
     case LmPacketTypeSpatialPosition:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-               "spatialPosition %d %d %d %d %d %d %d",
+               "spatialPosition %u %u %u %u %u %u %u",
                packet->p.spatialPosition.axis[0],
                packet->p.spatialPosition.axis[1],
                packet->p.spatialPosition.axis[2],
@@ -1273,12 +1274,11 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
                packet->p.spatialPosition.axis[4],
                packet->p.spatialPosition.axis[5],
                packet->p.spatialPosition.timestamp);
-        packetLen = sizeof(uint32_t) * 7;
         break;
 
     case LmPacketTypeSpatialStats:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-               "spatialStats %d %d %d %d %d %d %d %d %d %d %d",
+               "spatialStats %" PRId64 " %u %u %u %u %u %u %u %u %u %u",
                packet->p.spatialStats.sampleCount,
                packet->p.spatialStats.erasedSampleCount,
                packet->p.spatialStats.saturatedSampleCount,
@@ -1290,12 +1290,11 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
                packet->p.spatialStats.counter[3],
                packet->p.spatialStats.vetoSampleCount,
                packet->p.spatialStats.timestamp);
-        packetLen = sizeof(uint32_t) * 9;
         break;
 
     case LmPacketTypePeriodicStats:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen,
-               "periodicStats %d %d %d %d %d %d %d %d %d %d %d",
+               "periodicStats %" PRId64 " %u %u %u %u %u %u %u %u %u %u",
                packet->p.periodicStats.sampleCount,
                packet->p.periodicStats.erasedSampleCount,
                packet->p.periodicStats.saturatedSampleCount,
@@ -1307,23 +1306,20 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
                packet->p.periodicStats.counter[3],
                packet->p.periodicStats.vetoSampleCount,
                packet->p.periodicStats.timestamp);
-        packetLen = sizeof(uint32_t) * 8;
         break;
 
     case LmPacketTypeAnalogStatus:
         bytesWritten = snprintf(textBuf, (size_t)textBufLen, "analogStatus %d %d", packet->p.analogStatus.positiveSaturation, packet->p.analogStatus.negativeSaturation);
-        packetLen = sizeof(uint32_t);
         break;
 
     case LmPacketTypeInternalBufferOverflow:
-        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "internalBufferOverflow %d", packet->p.internalBufferOverflow.timestamp);
-        packetLen = sizeof(uint32_t);
+        bytesWritten = snprintf(textBuf, (size_t)textBufLen, "internalBufferOverflow %u", packet->p.internalBufferOverflow.timestamp);
         break;
     }
 
     if (packetLenPtr != NULL)
     {
-        *packetLenPtr = packetLen;
+        *packetLenPtr = (int) packet->len;
     }
 
     if (bytesWritten >= textBufLen-1)
@@ -1350,7 +1346,7 @@ int LmBufTranslatePacketSimple(char *textBuf, int textBufLen, LmPacket *packet, 
 int LmBufTranslatePacketComplex(char *textBuf, int textBufLen, LmPacket *packet, bool hexDump, LmBuf *lmBuf, bool showOnlyErrors, bool showTimestamps, uint32_t *lastTimestamp)
 {
     int packetLen = 0;
-    int i;
+
     uint32_t ts;
     int totalWritten = 0;
     int bytesWritten = 0;
@@ -1379,7 +1375,7 @@ int LmBufTranslatePacketComplex(char *textBuf, int textBufLen, LmPacket *packet,
     if (showTimestamps)
     {
         /* Display the most recent timestamp. */
-        snprintf(bpos, (size_t)bufLen, "%d ", ts);
+        snprintf(bpos, (size_t)bufLen, "%u ", ts);
         bytesWritten = (int)strlen(bpos);
         bpos += bytesWritten;
         bufLen -= bytesWritten;
@@ -1403,7 +1399,7 @@ int LmBufTranslatePacketComplex(char *textBuf, int textBufLen, LmPacket *packet,
         totalWritten += bytesWritten;
         addr += (size_t)packetLen;
 
-        for (i = 0; i < packetLen; i++)
+        for (int i = 0; i < packetLen; i++)
         {
             int offset = (int)lmBuf->bufTail - packetLen + i;
             if (offset >= 0)
@@ -1418,4 +1414,190 @@ int LmBufTranslatePacketComplex(char *textBuf, int textBufLen, LmPacket *packet,
     }
 
     return totalWritten;
+}
+
+
+/*
+ * NAME:        LmBufWriteWord
+ * ACTION:      Writes a 32 bit word to a binary buffer.
+ * PARAMETERS:  uint8_t **buf - pointer to the buffer to write into. The pointer is automatically advanced.
+ *              int *len - the remaining space in the buffer. This is reduced after writing.
+ *              uint32_t v - the value to write.
+ */
+
+static void LmBufWriteWord(uint8_t **buf, int *len, uint32_t v)
+{
+    if (*len >= (int)sizeof(v))
+    {
+        memcpy(*buf, &v, sizeof(v));
+        *buf += sizeof(v);
+        *len -= sizeof(v);
+    }
+}
+
+
+/*
+ * NAME:        LmBufEncodePacket
+ * ACTION:      Translates a LmPacket into binary form.
+ * PARAMETERS:  uint8_t *binaryBuf - where to place the resulting binary data.
+ *              size_t textBufLen  - how large the binary buffer is.
+ *              LmPacket *packet   - the parsed packet is written here.
+ *              LmVersion version  - which historical version of the list mode format to produce.
+ * RETURNS:     int - the number of bytes placed in the binary buffer.
+ */
+
+int LmBufEncodePacket(uint8_t *binaryBuf, int binaryBufLen, LmPacket *packet, LmVersion version)
+{
+    int bytesWritten = 0;
+    uint32_t w0;
+
+    uint32_t i;
+
+    switch (packet->typ)
+    {
+    case LmPacketTypeError:
+        /* Don't output errors. */
+        break;
+
+    case LmPacketTypeStreamAlign:
+        /* Stream alignment only exists from 0.9.0 onwards. */
+        if (version >= LM_VERSION_0_9_0)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, packet->p.streamAlign.pattern);
+            bytesWritten = sizeof(uint32_t);
+        }
+        break;
+
+    case LmPacketTypeSync:
+        /* Sync word. */
+        w0 = ((uint32_t) LmEventTypeSync << 28) | ((packet->p.sync.reserved & 0xf) << 24) | (packet->p.sync.timestamp & 0x00ffffff);
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, w0);
+        bytesWritten = sizeof(uint32_t);
+        break;
+
+    case LmPacketTypePulse:
+        /* Pulse event. */
+        w0 = ((uint32_t) LmEventTypePulse << 28) | (packet->p.pulse.invalid ? (0x1 << 27) : 0) | ((packet->p.pulse.reserved1 & 0xf) << 24) | ((uint32_t)packet->p.pulse.amplitude & 0x00ffffff);
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, w0);
+        bytesWritten = sizeof(uint32_t);
+
+        if (packet->p.pulse.hasTimeOfArrival)
+        {
+            uint32_t w1 = ((uint32_t) LmEventTypePulseToa << 28) | ((packet->p.pulse.reserved2 & 0xff) << 20) | (packet->p.pulse.inMarkedRange ? (0x1 << 20) : 0) | ((packet->p.pulse.timeOfArrival & 0xfff) << 8) | (packet->p.pulse.subSampleTimeOfArrival & 0xff);
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, w1);
+            bytesWritten += sizeof(uint32_t);
+        }
+        break;
+
+    case LmPacketTypeGateState:
+        /* Gate state event. */
+        w0 = ((uint32_t)LmEventTypeGateState << 28) | ((packet->p.gateState.reserved & 0x7) << 25) | (packet->p.gateState.gate ? (0x1 << 24) : 0) | ((uint32_t)packet->p.gateState.timestamp & 0x00ffffff);
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, w0);
+        bytesWritten = sizeof(uint32_t);
+        break;
+
+    case LmPacketTypeGatedStats:
+        /* Gated statistics. */
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x0 << 24) | (uint32_t)(packet->p.gatedStats.sampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x1 << 24) | ((uint32_t)(packet->p.gatedStats.sampleCount >> 24) & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x2 << 24) | (packet->p.gatedStats.erasedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x3 << 24) | (packet->p.gatedStats.saturatedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x4 << 24) | (packet->p.gatedStats.estimatedIncomingPulseCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0x5 << 24) | (packet->p.gatedStats.rawIncomingPulseCount & 0x00ffffff));
+        for (i = 0; i < 4; i++)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | ((0x6 + i) << 24) | (packet->p.gatedStats.counter[i] & 0x00ffffff));
+        }
+
+        bytesWritten = 10 * sizeof(uint32_t);
+
+        if (version >= LM_VERSION_0_8_7)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0xa << 24) | (packet->p.gatedStats.vetoSampleCount & 0x00ffffff));
+            bytesWritten += sizeof(uint32_t);
+        }
+
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeGatedStats << 28) | (0xf << 24) | (packet->p.gatedStats.timestamp & 0x00ffffff));
+        bytesWritten += sizeof(uint32_t);
+        break;
+
+    case LmPacketTypeSpatialPosition:
+        /* Spatial position. */
+        for (i = 0; i < 6; i++)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialPosition << 28) | (i << 24) | (packet->p.spatialPosition.axis[i] & 0x00ffffff));
+        }
+
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialPosition << 28) | (0xf << 24) | (packet->p.spatialPosition.timestamp & 0x00ffffff));
+        bytesWritten = 7 * sizeof(uint32_t);
+        break;
+
+    case LmPacketTypeSpatialStats:
+        /* Spatial statistics. */
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x0 << 24) | (uint32_t)(packet->p.spatialStats.sampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x1 << 24) | ((uint32_t)(packet->p.spatialStats.sampleCount >> 24) & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x2 << 24) | (packet->p.spatialStats.erasedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x3 << 24) | (packet->p.spatialStats.saturatedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x4 << 24) | (packet->p.spatialStats.estimatedIncomingPulseCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0x5 << 24) | (packet->p.spatialStats.rawIncomingPulseCount & 0x00ffffff));
+        for (i = 0; i < 4; i++)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | ((0x6 + i) << 24) | (packet->p.spatialStats.counter[i] & 0x00ffffff));
+        }
+
+        bytesWritten = 10 * sizeof(uint32_t);
+
+        if (version >= LM_VERSION_0_8_7)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0xa << 24) | (packet->p.spatialStats.vetoSampleCount & 0x00ffffff));
+            bytesWritten += sizeof(uint32_t);
+        }
+
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypeSpatialStats << 28) | (0xf << 24) | (packet->p.spatialStats.timestamp & 0x00ffffff));
+        bytesWritten += sizeof(uint32_t);
+        break;
+
+    case LmPacketTypePeriodicStats:
+        /* Periodic statistics. */
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0x0 << 24) | (uint32_t)(packet->p.spatialStats.sampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0x2 << 24) | (packet->p.spatialStats.erasedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0x3 << 24) | (packet->p.spatialStats.saturatedSampleCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0x4 << 24) | (packet->p.spatialStats.estimatedIncomingPulseCount & 0x00ffffff));
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0x5 << 24) | (packet->p.spatialStats.rawIncomingPulseCount & 0x00ffffff));
+        for (i = 0; i < 4; i++)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | ((0x6 + i) << 24) | (packet->p.spatialStats.counter[i] & 0x00ffffff));
+        }
+
+        bytesWritten = 9 * sizeof(uint32_t);
+
+        if (version >= LM_VERSION_0_8_7)
+        {
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0xa << 24) | (packet->p.spatialStats.vetoSampleCount & 0x00ffffff));
+            bytesWritten += sizeof(uint32_t);
+        }
+
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, ((uint32_t) LmEventTypePeriodicStats << 28) | (0xf << 24) | (packet->p.spatialStats.timestamp & 0x00ffffff));
+        bytesWritten += sizeof(uint32_t);
+        break;
+
+    case LmPacketTypeAnalogStatus:
+        /* Analog status. Only available up to 0.7.1. */
+        if (version <= LM_VERSION_0_7_1)
+        {
+            w0 = ((uint32_t) LmEventTypeInternalBufferOverflow << 28) | (0x0 << 24) | (packet->p.analogStatus.positiveSaturation ? (0x1 << 19) : 0) | (packet->p.analogStatus.negativeSaturation ? (0x1 << 18) : 0);
+            LmBufWriteWord(&binaryBuf, &binaryBufLen, w0);
+            bytesWritten = sizeof(uint32_t);
+        }
+        break;
+
+    case LmPacketTypeInternalBufferOverflow:
+        /* Internal buffer overflow. */
+        w0 = ((uint32_t) LmEventTypeInternalBufferOverflow << 28) | (0x1 << 24) | (packet->p.internalBufferOverflow.timestamp & 0x00ffffff);
+        LmBufWriteWord(&binaryBuf, &binaryBufLen, w0);
+        bytesWritten = sizeof(uint32_t);
+        break;
+    }
+
+    return bytesWritten;
 }

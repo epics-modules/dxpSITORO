@@ -39,12 +39,18 @@ extern "C"
 #define SINC_READBUF_DEFAULT_SIZE 65536
 #define SINC_MAX_DATAGRAM_BYTES 65536
 
-/* Handy network write macros. These assume a little endian architecture for speed but we can substitute big endian if necessary. */
+// Handy network write macros. These assume a little endian architecture for speed but we can substitute big endian if necessary.
 #define SINC_PROTOCOL_WRITE_UINT32(buf, val) { uint32_t v = (uint32_t)val; memcpy((buf), &v, sizeof(v)); }
 #define SINC_PROTOCOL_READ_UINT16(buf) ( memcpy(&val_u16, (buf), sizeof(val_u16)), val_u16 )
 #define SINC_PROTOCOL_READ_UINT32(buf) ( memcpy(&val_u32, (buf), sizeof(val_u32)), val_u32 )
 #define SINC_PROTOCOL_READ_UINT64(buf) ( memcpy(&val_u64, (buf), sizeof(val_u64)), val_u64 )
 #define SINC_PROTOCOL_READ_DOUBLE(buf) ( memcpy(&val_double, (buf), sizeof(val_double)), val_double )
+
+// UDP histogram format minimum header size.
+#define SINC_UDP_HISTOGRAM_HEADER_SIZE_PROTOCOL_0 110
+
+// The maximum number of channels per device.
+#define MAX_DEVICE_CHANNELS 64
 
 // Prototypes from api.c.
 void SincErrorInit(SincError *err);
@@ -85,6 +91,9 @@ bool SincCopyCalibrationPulse(SincError *err, SincCalibrationPlot *pulse, int le
 
 // Prototypes from blocking.c.
 bool SincWaitForMessageType(Sinc *sc, int timeout, SincBuffer *buf, SiToro__Sinc__MessageType seekMsgType);
+
+// Prototypes from encode.c.
+void SincEncodeHistogramDatagramContent(SincBuffer *buf, int channelId, SincHistogram *accepted, SincHistogram *rejected, SincHistogramCountStats *stats);
 
 // Prototypes from decode.c.
 bool SincGetNextPacketFromBufferGeneric(SincBuffer *readBuf, uint32_t marker, SiToro__Sinc__MessageType *packetType, SincBuffer *packetBuf, int *packetFound);

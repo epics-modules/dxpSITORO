@@ -119,6 +119,7 @@ extern "C" {
     HANDEL_IMPORT int HANDEL_API xiaSuppressLogOutput(void);
     HANDEL_IMPORT int HANDEL_API xiaSetLogLevel(int level);
     HANDEL_IMPORT int HANDEL_API xiaSetLogOutput(const char *fileName);
+    HANDEL_IMPORT int HANDEL_API xiaCloseLog(void);
 
     HANDEL_IMPORT int HANDEL_API xiaSetIOPriority(int pri);
 
@@ -130,6 +131,7 @@ extern "C" {
                                                   unsigned long *peak);
     HANDEL_EXPORT void HANDEL_API xiaMemSetCheckpoint(void);
     HANDEL_EXPORT void HANDEL_API xiaMemLeaks(char *);
+    HANDEL_EXPORT char* HANDEL_API xiaGetErrorText(int errorcode);
 
 #ifdef __MEM_DBG__
 

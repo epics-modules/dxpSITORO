@@ -407,7 +407,6 @@ bool SincProbeDatagram(Sinc *sc, bool *datagramsOk)
 
     // Wait for something to happen.
     *datagramsOk = false;
-    err = SI_TORO__SINC__ERROR_CODE__NO_ERROR;
     readOk[0] = false;
 
     while (!readOk[0])
@@ -826,6 +825,8 @@ bool SincDeleteSavedConfiguration(Sinc *sc)
  * PARAMETERS:  Sinc *sc        - the sinc connection.
  *              int *channelSet - a list of the channels to monitor.
  *              int numChannels - the number of channels in the list.
+ *                                -1 to monitor all channels on the device;
+ *                                in this case channelSet is ignored.
  * RETURNS:     true on success, false otherwise. On failure use SincErrno() and
  *                  SincStrError() to get the error status.
  */

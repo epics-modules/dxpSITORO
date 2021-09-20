@@ -68,6 +68,11 @@ static void print_usage(void);
 
 #define MAX_DET_CHANNELS (8)
 
+static uint32_t header_read32(uint16_t* buffer)
+{
+    return (((uint32_t) buffer[1]) << 16) | (uint32_t) buffer[0];
+}
+
 int main(int argc, char *argv[])
 {
     const char* ini = "t_api/sandbox/xia_test_helper.ini";
@@ -103,6 +108,7 @@ int main(int argc, char *argv[])
 
     int det_channels = 4;
     int det;
+    double mca_channels = -1.0;
 
     FILE* fp[MAX_DET_CHANNELS];
     int current[MAX_DET_CHANNELS];
@@ -192,6 +198,7 @@ int main(int argc, char *argv[])
                     exit(1);
                 }
                 sscanf(argv[arg], "%lf", &wait_period);
+                wait_period /= 1000;
                 ++arg;
                 break;
             case 'd':
@@ -204,8 +211,23 @@ int main(int argc, char *argv[])
                 sscanf(argv[arg], "%d", &det_channels);
                 ++arg;
                 break;
+            case 'm':
+                ++arg;
+                if (arg >= argc) {
+                    fprintf(stderr,
+                            "error: -m requires the number of MCA channels\n");
+                    exit(1);
+                }
+                sscanf(argv[arg], "%lf", &mca_channels);
+                ++arg;
+                break;
             case 'q':
                 quiet = 1;
+                ++arg;
+                break;
+            case 'Q':
+                quiet = 2;
+                ++arg;
                 break;
             case '?':
                 print_usage();
@@ -254,6 +276,9 @@ int main(int argc, char *argv[])
 
     if (quiet == 0.0)
         xiaSetLogLevel(MD_DEBUG);
+    else
+        xiaSetLogLevel(MD_WARNING);
+
     xiaSetLogOutput("handel.log");
 
     status = xiaInit(ini);
@@ -319,6 +344,18 @@ int main(int argc, char *argv[])
 
             fprintf(stderr, "Error setting 'num_map_pixels' to %.1f.\n",
                     num_map_pixels);
+            exit(1);
+        }
+    }
+
+    if (mca_channels > 0) {
+        status = xiaSetAcquisitionValues(-1, "number_mca_channels", &mca_channels);
+
+        if (status != XIA_SUCCESS) {
+            xiaExit();
+
+            fprintf(stderr, "Error setting 'number_mca_channels' to %.1f.\n",
+                    mca_channels);
             exit(1);
         }
     }
@@ -393,6 +430,8 @@ int main(int argc, char *argv[])
         free(buffer);
         exit(1);
     }
+
+    fprintf(stdout, "Waiting for pixels...\n");
 
     /* The algorithm here is to read the current buffer, let the
      * hardware know we are done with it, write the raw buffer to disk
@@ -523,6 +562,9 @@ int main(int argc, char *argv[])
         printf("\n");
 
         for (det = 0; det < det_channels; ++det) {
+            uint16_t *in = (uint16_t *) buffer;
+            uint32_t buffer_size_u16;
+
             if (buffer_full[det]) {
                 status = xiaGetRunData(det, buffer_str[current[det]], buffer);
 
@@ -582,21 +624,36 @@ int main(int argc, char *argv[])
                     exit(1);
                 }
 
+                buffer_size_u16 = header_read32(&in[26]);
+                if (buffer_size_u16 > bufferLength * 2) {
+                    xiaStopRun(-1);
+                    xiaExit();
+
+                    fprintf(stderr, "Bad buffer size %u, max %lu\n",
+                            buffer_size_u16, bufferLength / 2);
+                    for (det = 0; det < det_channels; ++det)
+                        fclose(fp[det]);
+                    free(buffer);
+                    exit(1);
+                }
+
                 fprintf(stdout, "Buffer write: det: %d buffer:%d/%c pixel:%lu full:%d\n",
                         det, buffer_number[det],
                         buffer_done_char[current[det]], det_current_pixel,
                         buffer_full[det]);
 
-                if (fwrite(&buffer[0], sizeof(uint32_t),
-                           bufferLength, fp[det]) != bufferLength) {
-                    xiaStopRun(-1);
-                    xiaExit();
+                if (quiet < 2) {
+                    if (fwrite(&buffer[0], sizeof(uint16_t),
+                               buffer_size_u16, fp[det]) != buffer_size_u16) {
+                        xiaStopRun(-1);
+                        xiaExit();
 
-                    fprintf(stderr, "Error writing buffer.\n");
-                    for (det = 0; det < det_channels; ++det)
-                        fclose(fp[det]);
-                    free(buffer);
-                    exit(1);
+                        fprintf(stderr, "Error writing buffer.\n");
+                        for (det = 0; det < det_channels; ++det)
+                            fclose(fp[det]);
+                        free(buffer);
+                        exit(1);
+                    }
                 }
 
                 current[det] = SWAP_BUFFER(current[det]);
@@ -677,8 +734,8 @@ static int SEC_SLEEP(double time)
         .tv_nsec = (time_t) ((time - secs) * 1000000000.0)
     };
     struct timespec rem = {
-      .tv_sec = 0,
-      .tv_nsec = 0
+        .tv_sec = 0,
+        .tv_nsec = 0
     };
     while (TRUE_) {
         if (nanosleep(&req, &rem) == 0)
@@ -705,7 +762,9 @@ static void print_usage(void)
             " -s           : external sync, no manual pixel advance\n" \
             " -w msecs     : wait period in milli-seconds\n" \
             " -d detectors : number of detector channels\n" \
+            " -m mca_size  : override number of MCA channels\n" \
             " -q           : quiet, no Handel debug output\n" \
+            " -Q           : quiet, no debug output or buffer files\n" \
             "Where:\n" \
             " Pixels to capture overrides hours which overrides seconds.\n" \
             " Wait time in milli-seconds defines the polling rate.\n");

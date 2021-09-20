@@ -16,8 +16,6 @@
 #include "sinc_internal.h"
 
 
-#define SINC_UDP_HISTOGRAM_HEADER_SIZE_PROTOCOL_0 110
-
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 
@@ -475,6 +473,7 @@ bool SincCopyCalibrationPulse(SincError *err, SincCalibrationPlot *pulse, int le
     if (pulse->y == NULL)
     {
         free(pulse->x);
+        pulse->x = NULL;
         SincErrorSetCode(err, SI_TORO__SINC__ERROR_CODE__OUT_OF_MEMORY);
         return false;
     }
@@ -497,10 +496,16 @@ static void SincSFreeCalibrationPlot(SincCalibrationPlot *plot)
     if (plot != NULL)
     {
         if (plot->x != NULL)
+        {
             free(plot->x);
+            plot->x = 0;
+        }
 
         if (plot->y != NULL)
+        {
             free(plot->y);
+            plot->y = 0;
+        }
 
         memset(plot, 0, sizeof(*plot));
     }
@@ -547,15 +552,18 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
 {
     uint16_t val_u16;
     uint32_t val_u32;
+    SiToro__Sinc__OscilloscopeDataResponse *resp = NULL;
 
     if (rawCurve != NULL)
     {
+        rawCurve->len = 0;
         rawCurve->data = NULL;
         rawCurve->intData = NULL;
     }
 
     if (resetBlanked != NULL)
     {
+        resetBlanked->len = 0;
         resetBlanked->data = NULL;
         resetBlanked->intData = NULL;
     }
@@ -582,7 +590,7 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
     }
 
     // Unpack it.
-    SiToro__Sinc__OscilloscopeDataResponse *resp = si_toro__sinc__oscilloscope_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
+    resp = si_toro__sinc__oscilloscope_data_response__unpack(NULL, protobufHeaderLen, &packet->cbuf.data[startPos]);
     if (resp == NULL)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope packet");
@@ -659,8 +667,7 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
     if (numFpPlots < 2 && numIntPlots < 2)
     {
         SincErrorSetMessage(err, SI_TORO__SINC__ERROR_CODE__READ_FAILED, "corrupted oscilloscope header");
-        si_toro__sinc__oscilloscope_data_response__free_unpacked(resp, NULL);
-        return false;
+        goto errorExitDecodeOsc;
     }
 
     if (numFpPlots >= 2)
@@ -668,7 +675,6 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
         // Get optional FP-format data.
         uint32_t rawDataSamples = resp->plotlen[0];
         uint32_t resetBlankedSamples = resp->plotlen[1];
-        si_toro__sinc__oscilloscope_data_response__free_unpacked(resp, NULL);
 
         uint8_t *rawData = &packet->cbuf.data[protobufHeaderLen + startPos];  // Skip the initial protocol buffer info.
         uint8_t *dpos = rawData;
@@ -704,31 +710,30 @@ bool SincDecodeOscilloscopeDataResponse(SincError *err, SincBuffer *packet, int 
         }
     }
 
+    si_toro__sinc__oscilloscope_data_response__free_unpacked(resp, NULL);
+
     return true;
 
     /* Using a linux kernel-style cleanup method to make sure resources are freed on any failure. */
 errorExitDecodeOsc:
-    if (rawCurve != NULL && rawCurve->data != NULL)
+    if (resp != NULL)
+    {
+        si_toro__sinc__oscilloscope_data_response__free_unpacked(resp, NULL);
+    }
+
+    if (rawCurve != NULL)
     {
         free(rawCurve->data);
+        free(rawCurve->intData);
+        rawCurve->intData = NULL;
         rawCurve->data = NULL;
     }
 
-    if (rawCurve != NULL && rawCurve->intData != NULL)
-    {
-        free(rawCurve->intData);
-        rawCurve->intData = NULL;
-    }
-
-    if (resetBlanked != NULL && resetBlanked->data != NULL)
+    if (resetBlanked != NULL)
     {
         free(resetBlanked->data);
-        resetBlanked->data = NULL;
-    }
-
-    if (resetBlanked != NULL && resetBlanked->intData != NULL)
-    {
         free(resetBlanked->intData);
+        resetBlanked->data = NULL;
         resetBlanked->intData = NULL;
     }
 
@@ -1182,6 +1187,7 @@ bool SincDecodeHistogramDatagramResponse(SincError *err, SincBuffer *packet, int
         {
             // Get intensity data.
             sPos += sizeof(uint32_t) * 4;
+
             stats->numIntensity = SINC_PROTOCOL_READ_UINT32(sPos);
             sPos += sizeof(uint32_t);
 
@@ -1270,8 +1276,8 @@ errorExit:
 
     if (rejected && rejected->data != NULL)
     {
-        free(accepted->data);
-        accepted->data = NULL;
+        free(rejected->data);
+        rejected->data = NULL;
     }
 
     if (stats && stats->intensityData != NULL)
