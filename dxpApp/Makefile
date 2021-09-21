@@ -6,8 +6,8 @@ DIRS += handel
 DIRS += src
 src_DEPEND_DIRS = handel
 
-#DIRS += handel/tests
-#testSrc_DEPEND_DIRS = handel
+DIRS += handel/tests
+handel/tests_DEPEND_DIRS = handel
 
 DIRS += op
 
