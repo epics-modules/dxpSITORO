@@ -303,6 +303,8 @@ NDDxp::NDDxp(const char *portName, int nChannels, int maxBuffers, size_t maxMemo
         sprintf(attrTriggersDescription[i], "Trigger counts %d", i); 
         sprintf(attrOutputCountsName[i], "OutputCounts_%d", i); 
         sprintf(attrOutputCountsDescription[i], "Output counts %d", i);
+        sprintf(attrPixelNumberName[i], "PixelNumber_%d", i);
+        sprintf(attrPixelNumberDescription[i], "Pixel number %d", i);
     } 
 
     /* Start up acquisition thread */
@@ -1544,6 +1546,7 @@ asynStatus NDDxp::getMappingData()
                     pArray->pAttributeList->add(attrLiveTimeName[channel],     attrLiveTimeDescription[channel],     NDAttrFloat64, &triggerLiveTime);
                     pArray->pAttributeList->add(attrTriggersName[channel],     attrTriggersDescription[channel],     NDAttrInt32,   &pMPH->triggers);
                     pArray->pAttributeList->add(attrOutputCountsName[channel], attrOutputCountsDescription[channel], NDAttrInt32,   &pMPH->outputCounts);
+                    pArray->pAttributeList->add(attrPixelNumberName[channel],  attrPixelNumberDescription[channel],  NDAttrInt32,   &pMPH->pixelNumber);
                     pBuffer += arraySize;
                     pOut += pMPH->spectrumSize;
                 }
