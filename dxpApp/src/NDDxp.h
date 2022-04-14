@@ -313,6 +313,8 @@ private:
     char attrTriggersDescription    [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
     char attrOutputCountsName       [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
     char attrOutputCountsDescription[MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrPixelNumberName        [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
+    char attrPixelNumberDescription [MAX_CHANNELS_PER_SYSTEM][MAX_ATTR_NAME_LEN];
  
 };
 
