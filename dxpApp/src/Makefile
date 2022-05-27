@@ -8,6 +8,8 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
+USR_INCLUDES += -I$(TOP)/include/inc
+
 LIBRARY_IOC_Linux += dxpSITORO
 LIBRARY_IOC_WIN32 += dxpSITORO
 
