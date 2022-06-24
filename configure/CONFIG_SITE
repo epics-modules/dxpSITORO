@@ -5,3 +5,5 @@ endif
 # Use site-specific definitions from areaDetector to find HDF5, etc.
 -include $(AREA_DETECTOR)/configure/CONFIG_SITE
 
+WITH_GRAPHICSMAGICK=NO
+
