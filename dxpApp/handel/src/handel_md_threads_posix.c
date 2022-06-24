@@ -92,9 +92,9 @@ XIA_SHARED int handel_md_thread_create(handel_md_Thread* thread)
         #endif
 
         /*
-         * If the stack is not the min make it the minimum.
+         * If the stack is less than the min make it the minimum.
          */
-        #if PTHREAD_STACK_MIN
+        #ifdef PTHREAD_STACK_MIN
             if (ssize < PTHREAD_STACK_MIN)
                 ssize = PTHREAD_STACK_MIN;
         #endif
