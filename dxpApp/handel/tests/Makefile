@@ -8,6 +8,7 @@ include $(TOP)/configure/CONFIG
 #==================================================
 # build a support library
 
+USR_INCLUDES += -I$(TOP)/include/inc
 
 USR_CFLAGS_Linux += -std=c99 
 
