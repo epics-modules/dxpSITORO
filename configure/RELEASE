@@ -18,7 +18,7 @@ DXP_SITORO=$(SUPPORT)/dxpSITORO
 
 # dxp requires areaDetector, and areaDetector/configure/RELEASE_PRODS.local already defines
 # ASYN, CALC, etc.
-AREA_DETECTOR=$(SUPPORT)/areaDetector-3-11
+AREA_DETECTOR=$(SUPPORT)/areaDetector-3-12-1
 -include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
 -include $(AREA_DETECTOR)/configure/RELEASE_PRODS.local
 
