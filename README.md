@@ -9,8 +9,8 @@ and MCA of a conventional pulse-height analysis system. The term "DXP" in this d
 stands for Digital X-ray Processor.
 
 Additional information:
-* [Home page](https://cars.uchicago.edu/software/epics/dxpSITORO.html)
-* [Documentation](https://cars.uchicago.edu/software/epics/dxpSITORODoc.html).
-* [Release notes](https://cars.uchicago.edu/software/epics/dxpSITOROReleaseNotes.html).
-* [Binary releases](https://cars.uchicago.edu/software/pub/dxpSITORO).
+* [Home page](https://epics-modules.github.io/dxpSITORO)
+* [Documentation](https://epics-modules.github.io/dxpSITORO/dxpSITORODoc.html)
+* [Release notes](https://epics-modules.github.io/dxpSITIRO/dxpSITOROReleaseNotes.html)
+* [Binary releases](https://cars.uchicago.edu/software/pub/dxpSITORO)
 
