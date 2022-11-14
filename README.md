@@ -11,6 +11,6 @@ stands for Digital X-ray Processor.
 Additional information:
 * [Home page](https://epics-modules.github.io/dxpSITORO)
 * [Documentation](https://epics-modules.github.io/dxpSITORO/dxpSITORODoc.html)
-* [Release notes](https://epics-modules.github.io/dxpSITIRO/dxpSITOROReleaseNotes.html)
+* [Release notes](https://epics-modules.github.io/dxpSITORO/dxpSITOROReleaseNotes.html)
 * [Binary releases](https://cars.uchicago.edu/software/pub/dxpSITORO)
 
