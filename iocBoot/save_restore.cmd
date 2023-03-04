@@ -40,11 +40,11 @@ set_pass1_restoreFile("auto_settings.sav")
 ###
 # specify directories in which to to search for included request files
 set_requestfile_path("./")
-set_requestfile_path("$(AUTOSAVE)",   "asApp/Db")
-set_requestfile_path("$(ADCORE)",     "ADApp/Db")
-set_requestfile_path("$(CALC)",       "calcApp/Db")
-set_requestfile_path("$(DXP_SITORO)", "dxpApp/Db")
-set_requestfile_path("$(MCA)",        "mcaApp/Db")
-set_requestfile_path("$(SSCAN)",      "sscanApp/Db")
+set_requestfile_path("$(AUTOSAVE)",   "db")
+set_requestfile_path("$(ADCORE)",     "db")
+set_requestfile_path("$(CALC)",       "db")
+set_requestfile_path("$(DXP_SITORO)", "db")
+set_requestfile_path("$(MCA)",        "db")
+set_requestfile_path("$(SSCAN)",      "db")
 
-#dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db", "P=xxx:")
+#dbLoadRecords("$(AUTOSAVE)/db/save_restoreStatus.db", "P=xxx:")
