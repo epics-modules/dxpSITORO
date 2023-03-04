@@ -5,42 +5,52 @@ find . -name 'core.*' -exec rm -fv {} \;
 pushd ..
 
 tar czf $DESTINATION.tgz \
+autosave-*/db \
+autosave-*/asApp/op \
+areaDetector-*/ADCore/db \
+areaDetector-*/ADCore/ADApp/op \
+areaDetector-*/ADCore/iocBoot \
 asyn-*/db \
 asyn-*/opi \
-mca-*/mcaApp/Db/ \
-mca-*/mcaApp/op/ \
-autosave-*/asApp/Db/ \
-autosave-*/asApp/op/ \
-sscan-*/sscanApp/Db/ \
-sscan-*/sscanApp/op/ \
-areaDetector-*/ADCore/db/ \
-areaDetector-*/ADCore/ADApp/op/ \
-dxpSITORO-*/documentation \
-dxpSITORO-*/dxpApp/Db \
+calc-*/db \
+calc-*/calcApp/op \
+devIocStats-*/db \
+devIocStats-*/op \
+mca-*/db \
+mca-*/mcaApp/op \
+sscan-*/db \
+sscan-*/sscanApp/op \
+dxpSITORO-*/docs \
+dxpSITORO-*/db \
 dxpSITORO-*/dxpApp/op \
 dxpSITORO-*/bin/win* \
 dxpSITORO-*/bin/linux* \
-dxpSITORO-*/dbd/ \
+dxpSITORO-*/dbd \
 dxpSITORO-*/iocBoot
 
 rm -f $DESTINATION.zip
 zip -r -q $DESTINATION.zip   \
+autosave-*/db \
+autosave-*/asApp/op \
+areaDetector-*/ADCore/db \
+areaDetector-*/ADCore/ADApp/op \
+areaDetector-*/ADCore/iocBoot \
 asyn-*/db \
 asyn-*/opi \
-mca-*/mcaApp/Db/ \
-mca-*/mcaApp/op/ \
-autosave-*/asApp/Db/ \
-autosave-*/asApp/op/ \
-sscan-*/sscanApp/Db/ \
-sscan-*/sscanApp/op/ \
-areaDetector-*/ADCore/db/ \
-areaDetector-*/ADCore/ADApp/op/ \
-dxpSITORO-*/documentation \
-dxpSITORO-*/dxpApp/Db \
+calc-*/db \
+calc-*/calcApp/op \
+devIocStats-*/db \
+devIocStats-*/op \
+mca-*/db \
+mca-*/mcaApp/op \
+sscan-*/db \
+sscan-*/sscanApp/op \
+dxpSITORO-*/docs \
+dxpSITORO-*/db \
 dxpSITORO-*/dxpApp/op \
 dxpSITORO-*/bin/win* \
 dxpSITORO-*/bin/linux* \
-dxpSITORO-*/dbd/ \
+dxpSITORO-*/dbd \
 dxpSITORO-*/iocBoot \
 --exclude '*.svn*' --exclude '*/O.*'
 popd
