@@ -14,7 +14,7 @@ SUPPORT=/corvette/home/epics/devel
 SNCSEQ=$(SUPPORT)/seq-2-2-5
 
 MCA=$(SUPPORT)/mca-7-9
-DXP_SITORO=$(SUPPORT)/dxpSITORO
+DXP_SITORO=$(SUPPORT)/dxpSITORO-1-3
 
 # dxp requires areaDetector, and areaDetector/configure/RELEASE_PRODS.local already defines
 # ASYN, CALC, etc.
