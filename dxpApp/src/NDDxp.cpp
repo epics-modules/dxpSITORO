@@ -471,7 +471,7 @@ asynStatus NDDxp::writeInt32( asynUser *pasynUser, epicsInt32 value)
              (function == NDDxpSCATriggerMode)   ||
              (function == NDDxpSCAPulseDuration) ||
              ((function >= NDDxpSCALow[0]) &&
-              (function <= NDDxpSCAHigh[DXP_MAX_SCAS-1]))) 
+              (function <= NDDxpSCAHigh[this->maxSCAs-1]))) 
     {
         this->setSCAs(pasynUser, addr);
     }
